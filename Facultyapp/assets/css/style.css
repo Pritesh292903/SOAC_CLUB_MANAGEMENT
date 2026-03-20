@@ -1,0 +1,375 @@
+/* ================= GLOBAL RESET ================= */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
+}
+
+body{
+    background:#f8f9fb;
+    color:#2b2d42;
+}
+
+/* ================= TOPBAR / NAVBAR ================= */
+.topbar{
+    background:linear-gradient(120deg,#9b0000,#d90429);
+    padding:20px 50px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:white;
+    flex-wrap: wrap;
+    box-shadow:0 4px 15px rgba(0,0,0,.25);
+}
+
+/* BRAND / LOGO */
+.brand{
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    height:auto;
+}
+
+.brand-logo{
+    height:80px;
+    width:auto;
+    transition:transform 0.3s ease;
+}
+
+.brand-logo:hover{
+    transform:scale(1.05);
+}
+
+/* MENU LINKS */
+.menu{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:1;
+}
+
+.menu a{
+    position:relative;
+    margin:0 18px;
+    color:white;
+    text-decoration:none;
+    font-size:19px;
+    font-weight:600;
+    opacity:.9;
+    padding-bottom:8px;
+    transition:all 0.3s ease;
+}
+
+.menu a:hover{
+    opacity:1;
+    transform:translateY(-2px);
+}
+
+/* underline animation */
+.menu a::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:-6px;
+    width:0%;
+    height:3px;
+    background:white;
+    transition:0.35s ease;
+}
+
+.menu a:hover::after,
+.menu .active::after{
+    width:100%;
+}
+
+/* PROFILE SECTION */
+.profile{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:16px;
+}
+
+/* PROFILE IMAGE BUTTON */
+.profile-btn{
+    position:relative;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    overflow:hidden;
+    border:2px solid #ffffff70;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:all 0.3s ease;
+}
+
+.profile-btn img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.profile-btn:hover{
+    transform:scale(1.08);
+    border-color:#ffffff;
+}
+
+.profile-btn::after{
+    content:"";
+    position:absolute;
+    inset:-6px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,0.5);
+    opacity:0;
+    transform:scale(0.8);
+    transition:0.4s;
+}
+
+.profile-btn:hover::after{
+    opacity:1;
+    transform:scale(1);
+}
+
+/* LOGIN BUTTON */
+.login{
+    position:relative;
+    background:#ffffff30;
+    border:none;
+    padding:12px 22px;
+    font-size:16px;
+    font-weight:600;
+    color:white;
+    border-radius:30px;
+    cursor:pointer;
+    overflow:hidden;
+    transition:all 0.3s ease;
+}
+
+.login:hover{
+    background:#ffffff45;
+}
+
+.login::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-100%;
+    width:100%;
+    height:100%;
+    background:linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+    );
+    transition:0.5s;
+}
+
+.login:hover::before{
+    left:100%;
+}
+
+/* NOTIFICATION BUTTON */
+.notification-btn {
+    position: relative;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Notification Count Badge */
+.notif-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ff0000;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+/* Notification Popup Card */
+.notification-popup {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 280px;
+    background: #fff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    display: none;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.notification-popup.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+.notif-header {
+    background: linear-gradient(120deg,#9b0000,#d90429);
+    color: #fff;
+    font-weight: 600;
+    padding: 12px 16px;
+    font-size: 16px;
+}
+
+.notif-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notif-item:hover {
+    background: #f8f9fb;
+}
+
+.notif-footer {
+    padding: 10px;
+    text-align: center;
+}
+
+.notif-footer .view-all {
+    text-decoration: none;
+    font-weight: 600;
+    color: #d90429;
+}
+
+.notif-footer .view-all:hover {
+    text-decoration: underline;
+}
+
+/* FOOTER */
+.footer{
+    margin-top:40px;
+    padding:26px 50px;
+    text-align:center;
+    background:linear-gradient(120deg,#9b0000,#d90429);
+    color:#ffffff;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.4px;
+    box-shadow:0 -4px 15px rgba(0,0,0,.25);
+}
+
+/* BUTTONS */
+.btn{
+    background:#b91c1c;
+    color:#fff;
+    padding:8px 16px;
+    border-radius:8px;
+    text-decoration:none;
+    transition:.3s;
+}
+
+.btn:hover{
+    background:#991b1b;
+    transform:scale(1.05);
+}
+
+/* HAMBURGER MENU */
+.hamburger{
+    display:none;
+    flex-direction:column;
+    cursor:pointer;
+    gap:6px;
+}
+
+.hamburger span{
+    width:28px;
+    height:3px;
+    background:white;
+    border-radius:5px;
+    transition:0.3s;
+}
+
+/* MOBILE NAV */
+@media (max-width: 768px){
+    .hamburger{
+        display:flex;
+    }
+
+    .menu{
+        display:none;
+        flex-direction:column;
+        width:100%;
+        background:linear-gradient(120deg,#9b0000,#d90429);
+        padding:15px 0;
+        border-radius:12px;
+    }
+
+    .menu.show{
+        display:flex;
+        animation:slideDown 0.4s ease;
+    }
+
+    .menu a{
+        margin:10px 0;
+        font-size:17px;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:center;
+        padding:15px 20px;
+        gap:12px;
+    }
+
+    .brand{
+        justify-content:center;
+        margin-bottom:5px;
+    }
+
+    .profile{
+        justify-content:center;
+    }
+}
+
+/* RESPONSIVE LOGO */
+@media (max-width: 992px) {
+    .brand-logo {
+        height:80px;
+    }
+}
+
+@media (max-width: 768px) {
+    .brand-logo {
+        height:70px;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-logo {
+        height:60px;
+    }
+}
+
+/* ANIMATION */
+@keyframes slideDown{
+    from{
+        opacity:0;
+        transform:translateY(-10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
