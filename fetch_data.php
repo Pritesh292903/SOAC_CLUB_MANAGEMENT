@@ -9,7 +9,7 @@ $result = mysqli_query($con,"SELECT * FROM User");
 <head>
 <title>Users</title>
 </head>
-
+gg
 <body>
 
 <h2>Registered Users</h2>
