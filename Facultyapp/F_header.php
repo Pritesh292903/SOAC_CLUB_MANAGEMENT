@@ -169,7 +169,7 @@
             <a class="nav-link " href="faculty_dashboard.php">Dashboard</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="manage_clube.php">Manage Clubs</a>
+            <a class="nav-link" href="manage_clube.php">My Clubs</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="Manage_events.php">Manage Events</a>
