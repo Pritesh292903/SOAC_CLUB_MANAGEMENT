@@ -62,13 +62,10 @@ body {
     font-size: 15px;
 }
 
-/* ===== IMAGE JEVO VALIDATION ===== */
-
 .is-invalid {
     border: 1.8px solid #dc3545 !important;
 }
 
-/* White circle + red border + red ! */
 .form-group.error::after {
     content: "!";
     position: absolute;
@@ -155,15 +152,6 @@ body {
 <script>
 $(document).ready(function(){
 
-    const adminEmail = "admin@gmail.com";
-    const adminPassword = "admin@123";
-
-    const facultyEmail = "faculty@gmail.com";
-    const facultyPassword = "faculty@123";
-
-    const studentEmail = "student@gmail.com";
-    const studentPassword = "student@123";
-
     $("#loginForm").validate({
 
         rules:{
@@ -207,21 +195,21 @@ $(document).ready(function(){
 
         submitHandler:function(form){
 
-            const email = $("input[name='email']").val().trim();
-            const password = $("input[name='password']").val().trim();
+            $.ajax({
+                url:"login_process.php",
+                type:"POST",
+                data:$(form).serialize(),
 
-            if(email === adminEmail && password === adminPassword){
-                window.location.href = "../Adminapp/admin_dashboard.php";
-            }
-            else if(email === facultyEmail && password === facultyPassword){
-                window.location.href = "../Facultyapp/faculty_dashboard.php";
-            }
-            else if(email === studentEmail && password === studentPassword){
-                window.location.href = "../Studentapp/index.php";
-            }
-            else{
-                alert("Invalid email or password!");
-            }
+                success:function(response){
+
+                    if(response.trim() === "success"){
+                        window.location.href = "index.php";
+                    }
+                    else{
+                        alert(response);
+                    }
+                }
+            });
 
             return false;
         }
