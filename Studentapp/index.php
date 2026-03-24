@@ -19,52 +19,124 @@ $slider_images = mysqli_query($con, "SELECT * FROM slider_images ORDER BY id DES
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-/* ===== SLIDER STYLES ===== */
-.carousel-item {
-    padding: 0 70px;
-    box-sizing: border-box;
-}
-.carousel-item img {
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 100px;
-    transition: transform 0.5s ease;
-}
-.carousel-item img:hover { transform: scale(1.05); }
+    /* ===== SLIDER STYLES ===== */
+    .carousel-item {
+        padding: 0 70px;
+        box-sizing: border-box;
+    }
 
-/* ===== CLUB/EVENT CARDS ===== */
-.card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-.card:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
-.card-img-top.rounded-circle { transition: transform 0.3s ease; }
-.card-img-top.rounded-circle:hover { transform: rotate(10deg) scale(1.1); }
+    .carousel-item img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 100px;
+        transition: transform 0.5s ease;
+    }
 
-body { font-family: 'Segoe UI', sans-serif; background-color: #fff; color: #333; }
+    .carousel-item img:hover {
+        transform: scale(1.05);
+    }
 
-/* ===== WELCOME SECTION ===== */
-.welcome-section { background-color: #ffe5e5; padding: 30px 20px; text-align:center; border-radius:50px; }
-.welcome-section h1 { color:#d32f2f; font-weight:bold; font-size:2.5rem; }
-.welcome-section p { color:#555; font-size:1.1rem; }
+    /* ===== CLUB/EVENT CARDS ===== */
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-/* ===== CLUB CARDS ===== */
-.club-card { border:2px solid #d32f2f; border-radius:15px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-.club-card:hover { transform: translateY(-5px); box-shadow:0 12px 20px rgba(0,0,0,0.15); }
-.club-card img { width:70px; height:70px; object-fit:cover; border-radius:50%; border:2px solid #d32f2f; margin-top:15px; }
+    .card:hover {
+        transform: translateY(-5px) scale(1.03);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
 
-/* ===== EVENT CARDS ===== */
-.event-card { border:2px solid #d32f2f; border-radius:15px; overflow:hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-.event-card img { width:100%; height:180px; object-fit:cover; }
-.event-card:hover { transform: translateY(-5px); box-shadow:0 12px 20px rgba(0,0,0,0.15); }
+    .card-img-top.rounded-circle {
+        transition: transform 0.3s ease;
+    }
 
-.btn-outline-danger-custom { border-color:#d32f2f; color:#d32f2f; }
-.btn-outline-danger-custom:hover { background-color:#d32f2f; color:#fff; }
+    .card-img-top.rounded-circle:hover {
+        transform: rotate(10deg) scale(1.1);
+    }
+
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #fff;
+        color: #333;
+    }
+
+    /* ===== WELCOME SECTION ===== */
+    .welcome-section {
+        background-color: #ffe5e5;
+        padding: 30px 20px;
+        text-align: center;
+        border-radius: 50px;
+    }
+
+    .welcome-section h1 {
+        color: #d32f2f;
+        font-weight: bold;
+        font-size: 2.5rem;
+    }
+
+    .welcome-section p {
+        color: #555;
+        font-size: 1.1rem;
+    }
+
+    /* ===== CLUB CARDS ===== */
+    .club-card {
+        border: 2px solid #d32f2f;
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .club-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .club-card img {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #d32f2f;
+        margin-top: 15px;
+    }
+
+    /* ===== EVENT CARDS ===== */
+    .event-card {
+        border: 2px solid #d32f2f;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .event-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-outline-danger-custom {
+        border-color: #d32f2f;
+        color: #d32f2f;
+    }
+
+    .btn-outline-danger-custom:hover {
+        background-color: #d32f2f;
+        color: #fff;
+    }
 </style>
 
 <!-- ===== WELCOME SECTION ===== -->
 <section class="container my-2">
     <div class="welcome-section mx-auto">
         <h1>Welcome To RKU SOAC Clubs</h1>
-        <p>Explore our amazing clubs, participate in exciting events, and unleash your talent. From arts and sports to coding and performing arts, there’s a club for everyone!</p>
+        <p>Explore our amazing clubs, participate in exciting events, and unleash your talent. From arts and sports to
+            coding and performing arts, there’s a club for everyone!</p>
     </div>
 </section>
 
@@ -73,11 +145,11 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #fff; color: #333;
     <div class="carousel-inner">
         <?php
         $isFirst = true;
-        if(mysqli_num_rows($slider_images) > 0){
-            while($img = mysqli_fetch_assoc($slider_images)){
+        if (mysqli_num_rows($slider_images) > 0) {
+            while ($img = mysqli_fetch_assoc($slider_images)) {
                 $activeClass = $isFirst ? "active" : "";
-                echo '<div class="carousel-item '.$activeClass.'">
-                        <img src="../Adminapp/slider_images/'.$img['image'].'" class="d-block w-100" alt="Slider Image">
+                echo '<div class="carousel-item ' . $activeClass . '">
+                        <img src="../Adminapp/slider_images/' . $img['image'] . '" class="d-block w-100" alt="Slider Image">
                       </div>';
                 $isFirst = false;
             }
@@ -113,48 +185,6 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #fff; color: #333;
                 </div>
             </div>
         </div>
-
-        <!-- Sports Club -->
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="club-card text-center p-3 h-100">
-                <img src="assets/images/Sports.webp" alt="Sports Club">
-                <h5 class="mt-3 text-danger">Sports Club</h5>
-                <p class="text-secondary mb-1">Sports & Fitness</p>
-                <p class="text-secondary mb-2">50 Members</p>
-                <p class="text-muted small">Participate in tournaments and training sessions to stay fit.</p>
-                <div class="d-flex justify-content-center gap-2 mt-2">
-                    <a href="club_detail.php?club=sports" class="btn btn-outline-danger-custom btn-sm">Details</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Coding Club -->
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="club-card text-center p-3 h-100">
-                <img src="assets/images/codding.svg" alt="Coding Club">
-                <h5 class="mt-3 text-danger">Coding Club</h5>
-                <p class="text-secondary mb-1">Technology & Innovation</p>
-                <p class="text-secondary mb-2">40 Members</p>
-                <p class="text-muted small">Participate in hackathons and workshops to sharpen your coding skills.</p>
-                <div class="d-flex justify-content-center gap-2 mt-2">
-                    <a href="club_detail.php?club=coding" class="btn btn-outline-danger-custom btn-sm">Details</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Photography Club -->
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="club-card text-center p-3 h-100">
-                <img src="assets/images/Photography.jpg" alt="Photography Club">
-                <h5 class="mt-3 text-danger">Photography Club</h5>
-                <p class="text-secondary mb-1">Arts & Visuals</p>
-                <p class="text-secondary mb-2">45 Members</p>
-                <p class="text-muted small">Learn photography and showcase your shots in exhibitions.</p>
-                <div class="d-flex justify-content-center gap-2 mt-2">
-                    <a href="club_detail.php?club=photography" class="btn btn-outline-danger-custom btn-sm">Details</a>
-                </div>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -175,35 +205,6 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #fff; color: #333;
                 </div>
             </div>
         </div>
-
-        <!-- Sports Meet -->
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="event-card h-100 shadow-sm">
-                <img src="assets/images/s2.jpg" alt="Sports Meet">
-                <div class="p-3">
-                    <h5 class="text-danger">Sports Meet</h5>
-                    <p class="text-muted small">Participate in tournaments and training sessions for all sports enthusiasts.</p>
-                    <div class="d-flex justify-content-center gap-2 mt-2">
-                        <a href="event_details.php" class="btn btn-outline-danger-custom btn-sm">Details</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Coding Hackathon -->
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="event-card h-100 shadow-sm">
-                <img src="assets/images/s3.jpg" alt="Coding Hackathon">
-                <div class="p-3">
-                    <h5 class="text-danger">Coding Hackathon</h5>
-                    <p class="text-muted small">Showcase your coding skills and win exciting prizes in our hackathon.</p>
-                    <div class="d-flex justify-content-center gap-2 mt-2">
-                        <a href="event_details.php" class="btn btn-outline-danger-custom btn-sm">Details</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 </section>
 

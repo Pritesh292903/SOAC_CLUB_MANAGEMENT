@@ -8,7 +8,7 @@
     <!-- Heading -->
     <div class="text-center mb-5">
         <h1 class="display-4 fw-bold text-danger animate__animated animate__fadeInDown">
-            Our Events
+            Explore Our Events
         </h1>
         <p class="lead text-muted animate__animated animate__fadeInUp">
             Join exciting events and enhance your experience!
@@ -26,36 +26,6 @@
                     <p class="text-muted">25th Feb 2026</p>
                     <p>Enjoy live performances from amazing artists.</p>
                     <button class="btn btn-danger w-100 joinBtn" data-event="Music Festival">
-                        Join Event
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Event 2 -->
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100">
-                <img src="assets/images/e2.jpg" class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title text-danger">Art Exhibition</h5>
-                    <p class="text-muted">1st Mar 2026</p>
-                    <p>Explore creativity and talent from artists.</p>
-                    <button class="btn btn-danger w-100 joinBtn" data-event="Art Exhibition">
-                        Join Event
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Event 3 -->
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100">
-                <img src="assets/images/e3.webp" class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title text-danger">Tech Workshop</h5>
-                    <p class="text-muted">10th Mar 2026</p>
-                    <p>Learn latest technologies from experts.</p>
-                    <button class="btn btn-danger w-100 joinBtn" data-event="Tech Workshop">
                         Join Event
                     </button>
                 </div>
