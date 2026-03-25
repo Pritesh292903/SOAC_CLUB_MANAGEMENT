@@ -1,4 +1,19 @@
-<?php include 'header.php'; ?>
+<?php 
+include 'header.php'; 
+include "../database.php";
+
+// CHECK LOGIN
+if(!isset($_SESSION['user_id'])){
+    header("Location: login_view.php");
+    exit();
+}
+
+// FETCH LOGGED IN USER DATA
+$user_id = $_SESSION['user_id'];
+
+$result = mysqli_query($con,"SELECT * FROM User WHERE id='$user_id'");
+$user = mysqli_fetch_assoc($result);
+?>
 
 <style>
 html, body {
@@ -70,19 +85,26 @@ html, body {
 <div class="profile-wrapper">
   <div class="profile-card">
 
-    <img src="assets/images/user.jpg" class="avatar-img">
+    <!-- PROFILE IMAGE -->
+    <?php if(!empty($user['clubimage'])) { ?>
+      <img src="../uploads/<?php echo $user['clubimage']; ?>" class="avatar-img">
+    <?php } else { ?>
+      <img src="assets/images/user.jpg" class="avatar-img">
+    <?php } ?>
 
+    <!-- NAME -->
     <div class="mb-3">
       <input type="text" class="form-control"
-        value="Marmik Kalariya" readonly>
+        value="<?php echo $user['fullname']; ?>" readonly>
     </div>
 
+    <!-- EMAIL -->
     <div class="mb-3">
       <input type="email" class="form-control"
-        value="marmik.kalariya@rku.ac.in" readonly>
+        value="<?php echo $user['email']; ?>" readonly>
     </div>
 
-    <!-- Buttons -->
+    <!-- BUTTONS -->
     <div class="btn-group-custom">
       <a href="edit_profile.php" class="btn-custom">
         <i class="bi bi-pencil-square me-1"></i> Edit
