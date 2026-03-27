@@ -1,3 +1,28 @@
+<?php
+
+include "../database.php";
+
+// CHECK SESSION
+if (!isset($_SESSION['user_id'])) {
+    die("User not logged in");
+}
+
+// FETCH USER DATA
+$user_id = $_SESSION['user_id'];
+
+$result = mysqli_query($con, "SELECT * FROM user WHERE id='$user_id'");
+
+if (!$result) {
+    die("Query Failed: " . mysqli_error($con));
+}
+
+$user = mysqli_fetch_assoc($result);
+
+if (!$user) {
+    die("No user found");
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -269,7 +294,7 @@
                     <a href="admin_profile.php">
                         <img src="assets/images/profile.png" class="rounded-circle" width="35" alt="Admin Avatar">
                     </a>
-                    <span class="d-none d-md-inline">Admin</span>
+                    <span class="d-none d-md-inline"><?php echo $user['fullname']; ?></span>
                 </div>
 
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
