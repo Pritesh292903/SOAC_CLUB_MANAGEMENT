@@ -17,6 +17,8 @@
 
                 <!-- Left Side: Image Preview -->
                 <div class="col-md-4 text-center mb-4">
+                    <label class="form-label fw-semibold">Enter Your Club Image *</label>
+
                     <img src="https://via.placeholder.com/400x250?text=Event+Preview"
                          id="eventImagePreview"
                          class="img-fluid rounded-4 shadow-sm"
@@ -27,7 +29,6 @@
                            id="eventImage"
                            name="eventImage"
                            accept="image/*">
-                    <small class="text-muted">JPG, PNG or GIF (Max 5MB)</small>
                 </div>
 
                 <!-- Right Side: Event Form -->
