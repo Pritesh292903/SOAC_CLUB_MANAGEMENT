@@ -151,11 +151,6 @@ body {
             <a href="Forgotpassword.php">Forgot Password?</a>
         </div>
 
-        <!-- ✅ FORGOT PASSWORD LINK -->
-        <div class="forgot-link">
-            <a href="forgot_password.php">Forgot Password?</a>
-        </div>
-
         <button type="submit" class="login-btn">Login</button>
 
     </form>
