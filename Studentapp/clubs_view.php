@@ -130,50 +130,15 @@
                     <div class="members">35 Members</div>
                     <p>Join music events and jam sessions to improve your skills.</p>
                     <div class="d-flex justify-content-center gap-2 mt-3">
-                        <button class="club-btn joinBtn" data-club="Music Club">Join</button>
-                        <a href="club_detail.php?club=music" class="club-btn">Details</a>
+                        <a href="join_club.php?club=Music Club" class="club-btn">Join</a> <a
+                            href="club_detail.php?club=music" class="club-btn">Details</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ===== JOIN CLUB MODAL ===== -->
-    <div class="modal fade" id="joinModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Join Club</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="clubForm">
-                        <div class="mb-3">
-                            <label>Your Name</label>
-                            <input type="text" name="name" class="form-control">
-                        </div>
-                        <div class="mb-3">
-                            <label>Email</label>
-                            <input type="email" name="email" class="form-control">
-                        </div>
-                        <div class="mb-3">
-                            <label>Phone</label>
-                            <input type="text" name="phone" class="form-control">
-                        </div>
-                        <div class="mb-3">
-                            <label>Selected Club</label>
-                            <input type="text" name="club_name" id="club_name" class="form-control" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label>Why do you want to join?</label>
-                            <textarea name="message" rows="3" class="form-control"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100">Submit</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- ===== SCRIPTS ===== -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

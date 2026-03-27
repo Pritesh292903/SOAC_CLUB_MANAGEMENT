@@ -27,9 +27,9 @@
 
             <!-- Join Event Button -->
             <div class="text-center mb-4 mt-4">
-                <button class="btn btn-theme btn-lg joinBtn" data-event="Cricket Tournament">
+                <a href="join_club.php?club=Sports Club" class="btn btn-theme btn-lg">
                     Join Club
-                </button>
+                </a>
             </div>
 
             <!-- Back Button -->
@@ -39,51 +39,6 @@
 
         </div>
     </div>
-</div>
-
-<!-- ===== JOIN EVENT MODAL ===== -->
-<div class="modal fade" id="joinModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title">Join Clube</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body">
-        <form id="eventForm">
-
-            <div class="mb-3">
-                <label>Your Name</label>
-                <input type="text" name="name" class="form-control">
-            </div>
-
-            <div class="mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control">
-            </div>
-
-            <div class="mb-3">
-                <label>Phone</label>
-                <input type="text" name="phone" class="form-control">
-            </div>
-
-            <div class="mb-3">
-                <label>Selected Event</label>
-                <input type="text" name="event_name" id="event_name" class="form-control" readonly>
-            </div>
-
-            <div class="mb-3">
-                <label>Why do you want to join?</label>
-                <textarea name="message" rows="3" class="form-control"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-danger w-100">Submit</button>
-
-        </form>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ===== STYLES ===== -->
