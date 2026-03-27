@@ -55,33 +55,14 @@ body {
 
 .form-group input {
     width: 100%;
-    padding: 12px 45px 12px 14px;
+    padding: 12px 14px;
     border-radius: 12px;
     border: 1px solid #ccc;
     outline: none;
-    font-size: 15px;
 }
 
 .is-invalid {
     border: 1.8px solid #dc3545 !important;
-}
-
-.form-group.error::after {
-    content: "!";
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid #dc3545;
-    background: #fff;
-    color: #dc3545;
-    font-size: 13px;
-    font-weight: bold;
-    text-align: center;
-    line-height: 16px;
 }
 
 .invalid-feedback {
@@ -105,15 +86,22 @@ body {
     opacity: 0.9;
 }
 
+.extra-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.extra-links a {
+    font-size: 14px;
+    text-decoration: none;
+    color: #d90429;
+    font-weight: 600;
+}
+
 .login-footer {
     text-align: center;
     margin-top: 18px;
-}
-
-.login-footer a {
-    color: #d90429;
-    text-decoration: none;
-    font-weight: 600;
 }
 </style>
 </head>
@@ -127,22 +115,27 @@ body {
         <p>Login to continue</p>
     </div>
 
-    <form id="loginForm" novalidate>
+    <form id="loginForm">
 
         <div class="form-group">
             <label>Email Address</label>
-            <input type="email" name="email" placeholder="Enter your email">
+            <input type="email" name="email">
         </div>
 
         <div class="form-group">
             <label>Password</label>
-            <input type="password" name="password" placeholder="Enter your password">
+            <input type="password" name="password">
+        </div>
+
+        <!-- 🔗 Forgot Password -->
+        <div class="extra-links">
+            <span></span>
+            <a href="Forgotpassword.php">Forgot Password?</a>
         </div>
 
         <button type="submit" class="login-btn">Login</button>
 
     </form>
-
     <div class="login-footer">
         Don’t have an account? <a href="register_view.php">Register</a>
     </div>
@@ -161,7 +154,7 @@ $(document).ready(function(){
             },
             password:{
                 required:true,
-                minlength:2
+                minlength:6
             }
         },
 
@@ -180,17 +173,11 @@ $(document).ready(function(){
         errorClass:"invalid-feedback",
 
         highlight:function(element){
-            $(element)
-                .addClass("is-invalid")
-                .closest(".form-group")
-                .addClass("error");
+            $(element).addClass("is-invalid");
         },
 
         unhighlight:function(element){
-            $(element)
-                .removeClass("is-invalid")
-                .closest(".form-group")
-                .removeClass("error");
+            $(element).removeClass("is-invalid");
         },
 
         submitHandler:function(form){
@@ -201,11 +188,9 @@ $(document).ready(function(){
                 data:$(form).serialize(),
 
                 success:function(response){
-
                     if(response.trim() === "success"){
                         window.location.href = "index.php";
-                    }
-                    else{
+                    } else {
                         alert(response);
                     }
                 }
