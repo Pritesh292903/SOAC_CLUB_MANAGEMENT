@@ -71,39 +71,6 @@ body {
     margin-top: 6px;
 }
 
-/* 🔥 NEW: Forgot password style */
-.forgot-link {
-    text-align: right;
-    margin-top: -10px;
-    margin-bottom: 15px;
-}
-
-.forgot-link a {
-    font-size: 13px;
-    color: #d90429;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.forgot-link a:hover {
-    text-decoration: underline;
-}
-
-.login-btn {
-    width: 100%;
-    padding: 13px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(120deg, #9b0000, #d90429);
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.login-btn:hover {
-    opacity: 0.9;
-}
-
 .extra-links {
     display: flex;
     justify-content: space-between;
@@ -115,6 +82,17 @@ body {
     text-decoration: none;
     color: #d90429;
     font-weight: 600;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(120deg, #9b0000, #d90429);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
 }
 
 .login-footer {
@@ -145,7 +123,6 @@ body {
             <input type="password" name="password">
         </div>
 
-        <!-- 🔗 Forgot Password -->
         <div class="extra-links">
             <span></span>
             <a href="Forgotpassword.php" style="padding-bottom: 15px;">Forgot Password?</a>
@@ -154,6 +131,7 @@ body {
         <button type="submit" class="login-btn">Login</button>
 
     </form>
+
     <div class="login-footer">
         Don’t have an account? <a href="register_view.php">Register</a>
     </div>
@@ -166,14 +144,8 @@ $(document).ready(function(){
     $("#loginForm").validate({
 
         rules:{
-            email:{
-                required:true,
-                email:true
-            },
-            password:{
-                required:true,
-                minlength:6
-            }
+            email:{ required:true, email:true },
+            password:{ required:true, minlength:2 }
         },
 
         messages:{
@@ -206,9 +178,17 @@ $(document).ready(function(){
                 data:$(form).serialize(),
 
                 success:function(response){
-                    if(response.trim() === "success"){
-                        window.location.href = "index.php";
-                    } else {
+
+                    if(response.trim() == "admin"){
+                        window.location.href = "../Adminapp/admin_dashboard.php";
+                    }
+                    else if(response.trim() == "faculty"){
+                        window.location.href = "../Facultyapp/faculty_dashboard.php";
+                    }
+                    else if(response.trim() == "user"){
+                        window.location.href = "../Studentapp/index.php";
+                    }
+                    else{
                         alert(response);
                     }
                 }

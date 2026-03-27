@@ -23,7 +23,8 @@ email VARCHAR(100),
 department VARCHAR(100),
 enrollment VARCHAR(100),
 mobile VARCHAR(20),
-password VARCHAR(100)
+password VARCHAR(100),
+role ENUM('admin','faculty','user') DEFAULT 'user'
 )";
 
 mysqli_query($con, $create_table);

@@ -13,8 +13,9 @@ if(mysqli_num_rows($result) > 0){
 
     $_SESSION['user_id'] = $row['id'];
     $_SESSION['user_name'] = $row['fullname'];
+    $_SESSION['role'] = $row['role']; // 🔥 ROLE ADD
+    echo $row['role']; // 🔥 RETURN ROLE
 
-    echo "success";
 }else{
     echo "Invalid email or password!";
 }
