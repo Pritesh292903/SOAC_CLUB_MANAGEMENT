@@ -148,7 +148,7 @@ body {
         <!-- 🔗 Forgot Password -->
         <div class="extra-links">
             <span></span>
-            <a href="Forgotpassword.php">Forgot Password?</a>
+            <a href="Forgotpassword.php" style="padding-bottom: 15px;">Forgot Password?</a>
         </div>
 
         <button type="submit" class="login-btn">Login</button>
