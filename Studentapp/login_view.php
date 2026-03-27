@@ -71,6 +71,24 @@ body {
     margin-top: 6px;
 }
 
+/* 🔥 NEW: Forgot password style */
+.forgot-link {
+    text-align: right;
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
+.forgot-link a {
+    font-size: 13px;
+    color: #d90429;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.forgot-link a:hover {
+    text-decoration: underline;
+}
+
 .login-btn {
     width: 100%;
     padding: 13px;
@@ -131,6 +149,11 @@ body {
         <div class="extra-links">
             <span></span>
             <a href="Forgotpassword.php">Forgot Password?</a>
+        </div>
+
+        <!-- ✅ FORGOT PASSWORD LINK -->
+        <div class="forgot-link">
+            <a href="forgot_password.php">Forgot Password?</a>
         </div>
 
         <button type="submit" class="login-btn">Login</button>
