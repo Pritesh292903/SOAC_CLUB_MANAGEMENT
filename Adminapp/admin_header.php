@@ -218,7 +218,7 @@
         <a href="faculty_register.php"><i class="bi bi-person-plus-fill me-2"></i> Register Faculty</a>
         <a href="slider_image_page.php"><i class="bi bi-images me-2"></i> Slider Images</a>
         <a href="setting_page.php"><i class="bi bi-gear me-2"></i> Settings</a>
-        <a href="../Studentapp/login_view.php" class="text-danger"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
+        <a href="Admin_logout.php" class="text-danger"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
 
     </div>
 
