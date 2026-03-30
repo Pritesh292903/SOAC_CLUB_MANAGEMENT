@@ -44,6 +44,7 @@ body {
 }
 
 .form-group {
+    position: relative;
     margin-bottom: 20px;
 }
 
@@ -58,6 +59,7 @@ body {
     padding: 12px 14px;
     border-radius: 12px;
     border: 1px solid #ccc;
+    outline: none;
 }
 
 .is-invalid {
@@ -67,6 +69,20 @@ body {
 .invalid-feedback {
     color: #dc3545;
     font-size: 13px;
+    margin-top: 6px;
+}
+
+.extra-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.extra-links a {
+    font-size: 14px;
+    text-decoration: none;
+    color: #d90429;
+    font-weight: 600;
 }
 
 .login-btn {
@@ -78,6 +94,11 @@ body {
     color: #fff;
     font-size: 16px;
     cursor: pointer;
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 18px;
 }
 </style>
 </head>
@@ -103,9 +124,18 @@ body {
             <input type="password" name="password">
         </div>
 
+        <div class="extra-links">
+            <span></span>
+            <a href="Forgotpassword.php" style="padding-bottom: 15px;">Forgot Password?</a>
+        </div>
+
         <button type="submit" class="login-btn">Login</button>
 
     </form>
+
+    <div class="login-footer">
+        Don’t have an account? <a href="register_view.php">Register</a>
+    </div>
 
 </div>
 
@@ -117,6 +147,28 @@ $(document).ready(function(){
         rules:{
             email:{ required:true, email:true },
             password:{ required:true, minlength:2 }
+        },
+
+        messages:{
+            email:{
+                required:"Enter valid email",
+                email:"Enter valid email"
+            },
+            password:{
+                required:"Enter password",
+                minlength:"Minimum 6 characters required"
+            }
+        },
+
+        errorElement:"div",
+        errorClass:"invalid-feedback",
+
+        highlight:function(element){
+            $(element).addClass("is-invalid");
+        },
+
+        unhighlight:function(element){
+            $(element).removeClass("is-invalid");
         },
 
         submitHandler:function(form){
@@ -131,22 +183,25 @@ $(document).ready(function(){
                     response = response.trim();
 
                     if(response == "admin"){
-                        Swal.fire("Success","Admin Login","success").then(()=>{
+                        Swal.fire("Success","Admin Login Successful","success")
+                        .then(()=>{
                             window.location.href = "../Adminapp/admin_dashboard.php";
                         });
                     }
                     else if(response == "faculty"){
-                        Swal.fire("Success","Faculty Login","success").then(()=>{
+                        Swal.fire("Success","Faculty Login Successful","success")
+                        .then(()=>{
                             window.location.href = "../Facultyapp/faculty_dashboard.php";
                         });
                     }
                     else if(response == "user"){
-                        Swal.fire("Success","User Login","success").then(()=>{
+                        Swal.fire("Success","User Login Successful","success")
+                        .then(()=>{
                             window.location.href = "../Studentapp/index.php";
                         });
                     }
                     else{
-                        Swal.fire("Error",response,"error");
+                        Swal.fire("Error", response, "error");
                     }
                 }
             });
