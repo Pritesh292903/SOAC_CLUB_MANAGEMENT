@@ -1,8 +1,9 @@
 <?php
 session_start();
-include "../database.php";
+include 'F_header.php'; // Faculty header
+include "../database.php"; // DB connection
 
-// CHECK LOGIN
+// LOGIN CHECK
 if (!isset($_SESSION['user_id'])) {
     header("Location: login_view.php");
     exit();
@@ -10,20 +11,21 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// FETCH USER DATA
-$result = mysqli_query($con, "SELECT * FROM User WHERE id='$user_id'");
+// FETCH EXISTING DATA
+$result = mysqli_query($con, "SELECT * FROM Faculty_register WHERE id='$user_id'");
 $user = mysqli_fetch_assoc($result);
 
 // ================= UPDATE LOGIC =================
-if (isset($_POST['fullname'])) {
+if (isset($_POST['name'])) {
 
-    $fullname = mysqli_real_escape_string($con, $_POST['fullname']);
+    $name = mysqli_real_escape_string($con, $_POST['name']);
     $email = mysqli_real_escape_string($con, $_POST['email']);
-    $mobile = mysqli_real_escape_string($con, $_POST['phone']);
+    $mobile = mysqli_real_escape_string($con, $_POST['mobile']);
     $department = mysqli_real_escape_string($con, $_POST['department']);
+    $designation = mysqli_real_escape_string($con, $_POST['designation']);
 
     // KEEP OLD IMAGE
-    $image = !empty($user['clubimage']) ? $user['clubimage'] : 'uploads/default.png';
+    $image = !empty($user['image']) ? $user['image'] : 'uploads/default.png';
 
     // IMAGE UPLOAD
     if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] == 0) {
@@ -39,36 +41,40 @@ if (isset($_POST['fullname'])) {
 
             $new_name = "uploads/" . time() . "_" . basename($file_name);
 
-            // DELETE OLD IMAGE (optional)
-            if (!empty($user['clubimage']) && file_exists($user['clubimage'])) {
-                unlink($user['clubimage']);
+            // DELETE OLD IMAGE
+            if (!empty($user['image']) && file_exists("../" . $user['image'])) {
+                unlink("../" . $user['image']);
             }
 
-            if (move_uploaded_file($file_tmp, $new_name)) {
+            if (move_uploaded_file($file_tmp, "../" . $new_name)) {
                 $image = $new_name;
             }
         }
     }
 
     // UPDATE QUERY
-    $update = "UPDATE User SET 
-        fullname='$fullname',
+    $update = "UPDATE Faculty_register SET 
+        name='$name',
         email='$email',
         mobile='$mobile',
         department='$department',
-        clubimage='$image'
+        designation='$designation',
+        image='$image'
         WHERE id='$user_id'";
 
     if (mysqli_query($con, $update)) {
-        echo "<script>alert('✅ Profile Updated Successfully'); window.location='profile.php';</script>";
+        echo "<script>alert('✅ Profile Updated Successfully'); window.location='edit_profile.php';</script>";
         exit();
     } else {
         echo "<script>alert('❌ Error updating profile');</script>";
     }
 }
-?>
 
-<?php include 'F_header.php'; ?>
+// PROFILE IMAGE PATH
+$profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
+    ? "../" . $user['image']
+    : "assets/images/user.jpg";
+?>
 
 <div class="container my-5">
     <div class="card shadow border-0 rounded-4">
@@ -82,9 +88,7 @@ if (isset($_POST['fullname'])) {
                 <div class="col-md-4 text-center">
 
                     <img id="profilePreview"
-                        src="<?php echo (!empty($user['clubimage']) && file_exists($user['clubimage']))
-                            ? $user['clubimage']
-                            : 'assets/images/user.jpg'; ?>"
+                        src="<?php echo $profileImage; ?>"
                         class="img-fluid rounded-circle shadow"
                         style="width:180px;height:180px;object-fit:cover;">
 
@@ -105,11 +109,11 @@ if (isset($_POST['fullname'])) {
 
                     <form method="POST" enctype="multipart/form-data" novalidate>
 
-                        <!-- FULL NAME -->
+                        <!-- NAME -->
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
-                            <input type="text" name="fullname" class="form-control"
-                                value="<?php echo $user['fullname']; ?>" required>
+                            <input type="text" name="name" class="form-control"
+                                value="<?php echo $user['name']; ?>" required>
                         </div>
 
                         <!-- EMAIL -->
@@ -122,7 +126,7 @@ if (isset($_POST['fullname'])) {
                         <!-- PHONE -->
                         <div class="mb-3">
                             <label class="form-label">Phone</label>
-                            <input type="text" name="phone" class="form-control"
+                            <input type="text" name="mobile" class="form-control"
                                 value="<?php echo $user['mobile']; ?>"
                                 pattern="[0-9]{10}" required>
                         </div>
@@ -134,13 +138,15 @@ if (isset($_POST['fullname'])) {
                                 value="<?php echo $user['department']; ?>" required>
                         </div>
 
-                        <button type="submit" class="btn btn-danger">
-                            Save Changes
-                        </button>
+                        <!-- DESIGNATION -->
+                        <div class="mb-3">
+                            <label class="form-label">Designation</label>
+                            <input type="text" name="designation" class="form-control"
+                                value="<?php echo $user['designation']; ?>" required>
+                        </div>
 
-                        <a href="profile.php" class="btn btn-secondary">
-                            Cancel
-                        </a>
+                        <button type="submit" class="btn btn-danger">Save Changes</button>
+                        <a href="profile.php" class="btn btn-secondary">Cancel</a>
 
                     </form>
 
@@ -151,7 +157,7 @@ if (isset($_POST['fullname'])) {
     </div>
 </div>
 
-<!-- JS -->
+<!-- JS FOR IMAGE PREVIEW -->
 <script>
 document.getElementById("changePhotoBtn").onclick = () => {
     document.getElementById("profileImage").click();
