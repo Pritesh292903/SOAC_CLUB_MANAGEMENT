@@ -3,271 +3,264 @@
 <?php
 include "../database.php";
 
-$result = mysqli_query($con, "SELECT * FROM User");
+// SAME QUERY
+$adminFaculty = mysqli_query($con, "SELECT * FROM User WHERE role='admin' OR role='faculty'");
+$students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 ?>
 
-<!-- SweetAlert2 -->
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-/* Page Animation */
-.content {
-    animation: fadeIn 0.5s ease-in-out;
-}
+    /* YOUR SAME CSS */
+    .content {
+        animation: fadeIn 0.5s ease-in-out;
+    }
 
-@keyframes fadeIn {
-    from { opacity:0; transform:translateY(10px); }
-    to { opacity:1; transform:translateY(0); }
-}
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
 
-/* Header */
-.page-header {
-    background:#fff;
-    padding:20px 25px;
-    border-radius:15px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.05);
-}
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-.page-header h4{
-    color:#dc3545;
-}
+    .page-header {
+        background: #fff;
+        padding: 20px 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
 
-/* Card */
-.custom-card{
-    background:#fff;
-    border-radius:15px;
-    padding:25px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.05);
-    margin-bottom:30px;
-}
+    .page-header h4 {
+        color: #dc3545;
+    }
 
-/* Table Hover */
-.table tbody tr:hover{
-    background:#f8f9fa;
-}
+    .custom-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+    }
 
-/* Search Box */
-.search-box{
-    max-width:300px;
-}
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
 
-/* Image */
-.user-thumb{
-    width:45px;
-    height:45px;
-    border-radius:50%;
-    object-fit:cover;
-}
+    .search-box {
+        max-width: 300px;
+    }
 
-/* Buttons */
-.action-btn{
-    border-radius:50px;
-    padding:5px 10px;
-}
+    .user-thumb {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
 
-/* Badges */
-.badge-admin{ background:#dc3545; }
-.badge-faculty{ background:#ff6b6b; }
-.badge-active{ background:#28a745; }
-.badge-pending{ background:#ffc107; color:#000; }
+    .action-btn {
+        border-radius: 50px;
+        padding: 5px 10px;
+    }
+
+    .badge-admin {
+        background: #dc3545;
+    }
+
+    .badge-faculty {
+        background: #ff6b6b;
+    }
+
+    .badge-active {
+        background: #28a745;
+    }
+
+    .badge-pending {
+        background: #ffc107;
+        color: #000;
+    }
 </style>
 
 <div class="content">
 
-<!-- Header -->
-<div class="page-header d-flex justify-content-between align-items-center mb-4">
-<div>
-<h4 class="fw-bold mb-0">All Users</h4>
-<small class="text-muted">Manage system users here</small>
-</div>
+    <!-- HEADER -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">All Users</h4>
+            <small class="text-muted">Manage system users here</small>
+        </div>
 
-<a href="faculty_register.php" class="btn btn-danger">
-<i class="bi bi-person-plus-fill"></i> Faculty Register
-</a>
-</div>
+        <a href="faculty_register.php" class="btn btn-danger">
+            <i class="bi bi-person-plus-fill"></i> Faculty Register
+        </a>
+    </div>
 
-<!-- ================= USER SECTION ================= -->
-<div class="custom-card">
+    <!-- ADMIN & FACULTY -->
+    <div class="custom-card">
 
-<h5 class="text-danger mb-3">Admin & Faculty Users</h5>
 
-<div class="table-responsive">
-<table class="table align-middle">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-danger mb-0">Admin & Faculty Users</h5>
+            <input type="text" id="studentSearch" class="form-control search-box" placeholder="Search student...">
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
 
-<thead class="table-light">
-<tr>
-<th>#</th>
-<th>Name</th>
-<th>Email</th>
-<th>Role</th>
-<th>Status</th>
-<th class="text-center">Action</th>
-</tr>
-</thead>
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
 
-<tbody>
+                <tbody>
 
-<tr>
-<td>1</td>
-<td>
-<img src="assets/images/p2.webp" class="user-thumb me-2">
-Pritesh Bharadwa
-</td>
-<td>admin@gmail.com</td>
-<td><span class="badge badge-admin">Admin</span></td>
-<td><span class="badge badge-active">Active</span></td>
-<td class="text-center">
-<button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
-<i class="bi bi-trash"></i>
-</button>
-</td>
-</tr>
+                    <?php
+                    $i = 1;
+                    while ($row = mysqli_fetch_assoc($adminFaculty)) {
 
-<tr>
-<td>2</td>
-<td>
-<img src="assets/images/p2.webp" class="user-thumb me-2">
-Yashgiri gauswami
-</td>
-<td>faculty@gmail.com</td>
-<td><span class="badge badge-faculty">Faculty</span></td>
-<td><span class="badge badge-active">Active</span></td>
-<td class="text-center">
-<button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
-<i class="bi bi-trash"></i>
-</button>
-</td>
-</tr>
+                        // 🔥 ONLY FIX (IMAGE PATH)
+                        $img = (!empty($row['clubimage']) && file_exists("../uploads/" . $row['clubimage']))
+                            ? "../uploads/" . $row['clubimage']
+                            : "assets/images/p2.webp";
+                        ?>
 
-<tr>
-<td>3</td>
-<td>
-<img src="assets/images/p2.webp" class="user-thumb me-2">
-marmik kalariya
-</td>
-<td>m.faculty@gmail.com</td>
-<td><span class="badge badge-faculty">Faculty</span></td>
-<td><span class="badge badge-active">Active</span></td>
-<td class="text-center">
-<button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
-<i class="bi bi-trash"></i>
-</button>
-</td>
-</tr>
+                        <tr>
+                            <td><?php echo $i++; ?></td>
 
-</tbody>
+                            <td>
+                                <img src="<?php echo $img; ?>" class="user-thumb me-2">
+                                <?php echo $row['fullname']; ?>
+                            </td>
 
-</table>
-</div>
+                            <td><?php echo $row['email']; ?></td>
 
-</div>
+                            <td>
+                                <span class="badge badge-admin"><?php echo $row['role']; ?></span>
+                            </td>
 
-<!-- ================= STUDENT SECTION ================= -->
-<div class="custom-card">
+                            <td><span class="badge badge-active">Active</span></td>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-<h5 class="text-danger mb-0">All Students List</h5>
-<input type="text" id="studentSearch" class="form-control search-box" placeholder="Search student...">
-</div>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
 
-<div class="table-responsive">
-<table class="table align-middle" id="studentTable">
+                        </tr>
 
-<thead class="table-light">
-<tr>
-<th>#</th>
-<th>Photo</th>
-<th>Name</th>
-<th>Enrollment</th>
-<th>Email</th>
-<th>Mobile</th>
-<th>Department</th>
-<th>Status</th>
-<th class="text-center">Action</th>
-</tr>
-</thead>
+                    <?php } ?>
 
-<tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<?php
-while ($row = mysqli_fetch_assoc($result)) {
-?>
+    <!-- STUDENTS -->
+    <div class="custom-card">
 
-<tr>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-danger mb-0">All Students List</h5>
+            <input type="text" id="studentSearch" class="form-control search-box" placeholder="Search student...">
+        </div>
 
-<td><?php echo $row['id']; ?></td>
+        <div class="table-responsive">
+            <table class="table align-middle" id="studentTable">
 
-<td>
-<img src="../uploads/<?php echo $row['clubimage']; ?>" class="user-thumb">
-</td>
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Photo</th>
+                        <th>Name</th>
+                        <th>Enrollment</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
 
-<td><?php echo $row['fullname']; ?></td>
+                <tbody>
 
-<td><?php echo $row['enrollment']; ?></td>
+                    <?php
+                    $i = 1;
+                    while ($row = mysqli_fetch_assoc($students)) {
 
-<td><?php echo $row['email']; ?></td>
+                        // 🔥 ONLY FIX (IMAGE PATH)
+                        $img = (!empty($row['clubimage']) && file_exists("../uploads/" . $row['clubimage']))
+                            ? "../uploads/" . $row['clubimage']
+                            : "assets/images/p2.webp";
+                        ?>
 
-<td><?php echo $row['mobile']; ?></td>
+                        <tr>
+                            <td><?php echo $i++; ?></td>
 
-<td><?php echo $row['department']; ?></td>
+                            <td>
+                                <img src="<?php echo $img; ?>" class="user-thumb">
+                            </td>
 
-<td><span class="badge badge-active">Approved</span></td>
+                            <td><?php echo $row['fullname']; ?></td>
+                            <td><?php echo $row['enrollment']; ?></td>
+                            <td><?php echo $row['email']; ?></td>
+                            <td><?php echo $row['mobile']; ?></td>
+                            <td><?php echo $row['department']; ?></td>
 
-<td class="text-center">
-<button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
-<i class="bi bi-trash"></i>
-</button>
-</td>
+                            <td><span class="badge badge-active">Approved</span></td>
 
-</tr>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
 
-<?php } ?>
+                    <?php } ?>
 
-</tbody>
-
-</table>
-</div>
-
-</div>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
+    // DELETE
+    $('.delete-btn').click(function (e) {
+        e.preventDefault();
+        let row = $(this).closest('tr');
 
-/* Delete SweetAlert */
-$('.delete-btn').click(function(e){
-e.preventDefault();
+        Swal.fire({
+            title: 'Are you sure?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                row.remove();
+                Swal.fire('Deleted!', '', 'success');
+            }
+        });
+    });
 
-let row = $(this).closest('tr');
-
-Swal.fire({
-title:'Are you sure?',
-text:"This record will be permanently deleted!",
-icon:'warning',
-showCancelButton:true,
-confirmButtonColor:'#dc3545',
-cancelButtonColor:'#6c757d',
-confirmButtonText:'Yes, delete!'
-}).then((result)=>{
-if(result.isConfirmed){
-row.remove();
-Swal.fire('Deleted!','Record deleted successfully.','success');
-}
-});
-});
-
-/* Student Search */
-$('#studentSearch').on('keyup', function(){
-let value=$(this).val().toLowerCase();
-
-$("#studentTable tbody tr").filter(function(){
-$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-});
-});
-
+    // SEARCH
+    $('#studentSearch').on('keyup', function () {
+        let value = $(this).val().toLowerCase();
+        $("#studentTable tbody tr").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
 </script>
 
 <?php include 'admin_footer.php'; ?>
