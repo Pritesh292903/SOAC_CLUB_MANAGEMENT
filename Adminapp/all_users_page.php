@@ -106,7 +106,7 @@ $students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="text-danger mb-0">Admin & Faculty Users</h5>
-            <input type="text" id="studentSearch" class="form-control search-box" placeholder="Search student...">
+            <input type="text" id="facultySearch" class="form-control search-box" placeholder="Search student...">
         </div>
         <div class="table-responsive">
             <table class="table align-middle">

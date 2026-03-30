@@ -13,7 +13,6 @@ mysqli_query($con, "CREATE DATABASE IF NOT EXISTS SOAE_CLUB");
 
 // Select Database
 mysqli_select_db($con, "SOAE_CLUB");
-
 // Create User Table
 $create_table = "CREATE TABLE IF NOT EXISTS User(
 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -29,10 +28,27 @@ role ENUM('admin','faculty','user') DEFAULT 'user'
 mysqli_query($con, $create_table);
 
 
+//faculty registration
+// Select Database
+mysqli_select_db($con, "SOAE_CLUB");
+// Create User Table
+$create_table = "CREATE TABLE IF NOT EXISTS Faculty_register(
+id INT AUTO_INCREMENT PRIMARY KEY,
+image VARCHAR(255),
+name VARCHAR(100),
+email VARCHAR(100) UNIQUE,
+mobile VARCHAR(15),
+department VARCHAR(100),
+designation VARCHAR(100),
+password VARCHAR(255),
+role ENUM('admin','faculty','user') DEFAULT 'faculty'
+)";
+mysqli_query($con, $create_table);
+
+
 // Create Slider Table
 mysqli_select_db($con, "SOAE_CLUB");
 mysqli_query($con, "CREATE TABLE IF NOT EXISTS slider_images (
-
 id INT AUTO_INCREMENT PRIMARY KEY,
 image VARCHAR(255)
 
