@@ -1,11 +1,80 @@
-<?php include 'header.php'; ?>
+<?php
+include 'header.php';
+include "../database.php";   // ✅ FIX PATH
+
+// ❌ session_start() REMOVE (already in header)
+
+// CHECK LOGIN
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login_view.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// ================= FETCH USER DATA =================
+$result = mysqli_query($con, "SELECT * FROM User WHERE id='$user_id'");
+$user = mysqli_fetch_assoc($result);
+
+// ================= UPDATE CODE =================
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+
+    $fullname = $_POST['fullname'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $department = $_POST['department'] ?? '';
+    $designation = $_POST['designation'] ?? '';
+
+    // IMAGE UPLOAD
+    if (!empty($_FILES['photo']['name'])) {
+
+        $folder = "uploads/";
+        if (!is_dir($folder)) {
+            mkdir($folder);
+        }
+
+        $filename = time() . "_" . $_FILES['photo']['name'];
+        $path = $folder . $filename;
+
+        move_uploaded_file($_FILES['photo']['tmp_name'], $path);
+
+        $update = "UPDATE User SET 
+            fullname='$fullname',
+            email='$email',
+            mobile='$phone',
+            department='$department',
+            designation='$designation',
+            clubimage='$path'
+            WHERE id='$user_id'";
+    } else {
+
+        $update = "UPDATE User SET 
+            fullname='$fullname',
+            email='$email',
+            mobile='$phone',
+            department='$department',
+            designation='$designation'
+            WHERE id='$user_id'";
+    }
+
+    mysqli_query($con, $update);
+
+    echo "<script>
+    Swal.fire({
+        title: 'Profile Updated!',
+        icon: 'success'
+    }).then(() => {
+        window.location.href='profile_view.php';
+    });
+    </script>";
+}
+?>
 
 <div class="container my-5">
 
     <div class="card shadow border-0 rounded-4">
         <div class="card-body p-4">
 
-            <!-- Page Title -->
             <div class="mb-4">
                 <h2 class="fw-bold text-danger">
                     <i class="bi bi-person-circle me-2"></i>Edit Profile
@@ -15,177 +84,86 @@
 
             <div class="row">
 
-                <!-- Left Side: Profile Image -->
+                <!-- IMAGE -->
                 <div class="col-md-4 text-center mb-4">
 
-                    <img id="profilePreview" src="assets/images/user.jpg"
-                        class="img-fluid rounded-circle shadow"
-                        style="width:180px; height:180px; object-fit:cover;">
+                    <img id="profilePreview"
+                        src="<?php echo !empty($user['clubimage']) ? $user['clubimage'] : 'assets/images/user.jpg'; ?>"
+                        class="img-fluid rounded-circle shadow" style="width:180px; height:180px; object-fit:cover;">
 
-                    <input type="file" id="photoInput" accept="image/*" style="display:none;">
+                    <input type="file" name="photo" id="photoInput" accept="image/*" style="display:none;">
 
                     <div class="mt-3">
-                        <button type="button" id="changePhotoBtn"
-                            class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <button type="button" id="changePhotoBtn" class="btn btn-outline-secondary btn-sm rounded-pill">
                             Change Photo
                         </button>
                     </div>
                 </div>
 
-                <!-- Right Side: Form -->
+                <!-- FORM -->
                 <div class="col-md-8">
 
-                    <form id="editProfileForm">
+                    <!-- ✅ IMPORTANT FIX -->
+                    <form method="POST" enctype="multipart/form-data">
 
-                        <!-- Full Name -->
-                        <div class="mb-3 position-relative">
+                        <div class="mb-3">
                             <label class="form-label fw-semibold">Full Name</label>
-                            <input type="text" name="fullname"
-                                class="form-control rounded-3 pe-5"
-                                value="kalariya Marmik S.">
-                            <span class="error-icon">!</span>
+                            <input type="text" name="fullname" class="form-control"
+                                value="<?php echo $user['fullname']; ?>">
                         </div>
 
-                        <!-- Email -->
-                        <div class="mb-3 position-relative">
-                            <label class="form-label fw-semibold">Email</label>
-                            <input type="email" name="email"
-                                class="form-control rounded-3 pe-5"
-                                value="mkalariya518@rku.ac.in">
-                            <span class="error-icon">!</span>
+                        <div class="mb-3">
+                            <label>Email</label>
+                            <input type="email" name="email" class="form-control" value="<?php echo $user['email']; ?>">
                         </div>
 
-                        <!-- Phone -->
-                        <div class="mb-3 position-relative">
-                            <label class="form-label fw-semibold">Phone Number</label>
-                            <input type="tel" name="phone"
-                                class="form-control rounded-3 pe-5"
-                                value="9726866944">
-                            <span class="error-icon">!</span>
+                        <div class="mb-3">
+                            <label>Phone</label>
+                            <input type="text" name="phone" class="form-control" value="<?php echo $user['mobile']; ?>">
                         </div>
 
-                        <!-- Department -->
-                        <div class="mb-3 position-relative">
-                            <label class="form-label fw-semibold">Department</label>
-                            <input type="text" name="department"
-                                class="form-control rounded-3 pe-5"
-                                value="COMPUTER ENGINEERING">
-                            <span class="error-icon">!</span>
+                        <div class="mb-3">
+                            <label>Department</label>
+                            <input type="text" name="department" class="form-control"
+                                value="<?php echo $user['department']; ?>">
                         </div>
 
-                        <!-- Designation -->
-                        <div class="mb-4 position-relative">
-                            <label class="form-label fw-semibold">Designation</label>
-                            <input type="text" name="designation"
-                                class="form-control rounded-3 pe-5"
-                                value="PROBLEM SOLVING">
-                            <span class="error-icon">!</span>
-                        </div>
+                        
 
-                        <div class="d-flex gap-3">
-                            <button type="submit"
-                                class="btn btn-danger rounded-pill px-4">
-                                Save Changes
-                            </button>
+                        <button type="submit" class="btn btn-danger">
+                            Save Changes
+                        </button>
 
-                            <a href="profile_view.php"
-                                class="btn btn-secondary rounded-pill px-4">
-                                Cancel
-                            </a>
-                        </div>
+                        <a href="profile_view.php" class="btn btn-secondary">
+                            Cancel
+                        </a>
 
                     </form>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
 
-<!-- ================== STYLE ================== -->
-<style>
-input.error{
-    border:2px solid red !important;
-    background:#fff5f5;
-}
-
-label.error{
-    color:red;
-    font-size:14px;
-    margin-top:5px;
-    display:block;
-}
-
-.error-icon{
-    position:absolute;
-    right:15px;
-    top:42px;
-    color:red;
-    font-weight:bold;
-    font-size:18px;
-    display:none;
-}
-</style>
-
-<!-- ================== SCRIPTS ================== -->
-
+<!-- JS -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
-
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<?php
-include "database.php";
-session_start();
+<script>
+    // IMAGE CLICK
+    $("#changePhotoBtn").click(function () {
+        $("#photoInput").click();
+    });
 
-$user_id = $_SESSION['user_id'];
-
-$fullname = $_POST['fullname'];
-$email = $_POST['email'];
-$phone = $_POST['phone'];
-$department = $_POST['department'];
-$designation = $_POST['designation'];
-
-// IMAGE UPLOAD
-if(isset($_FILES['photo']['name']) && $_FILES['photo']['name'] != ""){
-    
-    $folder = "uploads/";
-    $filename = time() . "_" . $_FILES['photo']['name'];
-    $path = $folder . $filename;
-
-    move_uploaded_file($_FILES['photo']['tmp_name'], $path);
-
-    $update = "UPDATE User SET 
-        fullname='$fullname',
-        email='$email',
-        mobile='$phone',
-        department='$department',
-        clubimage='$path'
-        WHERE id='$user_id'";
-
-} else {
-
-    $update = "UPDATE User SET 
-        fullname='$fullname',
-        email='$email',
-        mobile='$phone',
-        department='$department'
-        WHERE id='$user_id'";
-}
-
-mysqli_query($con, $update);
-
-// REDIRECT WITH SUCCESS
-echo "<script>
-Swal.fire({
-    title: 'Profile Updated!',
-    text: 'Your changes saved successfully',
-    icon: 'success'
-}).then(() => {
-    window.location.href='profile_view.php';
-});
-</script>";
-?>
+    // PREVIEW
+    $("#photoInput").change(function (e) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            $("#profilePreview").attr("src", e.target.result);
+        }
+        reader.readAsDataURL(this.files[0]);
+    });
+</script>
 
 <?php include 'footer.php'; ?>
