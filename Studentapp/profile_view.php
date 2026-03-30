@@ -8,10 +8,11 @@ if(!isset($_SESSION['user_id'])){
     exit();
 }
 
-// FETCH LOGGED IN USER DATA
+// FETCH LATEST USER DATA
 $user_id = $_SESSION['user_id'];
 
-$result = mysqli_query($con,"SELECT * FROM User WHERE id='$user_id'");
+$query = "SELECT * FROM User WHERE id='$user_id'";
+$result = mysqli_query($con, $query);
 $user = mysqli_fetch_assoc($result);
 ?>
 
@@ -68,7 +69,6 @@ html, body {
   text-align: center;
   color: #fff;
   background: linear-gradient(120deg, #9b0000, #d90429);
-  transition: 0.3s;
 }
 
 .btn-custom:hover {
@@ -93,33 +93,32 @@ html, body {
     <?php } ?>
 
     <!-- NAME -->
-    <div class="mb-3">
-      <input type="text" class="form-control"
-        value="<?php echo $user['fullname']; ?>" readonly>
-    </div>
+    <input type="text"  class="form-control"
+      value="<?php echo $user['fullname'] ?? ''; ?>" readonly>
 
     <!-- EMAIL -->
-    <div class="mb-3">
-      <input type="email" class="form-control"
-        value="<?php echo $user['email']; ?>" readonly>
-    </div>
+    <input type="email"  class="form-control"
+      value="<?php echo $user['email'] ?? ''; ?>" readonly>
+
+    <!-- PHONE -->
+    <input type="text"   class="form-control"
+      value="<?php echo $user['phone'] ?? ''; ?>" readonly>
+
+    <!-- DEPARTMENT -->
+    <input type="text"  class="form-control"
+      value="<?php echo $user['department'] ?? ''; ?>" readonly>
+
+    <!-- DESIGNATION -->
+    <input type="text"  class="form-control"
+      value="<?php echo $user['designation'] ?? ''; ?>" readonly>
 
     <!-- BUTTONS -->
     <div class="btn-group-custom">
-      <a href="edit_profile.php" class="btn-custom">
-        <i class="bi bi-pencil-square me-1"></i> Edit
-      </a>
-
-      <a href="change_password.php" class="btn-custom">
-        <i class="bi bi-key-fill me-1"></i> Change Password
-      </a>
-
-      <a href="logout.php" class="btn-custom">
-        <i class="bi bi-box-arrow-right me-1"></i> Logout
-      </a>
+      <a href="edit_profile.php" class="btn-custom">Edit</a>
+      <a href="change_password.php" class="btn-custom">Change Password</a>
+      <a href="logout.php" class="btn-custom">Logout</a>
     </div>
 
   </div>
 </div>
-
 <?php include 'footer.php'; ?>
