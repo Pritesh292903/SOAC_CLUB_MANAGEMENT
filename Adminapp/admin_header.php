@@ -1,4 +1,7 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 include "../database.php";
 
@@ -7,10 +10,10 @@ if (!isset($_SESSION['user_id'])) {
     die("User not logged in");
 }
 
-// FETCH USER DATA
+// GET USER
 $user_id = $_SESSION['user_id'];
 
-$result = mysqli_query($con, "SELECT * FROM user WHERE id='$user_id'");
+$result = mysqli_query($con,"SELECT * FROM User WHERE id='$user_id'");
 
 if (!$result) {
     die("Query Failed: " . mysqli_error($con));
@@ -19,7 +22,7 @@ if (!$result) {
 $user = mysqli_fetch_assoc($result);
 
 if (!$user) {
-    die("No user found");
+    die("User not found");
 }
 ?>
 
