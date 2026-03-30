@@ -1,7 +1,7 @@
 <?php
-session_start(); // Always start session first
+session_start();
 
-// CHECK LOGIN BEFORE ANY OUTPUT
+// CHECK LOGIN
 if (!isset($_SESSION['user_id'])) {
     header("Location: Studentapp/login_view.php");
     exit();
@@ -10,14 +10,26 @@ if (!isset($_SESSION['user_id'])) {
 include 'F_header.php';
 include "../database.php";
 
-// FETCH USER
-$user_id = $_SESSION['user_id'];
-$result = mysqli_query($con, "SELECT * FROM User WHERE id='$user_id'");
+// FETCH USER DATA
+$user_id = intval($_SESSION['user_id']); // security
+
+$query = "SELECT * FROM user WHERE id = '$user_id'";
+$result = mysqli_query($con, $query);
+
+// ERROR CHECK
+if (!$result) {
+    die("Query Failed: " . mysqli_error($con));
+}
+
 $user = mysqli_fetch_assoc($result);
+
+// DEFAULT IMAGE
+$profileImage = (!empty($user['clubimage']) && file_exists("../uploads/" . $user['clubimage']))
+    ? "../uploads/" . $user['clubimage']
+    : "assets/images/user.jpg";
 ?>
 
 <style>
-    /* Background Gradient */
     .profile-wrapper {
         min-height: calc(100vh - 140px);
         display: flex;
@@ -27,7 +39,6 @@ $user = mysqli_fetch_assoc($result);
         background: linear-gradient(135deg, #ffe5e5, #ffffff);
     }
 
-    /* Animated Card */
     .profile-card {
         width: 350px;
         background: rgba(255, 255, 255, 0.95);
@@ -36,7 +47,6 @@ $user = mysqli_fetch_assoc($result);
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
         text-align: center;
         backdrop-filter: blur(10px);
-        animation: fadeSlide 0.6s ease;
         transition: 0.3s;
     }
 
@@ -45,40 +55,21 @@ $user = mysqli_fetch_assoc($result);
         box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
     }
 
-    @keyframes fadeSlide {
-        from {
-            opacity: 0;
-            transform: translateY(40px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Avatar */
     .avatar {
-        width: 95px;
-        height: 95px;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 15px;
+    }
+
+    .avatar img {
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
-        background: linear-gradient(120deg, #dc3545, #b02a37);
-        color: #fff;
-        font-size: 36px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 18px;
+        object-fit: cover;
+        border: 4px solid #dc3545;
         box-shadow: 0 10px 25px rgba(220, 53, 69, 0.4);
-        transition: 0.4s;
     }
 
-    .avatar:hover {
-        transform: scale(1.08) rotate(5deg);
-    }
-
-    /* Heading */
     .profile-card h2 {
         font-size: 22px;
         font-weight: 700;
@@ -91,7 +82,6 @@ $user = mysqli_fetch_assoc($result);
         margin-bottom: 20px;
     }
 
-    /* Info Box */
     .info-box {
         background: #f8f9fa;
         padding: 12px;
@@ -103,7 +93,6 @@ $user = mysqli_fetch_assoc($result);
 
     .info-box:hover {
         background: #fff3f3;
-        transform: scale(1.02);
     }
 
     .info-box label {
@@ -117,7 +106,6 @@ $user = mysqli_fetch_assoc($result);
         color: #333;
     }
 
-    /* Buttons */
     .btn {
         width: 100%;
         padding: 10px;
@@ -125,10 +113,8 @@ $user = mysqli_fetch_assoc($result);
         font-size: 14px;
         font-weight: 600;
         margin-top: 10px;
-        transition: 0.3s;
     }
 
-    /* Edit Button */
     .btn-edit {
         background: #fff;
         border: 2px solid #dc3545;
@@ -138,61 +124,50 @@ $user = mysqli_fetch_assoc($result);
     .btn-edit:hover {
         background: #dc3545;
         color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
     }
 
-    /* Password Button */
     .btn-password {
         background: linear-gradient(120deg, #dc3545, #b02a37);
         color: #fff;
         border: none;
     }
 
-    .btn-password:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(220, 53, 69, 0.4);
-    }
-
-    /* Responsive */
     @media(max-width:450px) {
         .profile-card {
             width: 100%;
-            padding: 25px 20px;
-        }
-
-        .avatar {
-            width: 80px;
-            height: 80px;
-            font-size: 30px;
         }
     }
 </style>
 
 <div class="profile-wrapper">
 
-    <di v class="profile-card">
+    <div class="profile-card">
 
-        <div class="avatar"><?php if (!empty($user['clubimage'])) { ?>
-                <img src="../uploads/<?php echo $user['clubimage']; ?>" class="avatar-img">
-            <?php } else { ?>
-                <img src="assets/images/user.jpg" class="avatar-img">
-            <?php } ?>
+        <!-- PROFILE IMAGE -->
+        <div class="avatar">
+            <img src="<?php echo $profileImage; ?>" alt="Profile Image">
         </div>
 
-        <h2>User Profile</h2>
+        <h2><?php echo htmlspecialchars($user['fullname']); ?></h2>
         <p class="sub-text">Welcome back 👋</p>
 
+        <!-- NAME -->
         <div class="info-box">
             <label>Full Name</label>
-            <div class="info-value"><?php echo $user['fullname']; ?></div>
+            <div class="info-value">
+                <?php echo htmlspecialchars($user['fullname']); ?>
+            </div>
         </div>
 
+        <!-- EMAIL -->
         <div class="info-box">
             <label>Email Address</label>
-            <div class="info-value"><?php echo $user['email']; ?></div>
+            <div class="info-value">
+                <?php echo htmlspecialchars($user['email']); ?>
+            </div>
         </div>
 
+        <!-- BUTTONS -->
         <a href="Editprofile.php" class="btn btn-edit">
             ✏ Edit Profile
         </a>

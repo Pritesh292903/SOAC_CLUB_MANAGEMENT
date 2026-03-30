@@ -22,10 +22,11 @@ if (isset($_POST['fullname'])) {
     $mobile = mysqli_real_escape_string($con, $_POST['phone']);
     $department = mysqli_real_escape_string($con, $_POST['department']);
 
-    // IMAGE UPLOAD
-    $image = $user['clubimage']; // default old image
+    // KEEP OLD IMAGE
+    $image = !empty($user['clubimage']) ? $user['clubimage'] : 'uploads/default.png';
 
-    if (!empty($_FILES['profileImage']['name'])) {
+    // IMAGE UPLOAD
+    if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] == 0) {
 
         $file_name = $_FILES['profileImage']['name'];
         $file_tmp = $_FILES['profileImage']['tmp_name'];
@@ -36,9 +37,16 @@ if (isset($_POST['fullname'])) {
 
         if (in_array($file_type, $allowed) && $file_size <= 2 * 1024 * 1024) {
 
-            $new_name = "uploads/" . time() . "_" . $file_name;
-            move_uploaded_file($file_tmp, $new_name);
-            $image = $new_name;
+            $new_name = "uploads/" . time() . "_" . basename($file_name);
+
+            // DELETE OLD IMAGE (optional)
+            if (!empty($user['clubimage']) && file_exists($user['clubimage'])) {
+                unlink($user['clubimage']);
+            }
+
+            if (move_uploaded_file($file_tmp, $new_name)) {
+                $image = $new_name;
+            }
         }
     }
 
@@ -53,6 +61,7 @@ if (isset($_POST['fullname'])) {
 
     if (mysqli_query($con, $update)) {
         echo "<script>alert('✅ Profile Updated Successfully'); window.location='profile.php';</script>";
+        exit();
     } else {
         echo "<script>alert('❌ Error updating profile');</script>";
     }
@@ -62,11 +71,9 @@ if (isset($_POST['fullname'])) {
 <?php include 'F_header.php'; ?>
 
 <div class="container my-5">
-
     <div class="card shadow border-0 rounded-4">
         <div class="card-body p-4">
 
-            <!-- Title -->
             <h2 class="fw-bold text-danger mb-3">Edit Profile</h2>
 
             <div class="row">
@@ -75,7 +82,9 @@ if (isset($_POST['fullname'])) {
                 <div class="col-md-4 text-center">
 
                     <img id="profilePreview"
-                        src="<?php echo !empty($user['clubimage']) ? $user['clubimage'] : 'assets/images/user.jpg'; ?>"
+                        src="<?php echo (!empty($user['clubimage']) && file_exists($user['clubimage']))
+                            ? $user['clubimage']
+                            : 'assets/images/user.jpg'; ?>"
                         class="img-fluid rounded-circle shadow"
                         style="width:180px;height:180px;object-fit:cover;">
 
@@ -89,13 +98,12 @@ if (isset($_POST['fullname'])) {
                     </div>
 
                     <small id="photoError" class="text-danger d-none"></small>
-
                 </div>
 
                 <!-- FORM -->
                 <div class="col-md-8">
 
-                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <form method="POST" enctype="multipart/form-data" novalidate>
 
                         <!-- FULL NAME -->
                         <div class="mb-3">
@@ -126,7 +134,6 @@ if (isset($_POST['fullname'])) {
                                 value="<?php echo $user['department']; ?>" required>
                         </div>
 
-                        <!-- BUTTON -->
                         <button type="submit" class="btn btn-danger">
                             Save Changes
                         </button>
@@ -138,12 +145,10 @@ if (isset($_POST['fullname'])) {
                     </form>
 
                 </div>
-
             </div>
 
         </div>
     </div>
-
 </div>
 
 <!-- JS -->
@@ -153,14 +158,17 @@ document.getElementById("changePhotoBtn").onclick = () => {
 };
 
 document.getElementById("profileImage").onchange = function () {
+
     const file = this.files[0];
     const preview = document.getElementById("profilePreview");
     const error = document.getElementById("photoError");
 
+    if (!file) return;
+
     const allowed = ["image/jpeg", "image/png", "image/webp"];
 
     if (!allowed.includes(file.type)) {
-        error.innerText = "Only JPG, PNG allowed";
+        error.innerText = "Only JPG, PNG, WEBP allowed";
         error.classList.remove("d-none");
         this.value = "";
         return;
@@ -172,6 +180,8 @@ document.getElementById("profileImage").onchange = function () {
         this.value = "";
         return;
     }
+
+    error.classList.add("d-none");
 
     const reader = new FileReader();
     reader.onload = e => preview.src = e.target.result;
