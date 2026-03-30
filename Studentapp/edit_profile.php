@@ -135,107 +135,57 @@ label.error{
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-$(document).ready(function(){
+<?php
+include "database.php";
+session_start();
 
-    // Image Change Button
-    $("#changePhotoBtn").click(function () {
-        $("#photoInput").click();
-    });
+$user_id = $_SESSION['user_id'];
 
-    // Image Preview
-    $("#photoInput").change(function (event) {
-        let file = event.target.files[0];
-        if (file) {
-            let reader = new FileReader();
-            reader.onload = function (e) {
-                $("#profilePreview").attr("src", e.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+$fullname = $_POST['fullname'];
+$email = $_POST['email'];
+$phone = $_POST['phone'];
+$department = $_POST['department'];
+$designation = $_POST['designation'];
 
-    // ================= VALIDATION =================
-    $("#editProfileForm").validate({
+// IMAGE UPLOAD
+if(isset($_FILES['photo']['name']) && $_FILES['photo']['name'] != ""){
+    
+    $folder = "uploads/";
+    $filename = time() . "_" . $_FILES['photo']['name'];
+    $path = $folder . $filename;
 
-        rules:{
-            fullname:{
-                required:true,
-                minlength:3
-            },
-            email:{
-                required:true,
-                email:true
-            },
-            phone:{
-                required:true,
-                digits:true,
-                minlength:10,
-                maxlength:10
-            },
-            department:{
-                required:true
-            },
-            designation:{
-                required:true
-            }
-        },
+    move_uploaded_file($_FILES['photo']['tmp_name'], $path);
 
-        messages:{
-            fullname:{
-                required:"Full name is required",
-                minlength:"Minimum 3 characters required"
-            },
-            email:{
-                required:"Email is required",
-                email:"Enter valid email"
-            },
-            phone:{
-                required:"Phone number is required",
-                digits:"Only numbers allowed",
-                minlength:"Enter 10 digit number",
-                maxlength:"Enter 10 digit number"
-            },
-            department:{
-                required:"Department is required"
-            },
-            designation:{
-                required:"Designation is required"
-            }
-        },
+    $update = "UPDATE User SET 
+        fullname='$fullname',
+        email='$email',
+        mobile='$phone',
+        department='$department',
+        clubimage='$path'
+        WHERE id='$user_id'";
 
-        errorPlacement:function(error,element){
-            error.insertAfter(element);
-        },
+} else {
 
-        highlight:function(element){
-            $(element).addClass("error");
-            $(element).siblings(".error-icon").show();
-        },
+    $update = "UPDATE User SET 
+        fullname='$fullname',
+        email='$email',
+        mobile='$phone',
+        department='$department'
+        WHERE id='$user_id'";
+}
 
-        unhighlight:function(element){
-            $(element).removeClass("error");
-            $(element).siblings(".error-icon").hide();
-        },
+mysqli_query($con, $update);
 
-        submitHandler: function(form) {
-            // SweetAlert popup
-            Swal.fire({
-                title: "Profile Updated!",
-                text: "Your changes have been saved successfully.",
-                icon: "success",
-                confirmButtonColor: "#d90429",
-                confirmButtonText: "OK"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "profile_view.php";
-                }
-            });
-        }
-
-    });
-
+// REDIRECT WITH SUCCESS
+echo "<script>
+Swal.fire({
+    title: 'Profile Updated!',
+    text: 'Your changes saved successfully',
+    icon: 'success'
+}).then(() => {
+    window.location.href='profile_view.php';
 });
-</script>
+</script>";
+?>
 
 <?php include 'footer.php'; ?>
