@@ -26,7 +26,6 @@ mobile VARCHAR(20),
 password VARCHAR(100),
 role ENUM('admin','faculty','user') DEFAULT 'user'
 )";
-
 mysqli_query($con, $create_table);
 
 
