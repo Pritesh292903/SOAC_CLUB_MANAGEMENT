@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 // GET USER
 $user_id = $_SESSION['user_id'];
 
-$result = mysqli_query($con,"SELECT * FROM User WHERE id='$user_id'");
+$result = mysqli_query($con, "SELECT * FROM User WHERE id='$user_id'");
 
 if (!$result) {
     die("Query Failed: " . mysqli_error($con));
@@ -295,21 +295,15 @@ if (!$user) {
             <div class="dropdown">
                 <div class="d-flex align-items-center gap-2 cursor-pointer">
                     <a href="admin_profile.php">
-                        <img src="assets/images/profile.png" class="rounded-circle" width="35" alt="Admin Avatar">
+                        <img src="<?php echo !empty($user['clubimage'])
+                            ? '../uploads/' . $user['clubimage']
+                            : 'assets/clubimage/profile.png'; ?>" class="rounded-circle" width="35" height="35"
+                            style="object-fit: cover;" alt="Admin Avatar">
                     </a>
-                    <span class="d-none d-md-inline"><?php echo $user['fullname']; ?></span>
+                    <span class="d-none d-md-inline">
+                        <?php echo $user['fullname']; ?>
+                    </span>
                 </div>
-
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
-                    <li><a class="dropdown-item" href="setting_page.php"><i class="bi bi-gear me-2"></i>Settings</a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item text-danger" href="#">
-                            <i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-                </ul>
             </div>
 
         </div>
