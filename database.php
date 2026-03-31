@@ -54,4 +54,17 @@ image VARCHAR(255)
 
 )");
 
+
+// Create Events Table
+// Select Database
+mysqli_select_db($con, "SOAE_CLUB");
+mysqli_query($con, "CREATE TABLE IF NOT EXISTS events (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    image VARCHAR(255),
+    name VARCHAR(100),
+    date DATE,
+    status VARCHAR(50),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
 ?>
