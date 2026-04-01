@@ -63,7 +63,7 @@ if (isset($_POST['name'])) {
         WHERE id='$user_id'";
 
     if (mysqli_query($con, $update)) {
-        echo "<script>alert('✅ Profile Updated Successfully'); window.location='edit_profile.php';</script>";
+        echo "<script>alert('✅ Profile Updated Successfully'); window.location='profile.php';</script>";
         exit();
     } else {
         echo "<script>alert('❌ Error updating profile');</script>";
@@ -180,8 +180,8 @@ document.getElementById("profileImage").onchange = function () {
         return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-        error.innerText = "Max size 2MB";
+    if (file.size > 10 * 1024 * 1024) {
+        error.innerText = "Max size 10MB exceeded";
         error.classList.remove("d-none");
         this.value = "";
         return;
