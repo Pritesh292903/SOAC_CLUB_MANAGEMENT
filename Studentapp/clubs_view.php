@@ -7,14 +7,6 @@ include 'header.php';
 include "../database.php";
 
 // =====================
-// FETCH DYNAMIC MEMBER COUNT (total joins, no limit)
-$club_name = "Music Club";
-$query = "SELECT COUNT(*) as total FROM club_join_requests WHERE club_name='$club_name'";
-$result = mysqli_query($con, $query);
-$data = mysqli_fetch_assoc($result);
-$music_members = $data['total'];
-
-// =====================
 // LOGIN CHECK FOR JOIN BUTTON
 if(isset($_GET['join'])){
     if(!isset($_SESSION['user_id'])){
@@ -45,7 +37,6 @@ if(isset($_POST['submit_club']))
     $club     = trim(mysqli_real_escape_string($con, $_POST['club_name']));
     $message  = mysqli_real_escape_string($con, $_POST['message']);
 
-    // ✅ INSERT WITHOUT ANY DUPLICATE CHECK
     $query = "INSERT INTO club_join_requests 
               (user_id, name, email, phone, club_name, message) 
               VALUES ('$user_id','$name','$email','$phone','$club','$message')";
@@ -85,19 +76,19 @@ if(isset($_POST['submit_club']))
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #fff5f5; }
         .page-title { font-weight: 700; color: #b71c1c; letter-spacing: 1px; }
-        .club-card { background: #ffffff; border-radius: 18px; border: 1px solid #f1c1c1; padding: 25px 20px; text-align: center; transition: 0.4s ease; height: 100%; position: relative; overflow: hidden; }
+        .club-card { background: #ffffff; border-radius: 18px; border: 1px solid #f1c1c1; padding: 25px 20px; text-align: center; transition: 0.4s ease; height: 100%; }
         .club-card:hover { transform: translateY(-12px); box-shadow: 0 15px 35px rgba(183, 28, 28, 0.2); border-color: #e53935; }
         .club-card img { width: 85px; height: 85px; object-fit: cover; border-radius: 50%; border: 4px solid #f8d7da; margin-bottom: 15px; transition: 0.4s; }
         .club-card:hover img { transform: scale(1.1) rotate(5deg); border-color: #e53935; }
         .club-card h5 { font-weight: 700; color: #c62828; margin-bottom: 6px; }
         .club-card .category { font-size: 13px; color: #777; }
-        .club-card .members { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 10px; }
         .club-card p { font-size: 13px; color: #666; min-height: 55px; }
         .club-btn { padding: 7px 18px; font-size: 13px; font-weight: 600; border-radius: 30px; border: none; background: linear-gradient(45deg, #e53935, #ff7043); color: white; transition: 0.3s; }
         .club-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(229, 57, 53, 0.4); background: linear-gradient(45deg, #b71c1c, #ff3d00); }
         .club-wrapper { margin-top: 50px; margin-bottom: 70px; }
     </style>
 </head>
+
 <body>
 
 <div class="container club-wrapper">
@@ -113,9 +104,6 @@ if(isset($_POST['submit_club']))
                 <img src="assets/images/Music.webp" alt="Music Club">
                 <h5>Music Club</h5>
                 <div class="category">Arts & Performance</div>
-                
-                <!-- DYNAMIC MEMBER COUNT -->
-                <div class="members"><?php echo $music_members; ?> Members</div>
 
                 <p>Join music events and jam sessions to improve your skills.</p>
 
@@ -128,7 +116,7 @@ if(isset($_POST['submit_club']))
     </div>
 </div>
 
-<!-- ===== JOIN MODAL ===== -->
+<!-- JOIN MODAL -->
 <div class="modal fade" id="joinModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -150,7 +138,7 @@ if(isset($_POST['submit_club']))
     </div>
 </div>
 
-<!-- ===== SCRIPTS ===== -->
+<!-- SCRIPTS -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
@@ -158,13 +146,12 @@ if(isset($_POST['submit_club']))
 
 <script>
 $(document).ready(function () {
-    // AUTO OPEN MODAL
+
     <?php if(isset($_GET['join']) && isset($_SESSION['user_id'])){ ?>
         $("#club_name").val("<?php echo $_GET['join']; ?>");
         $("#joinModal").modal("show");
     <?php } ?>
 
-    // FORM VALIDATION
     $("#clubForm").validate({
         rules: {
             name: { required: true, minlength: 3 },
