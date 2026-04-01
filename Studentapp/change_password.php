@@ -210,8 +210,8 @@ $(document).ready(function () {
     if ($('#changePasswordForm').length) {
         $("#changePasswordForm").validate({
             rules: {
-                currentPassword: { required:true, minlength:6 },
-                newPassword: { required:true, minlength:6 },
+                currentPassword: { required:true, minlength:2 },
+                newPassword: { required:true, minlength:2 },
                 confirmPassword: { required:true, equalTo:"#newPassword" }
             },
             messages: {
