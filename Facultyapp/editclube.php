@@ -157,4 +157,4 @@
   });
 </script>
 
-<?php include 'F_footer.php'; ?>
+<?php include 'F_footer.php'; ?>  
