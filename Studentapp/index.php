@@ -178,7 +178,6 @@ $slider_images = mysqli_query($con, "SELECT * FROM slider_images ORDER BY id DES
                 <img src="assets/images/Music.webp" alt="Music Club">
                 <h5 class="mt-3 text-danger">Music Club</h5>
                 <p class="text-secondary mb-1">Arts & Performance</p>
-                <p class="text-secondary mb-2">35 Members</p>
                 <p class="text-muted small">Join music events and jam sessions to improve your skills.</p>
                 <div class="d-flex justify-content-center gap-2 mt-2">
                     <a href="club_detail.php?club=music" class="btn btn-outline-danger-custom btn-sm">Details</a>
@@ -197,8 +196,8 @@ $slider_images = mysqli_query($con, "SELECT * FROM slider_images ORDER BY id DES
             <div class="event-card h-100 shadow-sm">
                 <img src="assets/images/s1.jpg" alt="Music Festival">
                 <div class="p-3">
-                    <h5 class="text-danger">Music Festival</h5>
-                    <p class="text-muted small">Join our annual music festival and showcase your talent!</p>
+                    <h5 class="text-danger">Cricket Tournament</h5>
+                    <p class="text-muted small">Join our annual Cricket Tournament and showcase your talent!</p>
                     <div class="d-flex justify-content-center gap-2 mt-2">
                         <a href="event_details.php" class="btn btn-outline-danger-custom btn-sm">Details</a>
                     </div>

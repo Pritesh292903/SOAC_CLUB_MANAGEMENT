@@ -1,7 +1,7 @@
 <?php
 session_start();
-include 'F_header.php'; // Faculty header
-include "../database.php"; // DB connection
+include 'F_header.php';
+include "../database.php";
 
 // LOGIN CHECK
 if (!isset($_SESSION['user_id'])) {
@@ -9,10 +9,9 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// GET USER ID
 $user_id = $_SESSION['user_id'];
 
-// FETCH DATA FROM DATABASE
+// FETCH DATA
 $query = "SELECT * FROM Faculty_register WHERE id='$user_id'";
 $result = mysqli_query($con, $query);
 
@@ -22,11 +21,12 @@ if (!$result) {
 
 $user = mysqli_fetch_assoc($result);
 
-// PROFILE IMAGE
-$profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
-    ? "../" . $user['image']
-    : "assets/images/user.jpg";
-
+// 🔥 FINAL IMAGE FIX (NO file_exists)
+if (!empty($user['image'])) {
+    $profileImage = "../" . $user['image'] . "?t=" . time();
+} else {
+    $profileImage = "assets/images/user.jpg";
+}
 ?>
 
 <div class="container my-5">
@@ -39,11 +39,9 @@ $profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
                 style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #dc3545;">
         </div>
 
-        <!-- NAME -->
         <h2><?php echo htmlspecialchars($user['name']); ?></h2>
         <p class="text-muted">Faculty Profile 👨‍🏫</p>
 
-        <!-- INFO FIELDS -->
         <div style="text-align:left; margin-top:20px;">
             <p><b>Full Name:</b> <?php echo htmlspecialchars($user['name']); ?></p>
             <p><b>Email:</b> <?php echo htmlspecialchars($user['email']); ?></p>
@@ -52,11 +50,11 @@ $profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
             <p><b>Designation:</b> <?php echo htmlspecialchars($user['designation']); ?></p>
         </div>
 
-        <!-- BUTTONS -->
         <a href="editprofile.php"
-            style="display:inline-block; margin-top:15px; padding:10px 20px; border-radius:25px; background:#dc3545; color:#fff; text-decoration:none;">✏
-            Edit Profile</a>
+            style="display:inline-block; margin-top:15px; padding:10px 20px; border-radius:25px; background:#dc3545; color:#fff; text-decoration:none;">
+            ✏ Edit Profile
+        </a>
     </div>
 </div>
 
-<?php include 'F_footer.php'; // Faculty footer ?>
+<?php include 'F_footer.php'; ?>

@@ -74,18 +74,80 @@ if(isset($_POST['submit_club']))
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #fff5f5; }
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #fff5f5;
+            display: flex;
+            flex-direction: column;
+        }
+
         .page-title { font-weight: 700; color: #b71c1c; letter-spacing: 1px; }
-        .club-card { background: #ffffff; border-radius: 18px; border: 1px solid #f1c1c1; padding: 25px 20px; text-align: center; transition: 0.4s ease; height: 100%; }
-        .club-card:hover { transform: translateY(-12px); box-shadow: 0 15px 35px rgba(183, 28, 28, 0.2); border-color: #e53935; }
-        .club-card img { width: 85px; height: 85px; object-fit: cover; border-radius: 50%; border: 4px solid #f8d7da; margin-bottom: 15px; transition: 0.4s; }
-        .club-card:hover img { transform: scale(1.1) rotate(5deg); border-color: #e53935; }
+
+        .club-wrapper { 
+            margin-top: 50px; 
+            margin-bottom: 70px; 
+            flex: 1; /* IMPORTANT FOR FOOTER */
+        }
+
+        .club-card { 
+            background: #ffffff; 
+            border-radius: 18px; 
+            border: 1px solid #f1c1c1; 
+            padding: 25px 20px; 
+            text-align: center; 
+            transition: 0.4s ease; 
+            height: 100%; 
+        }
+
+        .club-card:hover { 
+            transform: translateY(-12px); 
+            box-shadow: 0 15px 35px rgba(183, 28, 28, 0.2); 
+            border-color: #e53935; 
+        }
+
+        .club-card img { 
+            width: 85px; 
+            height: 85px; 
+            object-fit: cover; 
+            border-radius: 50%; 
+            border: 4px solid #f8d7da; 
+            margin-bottom: 15px; 
+            transition: 0.4s; 
+        }
+
+        .club-card:hover img { 
+            transform: scale(1.1) rotate(5deg); 
+            border-color: #e53935; 
+        }
+
         .club-card h5 { font-weight: 700; color: #c62828; margin-bottom: 6px; }
         .club-card .category { font-size: 13px; color: #777; }
         .club-card p { font-size: 13px; color: #666; min-height: 55px; }
-        .club-btn { padding: 7px 18px; font-size: 13px; font-weight: 600; border-radius: 30px; border: none; background: linear-gradient(45deg, #e53935, #ff7043); color: white; transition: 0.3s; }
-        .club-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(229, 57, 53, 0.4); background: linear-gradient(45deg, #b71c1c, #ff3d00); }
-        .club-wrapper { margin-top: 50px; margin-bottom: 70px; }
+
+        .club-btn { 
+            padding: 7px 18px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            border-radius: 30px; 
+            border: none; 
+            background: linear-gradient(45deg, #e53935, #ff7043); 
+            color: white; 
+            transition: 0.3s; 
+        }
+
+        .club-btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 18px rgba(229, 57, 53, 0.4); 
+            background: linear-gradient(45deg, #b71c1c, #ff3d00); 
+        }
+
+        footer {
+            margin-top: auto; /* PUSH FOOTER DOWN */
+        }
     </style>
 </head>
 
@@ -175,3 +237,6 @@ $(document).ready(function () {
 </script>
 
 <?php include 'footer.php'; ?>
+
+</body>
+</html>
