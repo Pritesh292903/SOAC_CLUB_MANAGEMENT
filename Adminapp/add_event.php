@@ -81,13 +81,13 @@
                          class="event-img" id="eventImagePreview">
 
                     <input type="file" class="form-control mt-2" 
-                           id="eventImage" name="eventImage" accept="image/*">
+                           id="eventImage" name="image" accept="image/*">
                 </div>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Event Name *</label>
-                <input type="text" class="form-control" id="eventName" name="eventName">
+                <input type="text" class="form-control" id="club_name" name="eventName">
             </div>
 
             <div class="col-md-6">
@@ -107,7 +107,7 @@
 
             <div class="col-12">
                 <label class="form-label">Event Description *</label>
-                <textarea class="form-control" rows="4" id="eventDescription" name="eventDescription"></textarea>
+                <textarea class="form-control" rows="4" id="eventDescription" name="Description"></textarea>
             </div>
 
         </div>
