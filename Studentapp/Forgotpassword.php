@@ -57,6 +57,7 @@ body {
     border-radius: 12px;
     border: 1px solid #ccc;
     outline: none;
+    
 }
 
 .is-invalid {
