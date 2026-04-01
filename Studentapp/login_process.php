@@ -2,33 +2,41 @@
 session_start();
 include "../database.php";
 
-// GET DATA
-$email = trim($_POST['email']);
-$password = trim($_POST['password']);
+$email = $_POST['email'];
+$password = $_POST['password'];
 
-// FETCH USER BY EMAIL ONLY
-$query = "SELECT * FROM user WHERE email='$email'";
+// 🔹 CHECK IN USER TABLE
+$query = "SELECT * FROM User WHERE email='$email' AND password='$password'";
 $result = mysqli_query($con, $query);
 
 if(mysqli_num_rows($result) > 0){
-    
+
     $row = mysqli_fetch_assoc($result);
-    $dbPassword = $row['password'];
 
-    // ✅ CHECK PASSWORD (PLAIN + HASH BOTH)
-    if($password === $dbPassword || password_verify($password, $dbPassword))
-    {
-        $_SESSION['user_id'] = $row['id'];
-        $_SESSION['user_name'] = $row['fullname'];
+    $_SESSION['user_id'] = $row['id'];
+    $_SESSION['user_name'] = $row['fullname'];
+    $_SESSION['role'] = $row['role'];
 
-        echo "success";
-    }
-    else
-    {
-        echo "Invalid password!";
-    }
-
-}else{
-    echo "User not found!";
+    echo $row['role']; // admin / user
+    exit;
 }
+
+// 🔹 CHECK IN FACULTY TABLE
+$query2 = "SELECT * FROM Faculty_register WHERE email='$email' AND password='$password'";
+$result2 = mysqli_query($con, $query2);
+
+if(mysqli_num_rows($result2) > 0){
+
+    $row = mysqli_fetch_assoc($result2);
+
+    $_SESSION['user_id'] = $row['id'];
+    $_SESSION['user_name'] = $row['name'];
+    $_SESSION['role'] = "faculty";
+
+    echo "faculty";
+    exit;
+}
+
+// ❌ INVALID
+echo "Invalid email or password!";
 ?>

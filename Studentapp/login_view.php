@@ -8,6 +8,7 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 * {
@@ -55,39 +56,33 @@ body {
 
 .form-group input {
     width: 100%;
-    padding: 12px 45px 12px 14px;
+    padding: 12px 14px;
     border-radius: 12px;
     border: 1px solid #ccc;
     outline: none;
-    font-size: 15px;
 }
 
 .is-invalid {
     border: 1.8px solid #dc3545 !important;
 }
 
-.form-group.error::after {
-    content: "!";
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid #dc3545;
-    background: #fff;
-    color: #dc3545;
-    font-size: 13px;
-    font-weight: bold;
-    text-align: center;
-    line-height: 16px;
-}
-
 .invalid-feedback {
     color: #dc3545;
     font-size: 13px;
     margin-top: 6px;
+}
+
+.extra-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.extra-links a {
+    font-size: 14px;
+    text-decoration: none;
+    color: #d90429;
+    font-weight: 600;
 }
 
 .login-btn {
@@ -101,19 +96,9 @@ body {
     cursor: pointer;
 }
 
-.login-btn:hover {
-    opacity: 0.9;
-}
-
 .login-footer {
     text-align: center;
     margin-top: 18px;
-}
-
-.login-footer a {
-    color: #d90429;
-    text-decoration: none;
-    font-weight: 600;
 }
 </style>
 </head>
@@ -127,16 +112,21 @@ body {
         <p>Login to continue</p>
     </div>
 
-    <form id="loginForm" method="POST" novalidate>
+    <form id="loginForm">
 
         <div class="form-group">
             <label>Email Address</label>
-            <input type="email" name="email" placeholder="Enter your email">
+            <input type="email" name="email">
         </div>
 
         <div class="form-group">
             <label>Password</label>
-            <input type="password" name="password" placeholder="Enter your password">
+            <input type="password" name="password">
+        </div>
+
+        <div class="extra-links">
+            <span></span>
+            <a href="Forgotpassword.php" style="padding-bottom: 15px;">Forgot Password?</a>
         </div>
 
         <button type="submit" class="login-btn">Login</button>
@@ -155,14 +145,8 @@ $(document).ready(function(){
     $("#loginForm").validate({
 
         rules:{
-            email:{
-                required:true,
-                email:true
-            },
-            password:{
-                required:true,
-                minlength:2
-            }
+            email:{ required:true, email:true },
+            password:{ required:true, minlength:2 }
         },
 
         messages:{
@@ -180,17 +164,11 @@ $(document).ready(function(){
         errorClass:"invalid-feedback",
 
         highlight:function(element){
-            $(element)
-                .addClass("is-invalid")
-                .closest(".form-group")
-                .addClass("error");
+            $(element).addClass("is-invalid");
         },
 
         unhighlight:function(element){
-            $(element)
-                .removeClass("is-invalid")
-                .closest(".form-group")
-                .removeClass("error");
+            $(element).removeClass("is-invalid");
         },
 
         submitHandler:function(form){
@@ -202,11 +180,28 @@ $(document).ready(function(){
 
                 success:function(response){
 
-                    if(response.trim() === "success"){
-                        window.location.href = "index.php";
+                    response = response.trim();
+
+                    if(response == "admin"){
+                        Swal.fire("Success","Admin Login Successful","success")
+                        .then(()=>{
+                            window.location.href = "../Adminapp/admin_dashboard.php";
+                        });
+                    }
+                    else if(response == "faculty"){
+                        Swal.fire("Success","Faculty Login Successful","success")
+                        .then(()=>{
+                            window.location.href = "../Facultyapp/faculty_dashboard.php";
+                        });
+                    }
+                    else if(response == "user"){
+                        Swal.fire("Success","User Login Successful","success")
+                        .then(()=>{
+                            window.location.href = "../Studentapp/index.php";
+                        });
                     }
                     else{
-                        alert(response);
+                        Swal.fire("Error", response, "error");
                     }
                 }
             });
