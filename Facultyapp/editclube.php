@@ -1,90 +1,170 @@
+<?php
+include "../database.php";
+
+// GET ID
+if (!isset($_GET['id'])) {
+    header("Location: manage_clube.php");
+    exit();
+}
+
+$id = $_GET['id'];
+
+// FETCH DATA
+$result = mysqli_query($con, "SELECT * FROM my_club WHERE id='$id'");
+$row = mysqli_fetch_assoc($result);
+
+if (!$row) {
+    header("Location: manage_clube.php");
+    exit();
+}
+
+// UPDATE
+if (isset($_POST['club_name'])) {
+
+    $name = mysqli_real_escape_string($con, $_POST['club_name']);
+    $desc = mysqli_real_escape_string($con, $_POST['description']);
+    $cat  = mysqli_real_escape_string($con, $_POST['category']);
+    $status = mysqli_real_escape_string($con, $_POST['status']);
+    $members = mysqli_real_escape_string($con, $_POST['members']);
+
+    $uploadDir = __DIR__ . "/uploads/";
+
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+
+    $image_to_store = $row['images'];
+
+    // IMAGE UPLOAD
+    if (isset($_FILES['club_image']) && $_FILES['club_image']['error'] == 0) {
+
+        $file_tmp  = $_FILES['club_image']['tmp_name'];
+        $file_name = $_FILES['club_image']['name'];
+        $file_ext  = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+        $allowed = ['jpg','jpeg','png'];
+
+        if (in_array($file_ext, $allowed)) {
+
+            $new_name = time() . "_" . rand(1000,9999) . "." . $file_ext;
+            $target = $uploadDir . $new_name;
+
+            if (move_uploaded_file($file_tmp, $target)) {
+
+                // DELETE OLD IMAGE
+                if (!empty($row['images']) && file_exists($uploadDir . $row['images'])) {
+                    unlink($uploadDir . $row['images']);
+                }
+
+                $image_to_store = $new_name;
+            }
+        }
+    }
+
+    // UPDATE QUERY
+    mysqli_query($con, "UPDATE my_club SET 
+        name='$name',
+        Description='$desc',
+        Category='$cat',
+        Status='$status',
+        Club_member='$members',
+        images='$image_to_store'
+        WHERE id='$id'
+    ");
+
+    header("Location: manage_clube.php");
+    exit();
+}
+?>
+
 <?php include 'F_header.php'; ?>
 
 <style>
-  .input-error {
-    border: 1.5px solid #dc3545 !important;
-    padding-right: 40px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='%23dc3545' viewBox='0 0 16 16'%3E%3Cpath d='M7.001 4.002a.905.905 0 1 1 1.808 0l-.35 4.5a.552.552 0 0 1-1.108 0l-.35-4.5z'/%3E%3Cpath d='M8 1.002a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM8 13.002A6 6 0 1 1 8 1a6 6 0 0 1 0 12z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 18px;
-  }
+.preview-img {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px dashed #ccc;
+}
 </style>
 
 <div class="container my-5">
   <div class="card shadow border-0 rounded-4">
     <div class="card-body p-4">
 
-      <div class="mb-4">
-        <h2 class="fw-bold text-danger">
-          <i class="bi bi-pencil-square me-2"></i>Edit Club
-        </h2>
-        <p class="text-muted mb-0">Update club details below</p>
-      </div>
+      <h2 class="text-danger fw-bold mb-4">Edit Club</h2>
 
-      <div class="row">
-        <div class="col-md-4 text-center mb-4">
-          <div class="mt-3">
-            <!-- Image placeholder -->
+      <form method="POST" enctype="multipart/form-data">
+
+        <div class="row">
+
+          <!-- IMAGE -->
+          <div class="col-md-4 text-center">
+
+            <?php
+            $image = $row['images'];
+            $serverPath = __DIR__ . "/uploads/" . $image;
+            $displayPath = "uploads/" . $image;
+            ?>
+
+            <?php if (!empty($image) && file_exists($serverPath)) { ?>
+                <img src="<?php echo $displayPath; ?>" id="previewImage" class="preview-img mb-3">
+            <?php } else { ?>
+                <img src="https://via.placeholder.com/150" id="previewImage" class="preview-img mb-3">
+            <?php } ?>
+
+            <input type="file" name="club_image" id="clubImage" class="form-control">
+
           </div>
+
+          <!-- FORM -->
+          <div class="col-md-8">
+
+            <div class="mb-3">
+              <label>Club Name</label>
+              <input type="text" name="club_name"
+                     value="<?php echo $row['name']; ?>"
+                     class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label>Description</label>
+              <textarea name="description" class="form-control" required><?php echo $row['Description']; ?></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label>Category</label>
+              <select name="category" class="form-control">
+                <option value="Software" <?php if($row['Category']=="Software") echo "selected"; ?>>Software</option>
+                <option value="Cultural" <?php if($row['Category']=="Cultural") echo "selected"; ?>>Cultural</option>
+                <option value="Sports" <?php if($row['Category']=="Sports") echo "selected"; ?>>Sports</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label>Status</label>
+              <select name="status" class="form-control">
+                <option value="Active" <?php if($row['Status']=="Active") echo "selected"; ?>>Active</option>
+                <option value="Inactive" <?php if($row['Status']=="Inactive") echo "selected"; ?>>Inactive</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label>Club Members</label>
+              <input type="number" name="members"
+                     value="<?php echo $row['Club_member']; ?>"
+                     class="form-control" required>
+            </div>
+
+            <button class="btn btn-danger">Update</button>
+            <a href="manage_clube.php" class="btn btn-secondary">Cancel</a>
+
+          </div>
+
         </div>
 
-        <div class="col-md-8">
-          <!-- 🔥 action manage_clube.php -->
-          <form id="editClubForm" method="POST" action="manage_clube.php" novalidate>
-
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Club Name</label>
-              <input type="text" name="club_name" id="clubName" class="form-control rounded-3">
-              <small class="text-danger d-none" id="clubNameError">Please enter club name.</small>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Description</label>
-              <textarea name="description" id="description" class="form-control rounded-3" rows="3"></textarea>
-              <small class="text-danger d-none" id="descriptionError">Please enter description.</small>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Category</label>
-              <select name="category" id="category" class="form-select rounded-3">
-                <option value="">-- Select Category --</option>
-                <option value="Technology">Technology</option>
-                <option value="Cultural">Cultural</option>
-                <option value="Sports">Sports</option>
-              </select>
-              <small class="text-danger d-none" id="categoryError">Please select category.</small>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Status</label>
-              <select name="status" id="status" class="form-select rounded-3">
-                <option value="">-- Select Status --</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-              <small class="text-danger d-none" id="statusError">Please select status.</small>
-            </div>
-
-            <div class="mb-4">
-              <label class="form-label fw-semibold">Club Members</label>
-              <input type="number" name="members" id="clubMembers" class="form-control rounded-3" min="1">
-              <small class="text-danger d-none" id="clubMembersError">Please enter valid number of members.</small>
-            </div>
-
-            <div class="d-flex gap-3">
-              <button type="submit" class="btn btn-danger rounded-pill px-4">
-                Save Changes
-              </button>
-
-              <a href="manage_clube.php" class="btn btn-secondary rounded-pill px-4">
-                Cancel
-              </a>
-            </div>
-
-          </form>
-        </div>
-      </div>
+      </form>
 
     </div>
   </div>
@@ -93,68 +173,20 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
-  function showError(input, errorId) {
-    $(input).addClass("input-error");
-    $(errorId).removeClass("d-none");
+// IMAGE PREVIEW
+$("#clubImage").on("change", function() {
+  let file = this.files[0];
+
+  if (file) {
+    let reader = new FileReader();
+
+    reader.onload = function(e) {
+      $("#previewImage").attr("src", e.target.result);
+    }
+
+    reader.readAsDataURL(file);
   }
-
-  function clearError(input, errorId) {
-    $(input).removeClass("input-error");
-    $(errorId).addClass("d-none");
-  }
-
-  $("#editClubForm").on("submit", function(e) {
-    let valid = true;
-
-    if ($("#clubName").val().trim() === "") {
-      showError("#clubName", "#clubNameError");
-      valid = false;
-    }
-
-    if ($("#description").val().trim() === "") {
-      showError("#description", "#descriptionError");
-      valid = false;
-    }
-
-    if ($("#category").val() === "") {
-      showError("#category", "#categoryError");
-      valid = false;
-    }
-
-    if ($("#status").val() === "") {
-      showError("#status", "#statusError");
-      valid = false;
-    }
-
-    let members = $("#clubMembers").val().trim();
-    if (members === "" || isNaN(members) || members <= 0) {
-      showError("#clubMembers", "#clubMembersError");
-      valid = false;
-    }
-
-    if (!valid) {
-      e.preventDefault(); // ❌ Stop submit if error
-    }
-  });
-
-  $("#clubName, #description").on("input", function() {
-    if ($(this).val().trim() !== "") {
-      clearError(this, "#" + this.id + "Error");
-    }
-  });
-
-  $("#category, #status").on("change", function() {
-    if ($(this).val() !== "") {
-      clearError(this, "#" + this.id + "Error");
-    }
-  });
-
-  $("#clubMembers").on("input", function() {
-    let members = $(this).val().trim();
-    if (members !== "" && !isNaN(members) && members > 0) {
-      clearError(this, "#clubMembersError");
-    }
-  });
+});
 </script>
 
-<?php include 'F_footer.php'; ?>  
+<?php include 'F_footer.php'; ?>
