@@ -58,16 +58,16 @@ if(isset($_POST['submit_event'])) {
         <div class="card-body">
 
             <!-- Event Name -->
-            <h2 class="mb-4 text-center">Sports Club</h2>
+            <h2 class="mb-4 text-center">Music Club</h2>
 
             <!-- Event Info -->
             <div class="event-info mx-auto" style="max-width:700px;">
                 <h4>Clube Details</h4>
                 <ul class="list-unstyled mb-0">
-                    <li><strong>Event Name:</strong> Cricket Tournament</li>
+                    <li><strong>Event Name:</strong> Music Compitition</li>
                     <li><strong>Date:</strong> 25-02-2026</li>
                     <li><strong>Status:</strong> Active</li>
-                    <li><strong>Description:</strong> This is a cricket tournament organized by the Sports Club. All students are welcome to participate.</li>
+                    <li><strong>Description:</strong> This is a Music tournament organized by the music Club. All students are welcome to participate.</li>
                 </ul>
             </div>
 
