@@ -1,5 +1,9 @@
 <?php 
-include 'header.php'; 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+include 'header.php';
 
 // DATABASE CONNECTION
 $con = mysqli_connect("localhost","root","","soae_club");
@@ -40,22 +44,26 @@ if(isset($_POST['change_password']))
 
         if($update){
             echo "<script>
-                Swal.fire({
-                    title: 'Success',
-                    text: 'Password updated successfully',
-                    icon: 'success',
-                    confirmButtonColor: '#d90429'
-                }).then(() => {
-                    window.location.href = 'profile_view.php';
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Success',
+                        text: 'Password updated successfully',
+                        icon: 'success',
+                        confirmButtonColor: '#d90429'
+                    }).then(() => {
+                        window.location.href = 'index.php'; // ✅ REDIRECT
+                    });
                 });
             </script>";
         } else {
             echo "<script>
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Something went wrong',
-                    icon: 'error',
-                    confirmButtonColor: '#d90429'
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Something went wrong',
+                        icon: 'error',
+                        confirmButtonColor: '#d90429'
+                    });
                 });
             </script>";
         }
@@ -63,11 +71,13 @@ if(isset($_POST['change_password']))
     else 
     {
         echo "<script>
-            Swal.fire({
-                title: 'Error',
-                text: 'Current password is incorrect',
-                icon: 'error',
-                confirmButtonColor: '#d90429'
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Current password is incorrect',
+                    icon: 'error',
+                    confirmButtonColor: '#d90429'
+                });
             });
         </script>";
     }
@@ -200,7 +210,7 @@ html, body {
     </div>
 </div>
 
-<!-- ===== SCRIPTS (UNCHANGED) ===== -->
+<!-- ===== SCRIPTS ===== -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -210,8 +220,8 @@ $(document).ready(function () {
     if ($('#changePasswordForm').length) {
         $("#changePasswordForm").validate({
             rules: {
-                currentPassword: { required:true, minlength:2 },
-                newPassword: { required:true, minlength:2 },
+                currentPassword: { required:true, minlength:6 },
+                newPassword: { required:true, minlength:6 },
                 confirmPassword: { required:true, equalTo:"#newPassword" }
             },
             messages: {
