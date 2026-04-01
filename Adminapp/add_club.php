@@ -1,110 +1,299 @@
-<?php
-include 'admin_header.php';   // HEADER INCLUDE
-include '../database.php';
+<?php 
+include 'admin_header.php'; 
+include '../database.php';  
 
+// Fetch Faculty Data
+$faculty_query = "SELECT id, name FROM Faculty_register WHERE role='faculty'";
+$faculty_result = mysqli_query($con, $faculty_query);
+
+// Insert Data
 if(isset($_POST['submit']))
 {
     $clubname = $_POST['clubname'];
     $faculty = $_POST['faculty'];
     $totalmembers = $_POST['totalmembers'];
+    $clubdescription = $_POST['clubdescription'];
     $status = $_POST['status'];
 
-    // Image Upload
     $filename = $_FILES['clubimage']['name'];
     $tempname = $_FILES['clubimage']['tmp_name'];
     $folder = "uploads/".$filename;
 
     move_uploaded_file($tempname, $folder);
 
-    // Insert Query
-    $query = "INSERT INTO clubs (clubimage, clubname, faculty, totalmembers, status)
-              VALUES ('$filename', '$clubname', '$faculty', '$totalmembers', '$status')";
+    $query = "INSERT INTO clubs (clubimage, clubname, faculty, totalmembers, clubdescription, status) 
+              VALUES ('$filename', '$clubname', '$faculty', '$totalmembers', '$clubdescription', '$status')";
 
     if(mysqli_query($con, $query))
     {
-        echo "<script>alert('Club Added Successfully');</script>";
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+        Swal.fire({
+            title: 'Success!',
+            text: 'Club Added Successfully',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '../Adminapp/all_clubes_page.php';
+            }
+        });
+        </script>
+        ";
     }
     else
     {
-        echo "<script>alert('Error');</script>";
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '".mysqli_error($con)."',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        </script>
+        ";
     }
 }
 ?>
 
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
 <style>
-    .container {
-        width: 400px;
-        margin: 40px auto;
-        background: #fff;
-        padding: 25px;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-    }
+.content {
+    animation: fadeIn 0.6s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity:0; transform:translateY(15px);}
+    to { opacity:1; transform:translateY(0);}
+}
 
-    h2 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
+.card.custom-card{
+    border:none;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.05);
+    background:#fff;
+}
 
-    label {
-        font-weight: 500;
-    }
+.form-label{
+    font-weight:600;
+    font-size:0.9rem;
+}
 
-    input, select {
-        width: 100%;
-        padding: 10px;
-        margin: 8px 0 15px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-    }
+.form-control, .form-select{
+    border-radius:10px;
+    padding:10px;
+}
 
-    input:focus, select:focus {
-        border-color: #3498db;
-        outline: none;
-    }
+.btn-effect{
+    border-radius:50px;
+    transition:0.3s;
+}
+.btn-effect:hover{
+    transform:translateY(-2px);
+}
 
-    button {
-        width: 100%;
-        padding: 10px;
-        background: #3498db;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-    }
+.event-img{
+    width:100%;
+    max-height:250px;
+    object-fit:cover;
+    border-radius:12px;
+    margin-bottom:10px;
+}
 
-    button:hover {
-        background: #2980b9;
-    }
+.upload-box{
+    border:2px dashed #ddd;
+    padding:15px;
+    border-radius:12px;
+    text-align:center;
+    background:#fafafa;
+}
+.upload-box:hover{
+    border-color:#dc3545;
+}
+
+/* Validation Styles */
+.input-error {
+    border: 2px solid #dc3545 !important;
+    background: #fff5f5;
+}
+
+.input-valid {
+    border: 2px solid #28a745 !important;
+    background: #f6fffa;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
 </style>
 
-<div class="container">
-    <h2>Add Club</h2>
+<div class="content">
 
-    <form method="POST" enctype="multipart/form-data">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-danger">Add New Club</h4>
+        <a href="all_club_page.php" class="btn btn-outline-danger btn-effect">
+            <i class="bi bi-arrow-left me-2"></i>Back
+        </a>
+    </div>
 
-        <label>Club Image:</label>
-        <input type="file" name="clubimage" required>
+    <div class="card custom-card p-4">
 
-        <label>Club Name:</label>
-        <input type="text" name="clubname" required>
+        <form method="POST" enctype="multipart/form-data">
 
-        <label>Faculty:</label>
-        <input type="text" name="faculty" required>
+        <div class="row g-3">
 
-        <label>Total Members:</label>
-        <input type="number" name="totalmembers" required>
+            <!-- IMAGE -->
+            <div class="col-12">
+                <label class="form-label">Choose Club Image</label>
 
-        <label>Status:</label>
-        <select name="status">
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
+                <div class="upload-box">
+                    <img src="https://via.placeholder.com/800x250?text=Club+Preview" 
+                         class="event-img" id="clubImagePreview">
 
-        <button type="submit" name="submit">Save Club</button>
+                    <input type="file" class="form-control mt-2" 
+                           id="clubImage" name="clubimage" accept="image/*">
+                </div>
+            </div>
 
-    </form>
+            <div class="col-md-6">
+                <label class="form-label">Club Name *</label>
+                <input type="text" class="form-control" name="clubname">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Faculty *</label>
+                <select class="form-select" name="faculty">
+                    <option value="">Select Faculty</option>
+                    <?php
+                    while($row = mysqli_fetch_assoc($faculty_result))
+                    {
+                        echo "<option value='".$row['name']."'>".$row['name']."</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Total Members *</label>
+                <input type="number" class="form-control" name="totalmembers">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Status *</label>
+                <select class="form-select" name="status">
+                    <option value="">Select Status</option>
+                    <option>Active</option>
+                    <option>Inactive</option>
+                </select>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">Club Description *</label>
+                <textarea class="form-control" rows="4" name="clubdescription"></textarea>
+            </div>
+
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" name="submit" class="btn btn-danger btn-effect">
+                <i class="bi bi-save me-2"></i>Save Club
+            </button>
+
+            <a href="all_club_page.php" class="btn btn-outline-secondary btn-effect">
+                Cancel
+            </a>
+        </div>
+
+        </form>
+
+    </div>
+
 </div>
 
-<?php include 'admin_footer.php'; // FOOTER INCLUDE ?>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+$(document).ready(function(){
+
+    // IMAGE PREVIEW
+    $("#clubImage").on("change", function(){
+        let reader = new FileReader();
+
+        reader.onload = function(e){
+            $("#clubImagePreview").attr("src", e.target.result);
+        }
+
+        if(this.files[0]){
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // REMOVE ERROR ON INPUT
+    $("input, textarea, select").on("keyup change", function(){
+        $(this).removeClass("input-error").addClass("input-valid");
+        $(this).next(".error-text").remove();
+    });
+
+    // FORM VALIDATION
+    $("form").on("submit", function(e){
+
+        let valid = true;
+
+        function showError(element, message){
+            element.addClass("input-error").removeClass("input-valid");
+            if(element.next(".error-text").length == 0){
+                element.after("<div class='error-text'>" + message + "</div>");
+            }
+        }
+
+        let clubname = $("input[name='clubname']");
+        if(clubname.val().trim() == ""){
+            showError(clubname, "Club name is required");
+            valid = false;
+        }
+
+        let faculty = $("select[name='faculty']");
+        if(faculty.val() == ""){
+            showError(faculty, "Please select faculty");
+            valid = false;
+        }
+
+        let members = $("input[name='totalmembers']");
+        if(members.val() == "" || members.val() <= 0){
+            showError(members, "Enter valid number");
+            valid = false;
+        }
+
+        let status = $("select[name='status']");
+        if(status.val() == ""){
+            showError(status, "Select status");
+            valid = false;
+        }
+
+        let desc = $("textarea[name='clubdescription']");
+        if(desc.val().trim() == ""){
+            showError(desc, "Description required");
+            valid = false;
+        }
+
+        let image = $("#clubImage");
+        if(image.val() == ""){
+            showError(image, "Upload image");
+            valid = false;
+        }
+
+        if(!valid){
+            e.preventDefault();
+        }
+
+    });
+
+});
+</script>
+
+<?php include 'admin_footer.php'; ?>
