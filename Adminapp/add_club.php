@@ -1,226 +1,110 @@
 <?php
-include 'admin_header.php';
+include 'admin_header.php';   // HEADER INCLUDE
 include '../database.php';
-?>
 
-<!-- SweetAlert2 -->
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<style>
-    .content {
-        animation: fadeIn .6s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(15px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .custom-card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        background: #fff;
-    }
-
-    .page-header {
-        background: #fff;
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-    }
-
-    .club-img {
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-        margin-bottom: 15px;
-    }
-
-    .btn-effect {
-        border-radius: 50px;
-        transition: .3s;
-    }
-
-    .btn-effect:hover {
-        transform: translateY(-2px);
-    }
-
-    .form-label {
-        font-weight: 600;
-    }
-</style>
-
-<div class="content">
-
-    <div class="page-header d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold text-danger mb-0">Add Club</h4>
-            <small class="text-muted">Create new student club</small>
-        </div>
-
-        <a href="all_clubes_page.php" class="btn btn-outline-danger btn-effect">
-            Back to Clubs
-        </a>
-    </div>
-
-    <div class="card custom-card p-4">
-
-        <form method="POST" enctype="multipart/form-data" id="addClubForm">
-
-            <label class="form-label">Choose image for club</label>
-            <div class="text-center">
-                <img src="https://via.placeholder.com/150?text=Club+Image" class="club-img" id="clubImagePreview">
-                <br>
-                <input type="file" class="form-control mt-2" id="clubImage" name="clubImage" accept="image/*">
-            </div>
-
-            <div class="row g-3 mt-2">
-
-                <div class="col-md-6">
-                    <label class="form-label">Club Name *</label>
-                    <input type="text" class="form-control" name="clubName" id="clubName">
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Assign Faculty *</label>
-
-                    <select class="form-select" name="faculty" id="faculty">
-                        <option value="">Select Faculty</option>
-
-                        <?php
-                        $q = mysqli_query($con, "SELECT * FROM faculty_register");
-                        while ($row = mysqli_fetch_assoc($q)) {
-                            ?>
-                            <option value="<?= $row['id']; ?>">
-                                <?= $row['name']; ?> - <?= $row['department']; ?>
-                            </option>
-                        <?php } ?>
-
-                    </select>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Total Members *</label>
-                    <input type="number" class="form-control" name="totalMembers" id="totalMembers">
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Status *</label>
-                    <select class="form-select" name="status" id="status">
-                        <option value="">Select status</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>
-
-                <div class="col-12">
-                    <label class="form-label">Description *</label>
-                    <textarea class="form-control" rows="4" name="description" id="description"></textarea>
-                </div>
-
-            </div>
-
-            <div class="mt-4 text-center">
-                <button type="submit" name="submit" class="btn btn-danger btn-effect">
-                    Create Club
-                </button>
-            </div>
-
-        </form>
-
-    </div>
-</div>
-
-<!-- Image Preview -->
-<script>
-    $("#clubImage").change(function () {
-        let reader = new FileReader();
-        reader.onload = function (e) {
-            $("#clubImagePreview").attr("src", e.target.result);
-        }
-        reader.readAsDataURL(this.files[0]);
-    });
-</script>
-
-<!-- ✅ jQuery Validation -->
-<script>
-    $("#addClubForm").submit(function (e) {
-
-        let name = $("#clubName").val();
-        let faculty = $("#faculty").val();
-        let members = $("#totalMembers").val();
-        let status = $("#status").val();
-        let desc = $("#description").val();
-
-        if (name == "" || faculty == "" || members == "" || status == "" || desc == "") {
-            e.preventDefault();
-
-            Swal.fire({
-                icon: 'warning',
-                title: 'All fields are required!'
-            });
-        }
-
-    });
-</script>
-
-<?php
-
-if (isset($_POST['submit'])) {
-
-    $clubName = $_POST['clubName'];
-    $totalMembers = $_POST['totalMembers'];
-    $status = $_POST['status'];
+if(isset($_POST['submit']))
+{
+    $clubname = $_POST['clubname'];
     $faculty = $_POST['faculty'];
-    $description = $_POST['description'];
+    $totalmembers = $_POST['totalmembers'];
+    $status = $_POST['status'];
 
-    $image = $_FILES['clubImage']['name'];
-    $tmp = $_FILES['clubImage']['tmp_name'];
+    // Image Upload
+    $filename = $_FILES['clubimage']['name'];
+    $tempname = $_FILES['clubimage']['tmp_name'];
+    $folder = "uploads/".$filename;
 
-    move_uploaded_file($tmp, "uploads/" . $image);
+    move_uploaded_file($tempname, $folder);
 
-    // ✅ MATCH DATABASE
-    $query = "INSERT INTO clubs
-(clubimage, clubname, faculty_id, totalmembers, status, description)
-VALUES
-('$image','$clubName','$faculty','$totalMembers','$status','$description')";
+    // Insert Query
+    $query = "INSERT INTO clubs (clubimage, clubname, faculty, totalmembers, status)
+              VALUES ('$filename', '$clubname', '$faculty', '$totalmembers', '$status')";
 
-    $result = mysqli_query($con, $query);
-
-    if ($result) {
-        ?>
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Club Added Successfully'
-            }).then(() => {
-                window.location = 'all_clubes_page.php';
-            });
-        </script>
-        <?php
-    } else {
-        ?>
-        <script>
-            Swal.fire('Error', '<?php echo mysqli_error($con); ?>', 'error');
-        </script>
-        <?php
+    if(mysqli_query($con, $query))
+    {
+        echo "<script>alert('Club Added Successfully');</script>";
     }
-
+    else
+    {
+        echo "<script>alert('Error');</script>";
+    }
 }
 ?>
 
-<?php include 'admin_footer.php'; ?>
+<style>
+    .container {
+        width: 400px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: 500;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0 15px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+    input:focus, select:focus {
+        border-color: #3498db;
+        outline: none;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #2980b9;
+    }
+</style>
+
+<div class="container">
+    <h2>Add Club</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <label>Club Image:</label>
+        <input type="file" name="clubimage" required>
+
+        <label>Club Name:</label>
+        <input type="text" name="clubname" required>
+
+        <label>Faculty:</label>
+        <input type="text" name="faculty" required>
+
+        <label>Total Members:</label>
+        <input type="number" name="totalmembers" required>
+
+        <label>Status:</label>
+        <select name="status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+
+        <button type="submit" name="submit">Save Club</button>
+
+    </form>
+</div>
+
+<?php include 'admin_footer.php'; // FOOTER INCLUDE ?>

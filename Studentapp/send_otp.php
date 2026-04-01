@@ -1,22 +1,29 @@
 <?php
-$conn = mysqli_connect("localhost", "root", "", "your_db");
+session_start();
+include '../database.php';
 
 $email = $_POST['email'];
 
-// Check user exists
-$result = mysqli_query($conn, "SELECT * FROM users WHERE email='$email'");
-if(mysqli_num_rows($result) > 0){
+// Check email exists
+$check = mysqli_query($con, "SELECT * FROM Faculty_register WHERE email='$email'");
 
-    $otp = rand(100000, 999999);
-    $expiry = date("Y-m-d H:i:s", strtotime("+10 minutes"));
+if(mysqli_num_rows($check) > 0){
 
-    mysqli_query($conn, "UPDATE users SET otp='$otp', otp_expiry='$expiry' WHERE email='$email'");
+    $otp = rand(100000,999999);
 
-    // Send Email (Use mail() or PHPMailer)
-    mail($email, "Your OTP Code", "Your OTP is: $otp");
+    mysqli_query($con, "INSERT INTO password_resets (email, otp) VALUES ('$email','$otp')");
 
-    header("Location: verify_otp.php?email=$email");
-} else {
-    echo "Email not found!";
+    $_SESSION['email'] = $email;
+
+    // EMAIL SEND
+    $subject = "OTP Verification";
+    $message = "Your OTP is: $otp";
+    $headers = "From: no-reply@test.com";
+
+    mail($email,$subject,$message,$headers);
+
+    header("Location: verify_otp.php");
+}else{
+    echo "<script>alert('Email not found');window.location='forgot_password.php';</script>";
 }
-?>  
+?>
