@@ -70,7 +70,6 @@ $result = mysqli_query($con, "SELECT * FROM my_club");
         </div>
 
         <?php } ?>
-
     </div>
 
 </div>
