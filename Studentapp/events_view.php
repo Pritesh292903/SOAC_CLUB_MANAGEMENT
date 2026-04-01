@@ -4,8 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 include 'header.php';
+include "../database.php";
 
-// ✅ PHP LOGIN CHECK
+// =====================
+// LOGIN CHECK
 if(isset($_GET['join'])){
     if(!isset($_SESSION['user_id'])){
         echo "<script>
@@ -15,14 +17,75 @@ if(isset($_GET['join'])){
         exit();
     }
 }
+
+// =====================
+// FORM SUBMIT BACKEND (SAME AS CLUB)
+if(isset($_POST['submit_event']))
+{
+    if(!isset($_SESSION['user_id'])){
+        echo "<script>
+            alert('Please login first!');
+            window.location.href='login_view.php';
+        </script>";
+        exit();
+    }
+
+    $user_id  = $_SESSION['user_id'];
+    $name     = mysqli_real_escape_string($con, $_POST['name']);
+    $email    = mysqli_real_escape_string($con, $_POST['email']);
+    $phone    = mysqli_real_escape_string($con, $_POST['phone']);
+    $event    = trim(mysqli_real_escape_string($con, $_POST['event_name']));
+    $message  = mysqli_real_escape_string($con, $_POST['message']);
+
+    $query = "INSERT INTO event_join_requests 
+              (user_id, name, email, phone, event_name, message) 
+              VALUES ('$user_id','$name','$email','$phone','$event','$message')";
+
+    if(mysqli_query($con, $query)){
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'You have successfully joined the event.',
+                    icon: 'success'
+                }).then(() => {
+                    window.location.href='event_view.php';
+                });
+            });
+        </script>";
+    } else {
+        echo "<script>alert('Database Error');</script>";
+    }
+}
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+<style>
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(217,4,41,.3);
+    transition: 0.3s;
+}
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+</style>
+</head>
+
+<body>
+
 <div class="container my-5">
 
-    <!-- Heading -->
     <div class="text-center mb-5">
         <h1 class="display-4 fw-bold text-danger animate__animated animate__fadeInDown">
             Explore Our Events
@@ -34,7 +97,7 @@ if(isset($_GET['join'])){
 
     <div class="row g-4">
 
-        <!-- Event 1 -->
+        <!-- EVENT CARD -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
                 <img src="assets/images/e1.avif" class="card-img-top">
@@ -43,11 +106,9 @@ if(isset($_GET['join'])){
                     <p class="text-muted">25th Feb 2026</p>
                     <p>Enjoy live performances from amazing artists.</p>
 
-                    <!-- ✅ ONLY CHANGE -->
                     <a href="?join=Music Festival" class="btn btn-danger w-100">
                         Join Event
                     </a>
-
                 </div>
             </div>
         </div>
@@ -55,7 +116,7 @@ if(isset($_GET['join'])){
     </div>
 </div>
 
-<!-- Join Event Modal -->
+<!-- JOIN MODAL -->
 <div class="modal fade" id="joinModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -65,7 +126,7 @@ if(isset($_GET['join'])){
       </div>
 
       <div class="modal-body">
-        <form id="eventForm">
+        <form method="POST">
 
             <div class="mb-3">
                 <label>Your Name</label>
@@ -92,7 +153,7 @@ if(isset($_GET['join'])){
                 <textarea name="message" rows="3" class="form-control"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-danger w-100">Submit</button>
+            <button type="submit" name="submit_event" class="btn btn-danger w-100">Submit</button>
 
         </form>
       </div>
@@ -100,68 +161,18 @@ if(isset($_GET['join'])){
   </div>
 </div>
 
-<style>
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(217,4,41,.3);
-    transition: 0.3s;
-}
-.card-img-top {
-    height: 200px;
-    object-fit: cover;
-}
-</style>
-
+<!-- SCRIPTS -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function(){
 
-    // ✅ AUTO OPEN MODAL AFTER LOGIN (PHP CONTROLLED)
     <?php if(isset($_GET['join']) && isset($_SESSION['user_id'])){ ?>
         $("#event_name").val("<?php echo $_GET['join']; ?>");
         $("#joinModal").modal("show");
     <?php } ?>
-
-    // ✅ YOUR ORIGINAL VALIDATION (UNCHANGED)
-    $("#eventForm").validate({
-        rules:{
-            name:{ required:true, minlength:3 },
-            email:{ required:true, email:true },
-            phone:{ required:true, digits:true, minlength:10, maxlength:10 },
-            message:{ required:true, minlength:10 }
-        },
-        messages:{
-            name:"Enter valid name",
-            email:"Enter valid email",
-            phone:"Enter 10 digit phone",
-            message:"Please enter at least 10 characters"
-        },
-        errorClass:"text-danger",
-        errorElement:"small",
-        highlight:function(el){ $(el).addClass("is-invalid"); },
-        unhighlight:function(el){ $(el).removeClass("is-invalid"); },
-
-        submitHandler: function(form) {
-            Swal.fire({
-                title: "Success!",
-                text: "You have successfully joined the event.",
-                icon: "success",
-                confirmButtonColor: "#d90429",
-                confirmButtonText: "OK"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "index.php";
-                }
-            });
-        }
-
-    });
 
 });
 </script>
