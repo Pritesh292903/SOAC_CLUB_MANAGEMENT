@@ -26,7 +26,6 @@
                 <span class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill">
                     15 Aug
                 </span>
-
                 <img src="assets/images/hackathon.jpg"
                     class="card-img-top rounded-top-4"
                     style="height:200px; object-fit:cover;">
@@ -59,85 +58,7 @@
             </div>
         </div>
 
-        <!-- Event 2 -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card shadow-sm border-0 rounded-4 h-100 position-relative">
-
-                <span class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill">
-                    05 Sep
-                </span>
-
-                <img src="assets/images/cultural.jpg"
-                    class="card-img-top rounded-top-4"
-                    style="height:200px; object-fit:cover;">
-
-                <div class="card-body text-center">
-                    <h5 class="fw-bold text-danger">
-                        Cultural Night
-                    </h5>
-
-                    <p class="text-muted">
-                        Dance, Music & Drama celebration program.
-                    </p>
-
-                      <div class="d-flex justify-content-center gap-2 mt-3">
-
-                        <a href="culturalnight.php" class="btn btn-success btn-sm rounded-pill px-3">
-                            <i class="bi bi-eye me-1"></i> View
-                        </a>
-
-                        <a href="Edit_event.php" class="btn btn-warning btn-sm rounded-pill px-3">
-                            <i class="bi bi-pencil-square me-1"></i> Edit
-                        </a>
-
-                        <button class="btn btn-danger btn-sm rounded-pill px-3">
-                            <i class="bi bi-trash me-1"></i> Delete
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Event 3 -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card shadow-sm border-0 rounded-4 h-100 position-relative">
-
-                <span class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill">
-                    20 Oct
-                </span>
-
-                <img src="assets/images/sports.jpg"
-                    class="card-img-top rounded-top-4"
-                    style="height:200px; object-fit:cover;">
-
-                <div class="card-body text-center">
-                    <h5 class="fw-bold text-danger">
-                        Sports Tournament
-                    </h5>
-
-                    <p class="text-muted">
-                        Annual inter-department sports championship.
-                    </p>
-
-                    <div class="d-flex justify-content-center gap-2 mt-3">
-
-                        <a href="sportstournament.php" class="btn btn-success btn-sm rounded-pill px-3">
-                            <i class="bi bi-eye me-1"></i> View
-                        </a>
-
-                        <a href="Edit_event.php" class="btn btn-warning btn-sm rounded-pill px-3">
-                            <i class="bi bi-pencil-square me-1"></i> Edit
-                        </a>
-
-                        <button class="btn btn-danger btn-sm rounded-pill px-3">
-                            <i class="bi bi-trash me-1"></i> Delete
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+  
 
     </div>
 
