@@ -22,9 +22,9 @@ if (isset($_POST['update'])) {
     $status = trim($_POST['status']);
     $description = trim($_POST['description']);
 
-    // IMAGE UPDATE
-    if ($_FILES['clubimage']['name'] != "") {
-        $filename = time() . "_" . $_FILES['clubimage']['name'];
+    // IMAGE UPDATE (optional)
+    if (!empty($_FILES['clubimage']['name'])) {
+        $filename = time() . "_" . preg_replace("/[^a-zA-Z0-9._-]/", "", $_FILES['clubimage']['name']);
         $tempname = $_FILES['clubimage']['tmp_name'];
         move_uploaded_file($tempname, "uploads/" . $filename);
     } else {
@@ -87,7 +87,6 @@ if (isset($_POST['update'])) {
                 <img src="uploads/<?php echo $club['clubimage']; ?>" class="club-img" id="preview">
                 <input type="file" name="clubimage" id="image" class="form-control mt-2" accept="image/*">
                 <small class="text-muted">Optional: JPG, PNG, GIF (Max 5MB)</small>
-                <div class="invalid-feedback">Please select a valid image file</div>
             </div>
 
             <div class="row g-3">
@@ -141,7 +140,7 @@ if (isset($_POST['update'])) {
             <!-- ACTION BUTTONS -->
             <div class="mt-4 text-center">
                 <button type="submit" name="update" class="btn btn-danger btn-effect">Update Club</button>
-                <a href="all_club_page.php" class="btn btn-secondary btn-effect">Cancel</a>
+                <a href="all_clubes_page.php" class="btn btn-secondary btn-effect">Cancel</a>
             </div>
 
         </form>
@@ -151,39 +150,58 @@ if (isset($_POST['update'])) {
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-// Image Preview & Validation
-$("#image").on("change", function () {
-    let file = this.files[0];
-    if (file) {
-        if (!file.type.match("image.*") || file.size > 5*1024*1024) {
-            $(this).addClass("is-invalid");
-        } else {
-            $(this).removeClass("is-invalid");
+$(document).ready(function() {
+
+    // IMAGE PREVIEW ONLY
+    $("#image").on("change", function () {
+        let file = this.files[0];
+        if (file) {
             let reader = new FileReader();
-            reader.onload = function (e) { $("#preview").attr("src", e.target.result); }
+            reader.onload = function(e) { $("#preview").attr("src", e.target.result); }
             reader.readAsDataURL(file);
-        }
-    }
-});
-
-// FORM VALIDATION
-$("#editForm").on("submit", function (e) {
-    let valid = true;
-
-    $("input, select, textarea").each(function () {
-        if ($(this).prop("required") && $(this).val().trim() === "") {
-            $(this).addClass("is-invalid"); valid = false;
         } else {
-            $(this).removeClass("is-invalid");
+            // Restore old image if no new file selected
+            $("#preview").attr("src", "uploads/<?php echo $club['clubimage']; ?>");
         }
     });
 
-    let totalmembers = $("input[name='totalmembers']").val();
-    if (isNaN(totalmembers) || parseInt(totalmembers) < 1) {
-        $("input[name='totalmembers']").addClass("is-invalid"); valid = false;
-    }
+    // REAL-TIME VALIDATION
+    $("input, select, textarea").on("blur change", function() {
+        let val = $(this).val().trim();
+        if ($(this).attr("name") === "totalmembers") {
+            if (val === "" || isNaN(val) || parseInt(val) < 1) {
+                $(this).addClass("is-invalid");
+            } else {
+                $(this).removeClass("is-invalid");
+            }
+        } else {
+            if (val === "") {
+                $(this).addClass("is-invalid");
+            } else {
+                $(this).removeClass("is-invalid");
+            }
+        }
+    });
 
-    if (!valid) e.preventDefault();
+    // FORM SUBMIT VALIDATION
+    $("#editForm").on("submit", function(e) {
+        let valid = true;
+
+        $("input, select, textarea").each(function() {
+            let val = $(this).val().trim();
+            if ($(this).attr("name") === "totalmembers") {
+                if (val === "" || isNaN(val) || parseInt(val) < 1) {
+                    $(this).addClass("is-invalid"); valid = false;
+                } else { $(this).removeClass("is-invalid"); }
+            } else {
+                if (val === "") { $(this).addClass("is-invalid"); valid = false; }
+                else { $(this).removeClass("is-invalid"); }
+            }
+        });
+
+        if (!valid) e.preventDefault();
+    });
+
 });
 </script>
 
