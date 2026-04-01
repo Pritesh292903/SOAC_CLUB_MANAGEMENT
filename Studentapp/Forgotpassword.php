@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -104,16 +105,31 @@ body {
         <p>Enter your email to receive OTP</p>
     </div>
 
-     <form id="forgotForm" method="POST" action="send_reset_link.php">
+    <!-- SUCCESS / ERROR MESSAGE -->
+    <?php
+    if(isset($_SESSION['success'])){
+        echo "<p style='color:green; text-align:center;'>".$_SESSION['success']."</p>";
+        unset($_SESSION['success']);
+    }
 
-     <div class="form-group">
-        <input type="email" name="email" placeholder="Enter your email" required>
-    </div>
+    if(isset($_SESSION['error'])){
+        echo "<p style='color:red; text-align:center;'>".$_SESSION['error']."</p>";
+        unset($_SESSION['error']);
+    }
+    ?>
+
+    <form id="forgotForm" method="POST" action="send_otp.php">
+
+        <div class="form-group">
+            <input type="email" name="email" placeholder="Enter your email">
+        </div>
+
         <button type="submit" class="btn">Send OTP</button>
+
     </form>
 
     <div class="footer">
-    <a href="login_view.php" class="back-login">← Back to Login</a>
+        <a href="login_view.php" class="back-login">← Back to Login</a>
     </div>
 </div>
 
@@ -154,3 +170,4 @@ $(document).ready(function(){
 
 </body>
 </html>
+```

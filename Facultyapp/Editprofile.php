@@ -1,7 +1,7 @@
 <?php
 session_start();
-include 'F_header.php'; // Faculty header
-include "../database.php"; // DB connection
+include 'F_header.php';
+include "../database.php";
 
 // LOGIN CHECK
 if (!isset($_SESSION['user_id'])) {
@@ -11,12 +11,12 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// FETCH EXISTING DATA
+// FETCH DATA
 $result = mysqli_query($con, "SELECT * FROM Faculty_register WHERE id='$user_id'");
 $user = mysqli_fetch_assoc($result);
 
-// ================= UPDATE LOGIC =================
-if (isset($_POST['name'])) {
+// ================= UPDATE =================
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     $name = mysqli_real_escape_string($con, $_POST['name']);
     $email = mysqli_real_escape_string($con, $_POST['email']);
@@ -24,24 +24,22 @@ if (isset($_POST['name'])) {
     $department = mysqli_real_escape_string($con, $_POST['department']);
     $designation = mysqli_real_escape_string($con, $_POST['designation']);
 
-    // KEEP OLD IMAGE
-    $image = !empty($user['image']) ? $user['image'] : 'uploads/default.png';
+    $image = $user['image'];
 
     // IMAGE UPLOAD
     if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] == 0) {
 
-        $file_name = $_FILES['profileImage']['name'];
         $file_tmp = $_FILES['profileImage']['tmp_name'];
         $file_size = $_FILES['profileImage']['size'];
-        $file_type = $_FILES['profileImage']['type'];
+        $file_type = mime_content_type($file_tmp);
 
         $allowed = ["image/jpeg", "image/png", "image/webp"];
 
         if (in_array($file_type, $allowed) && $file_size <= 2 * 1024 * 1024) {
 
-            $new_name = "uploads/" . time() . "_" . basename($file_name);
+            $new_name = "uploads/" . time() . "_" . basename($_FILES['profileImage']['name']);
 
-            // DELETE OLD IMAGE
+            // DELETE OLD
             if (!empty($user['image']) && file_exists("../" . $user['image'])) {
                 unlink("../" . $user['image']);
             }
@@ -63,16 +61,16 @@ if (isset($_POST['name'])) {
         WHERE id='$user_id'";
 
     if (mysqli_query($con, $update)) {
-        echo "<script>alert('✅ Profile Updated Successfully'); window.location='profile.php';</script>";
+        echo "<script>alert('✅ Profile Updated'); window.location='profile.php';</script>";
         exit();
     } else {
-        echo "<script>alert('❌ Error updating profile');</script>";
+        echo "<script>alert('❌ Error');</script>";
     }
 }
 
-// PROFILE IMAGE PATH
+// PROFILE IMAGE (CACHE FIX)
 $profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
-    ? "../" . $user['image']
+    ? "../" . $user['image'] . "?v=" . filemtime("../" . $user['image'])
     : "assets/images/user.jpg";
 ?>
 
@@ -84,7 +82,7 @@ $profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
 
             <div class="row">
 
-                <!-- PROFILE IMAGE -->
+                <!-- IMAGE -->
                 <div class="col-md-4 text-center">
 
                     <img id="profilePreview"
@@ -92,14 +90,10 @@ $profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
                         class="img-fluid rounded-circle shadow"
                         style="width:180px;height:180px;object-fit:cover;">
 
-                    <input type="file" id="profileImage" name="profileImage" hidden>
-
-                    <div class="mt-3">
-                        <button type="button" id="changePhotoBtn"
-                            class="btn btn-outline-secondary btn-sm rounded-pill">
-                            Change Photo
-                        </button>
-                    </div>
+                    <button type="button" id="changePhotoBtn"
+                        class="btn btn-outline-secondary btn-sm rounded-pill mt-3">
+                        Change Photo
+                    </button>
 
                     <small id="photoError" class="text-danger d-none"></small>
                 </div>
@@ -107,40 +101,37 @@ $profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
                 <!-- FORM -->
                 <div class="col-md-8">
 
-                    <form method="POST" enctype="multipart/form-data" novalidate>
+                    <form method="POST" enctype="multipart/form-data">
 
-                        <!-- NAME -->
+                        <!-- 🔥 IMPORTANT -->
+                        <input type="file" id="profileImage" name="profileImage" hidden>
+
                         <div class="mb-3">
-                            <label class="form-label">Full Name</label>
+                            <label>Full Name</label>
                             <input type="text" name="name" class="form-control"
                                 value="<?php echo $user['name']; ?>" required>
                         </div>
 
-                        <!-- EMAIL -->
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
+                            <label>Email</label>
                             <input type="email" name="email" class="form-control"
                                 value="<?php echo $user['email']; ?>" required>
                         </div>
 
-                        <!-- PHONE -->
                         <div class="mb-3">
-                            <label class="form-label">Phone</label>
+                            <label>Phone</label>
                             <input type="text" name="mobile" class="form-control"
-                                value="<?php echo $user['mobile']; ?>"
-                                pattern="[0-9]{10}" required>
+                                value="<?php echo $user['mobile']; ?>" required>
                         </div>
 
-                        <!-- DEPARTMENT -->
                         <div class="mb-3">
-                            <label class="form-label">Department</label>
+                            <label>Department</label>
                             <input type="text" name="department" class="form-control"
                                 value="<?php echo $user['department']; ?>" required>
                         </div>
 
-                        <!-- DESIGNATION -->
                         <div class="mb-3">
-                            <label class="form-label">Designation</label>
+                            <label>Designation</label>
                             <input type="text" name="designation" class="form-control"
                                 value="<?php echo $user['designation']; ?>" required>
                         </div>
@@ -152,12 +143,11 @@ $profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
 
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
-<!-- JS FOR IMAGE PREVIEW -->
+<!-- JS -->
 <script>
 document.getElementById("changePhotoBtn").onclick = () => {
     document.getElementById("profileImage").click();
@@ -167,27 +157,8 @@ document.getElementById("profileImage").onchange = function () {
 
     const file = this.files[0];
     const preview = document.getElementById("profilePreview");
-    const error = document.getElementById("photoError");
 
     if (!file) return;
-
-    const allowed = ["image/jpeg", "image/png", "image/webp"];
-
-    if (!allowed.includes(file.type)) {
-        error.innerText = "Only JPG, PNG, WEBP allowed";
-        error.classList.remove("d-none");
-        this.value = "";
-        return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-        error.innerText = "Max size 10MB exceeded";
-        error.classList.remove("d-none");
-        this.value = "";
-        return;
-    }
-
-    error.classList.add("d-none");
 
     const reader = new FileReader();
     reader.onload = e => preview.src = e.target.result;
