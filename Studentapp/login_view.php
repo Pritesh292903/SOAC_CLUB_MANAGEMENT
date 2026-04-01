@@ -62,14 +62,26 @@ body {
     outline: none;
 }
 
+/* VALIDATION */
 .is-invalid {
     border: 1.8px solid #dc3545 !important;
+    padding-right: 35px;
 }
 
 .invalid-feedback {
     color: #dc3545;
     font-size: 13px;
     margin-top: 6px;
+}
+
+/* ICON */
+.input-icon {
+    position: absolute;
+    right: 12px;
+    top: 38px;
+    color: #dc3545;
+    font-weight: bold;
+    display: none;
 }
 
 .extra-links {
@@ -114,14 +126,18 @@ body {
 
     <form id="loginForm">
 
+        <!-- EMAIL -->
         <div class="form-group">
             <label>Email Address</label>
             <input type="email" name="email">
+            <span class="input-icon">!</span>
         </div>
 
+        <!-- PASSWORD -->
         <div class="form-group">
             <label>Password</label>
             <input type="password" name="password">
+            <span class="input-icon">!</span>
         </div>
 
         <div class="extra-links">
@@ -146,7 +162,7 @@ $(document).ready(function(){
 
         rules:{
             email:{ required:true, email:true },
-            password:{ required:true, minlength:2 }
+            password:{ required:true, minlength:6 }
         },
 
         messages:{
@@ -165,10 +181,12 @@ $(document).ready(function(){
 
         highlight:function(element){
             $(element).addClass("is-invalid");
+            $(element).closest(".form-group").find(".input-icon").show();
         },
 
         unhighlight:function(element){
             $(element).removeClass("is-invalid");
+            $(element).closest(".form-group").find(".input-icon").hide();
         },
 
         submitHandler:function(form){
