@@ -1,10 +1,14 @@
 <?php include 'admin_header.php'; ?>
+<?php include "../database.php"; ?>
 
 <?php
-include "../database.php";
+// FETCH ADMIN
+$admins = mysqli_query($con, "SELECT * FROM User WHERE role='admin'");
 
-// SAME QUERY
-$adminFaculty = mysqli_query($con, "SELECT * FROM User WHERE role='admin' OR role='faculty'");
+// FETCH FACULTY
+$faculties = mysqli_query($con, "SELECT * FROM Faculty_register");
+
+// FETCH STUDENTS (NO CHANGE)
 $students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 ?>
 
@@ -12,78 +16,43 @@ $students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-    /* YOUR SAME CSS */
-    .content {
-        animation: fadeIn 0.5s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .page-header {
-        background: #fff;
-        padding: 20px 25px;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-    }
-
-    .page-header h4 {
-        color: #dc3545;
-    }
-
-    .custom-card {
-        background: #fff;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-    }
-
-    .table tbody tr:hover {
-        background: #f8f9fa;
-    }
-
-    .search-box {
-        max-width: 300px;
-    }
-
-    .user-thumb {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .action-btn {
-        border-radius: 50px;
-        padding: 5px 10px;
-    }
-
-    .badge-admin {
-        background: #dc3545;
-    }
-
-    .badge-faculty {
-        background: #ff6b6b;
-    }
-
-    .badge-active {
-        background: #28a745;
-    }
-
-    .badge-pending {
-        background: #ffc107;
-        color: #000;
-    }
+.content {
+    animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+.page-header {
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+.page-header h4 { color: #dc3545; }
+.custom-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+.table tbody tr:hover { background: #f8f9fa; }
+.search-box { max-width: 300px; }
+.user-thumb {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.action-btn {
+    border-radius: 50px;
+    padding: 5px 10px;
+}
+.badge-admin { background: #dc3545; }
+.badge-faculty { background: #ff6b6b; }
+.badge-active { background: #28a745; }
+.badge-pending { background: #ffc107; color: #000; }
 </style>
 
 <div class="content">
@@ -102,15 +71,13 @@ $students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 
     <!-- ADMIN & FACULTY -->
     <div class="custom-card">
-
-
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="text-danger mb-0">Admin & Faculty Users</h5>
-            <input type="text" id="facultySearch" class="form-control search-box" placeholder="Search student...">
+            <input type="text" id="facultySearch" class="form-control search-box" placeholder="Search user...">
         </div>
+
         <div class="table-responsive">
             <table class="table align-middle">
-
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
@@ -124,41 +91,71 @@ $students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 
                 <tbody>
 
-                    <?php
-                    $i = 1;
-                    while ($row = mysqli_fetch_assoc($adminFaculty)) {
+                <?php
+                $i = 1;
 
-                        // 🔥 ONLY FIX (IMAGE PATH)
-                        $img = (!empty($row['clubimage']) && file_exists("../uploads/" . $row['clubimage']))
-                            ? "../uploads/" . $row['clubimage']
-                            : "assets/images/p2.webp";
-                        ?>
+                // ===== ADMIN =====
+                while ($row = mysqli_fetch_assoc($admins)) {
 
-                        <tr>
-                            <td><?php echo $i++; ?></td>
+                    $img = (!empty($row['clubimage']) && file_exists("../uploads/" . $row['clubimage']))
+                        ? "../uploads/" . $row['clubimage']
+                        : "assets/images/p2.webp";
+                ?>
+                    <tr>
+                        <td><?php echo $i++; ?></td>
 
-                            <td>
-                                <img src="<?php echo $img; ?>" class="user-thumb me-2">
-                                <?php echo $row['fullname']; ?>
-                            </td>
+                        <td>
+                            <img src="<?php echo $img; ?>" class="user-thumb me-2">
+                            <?php echo $row['fullname']; ?>
+                        </td>
 
-                            <td><?php echo $row['email']; ?></td>
+                        <td><?php echo $row['email']; ?></td>
 
-                            <td>
-                                <span class="badge badge-admin"><?php echo $row['role']; ?></span>
-                            </td>
+                        <td>
+                            <span class="badge badge-admin">admin</span>
+                        </td>
 
-                            <td><span class="badge badge-active">Active</span></td>
+                        <td><span class="badge badge-active">Active</span></td>
 
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                <?php } ?>
 
-                        </tr>
+                <?php
+                // ===== FACULTY =====
+                while ($row = mysqli_fetch_assoc($faculties)) {
 
-                    <?php } ?>
+                    $img = (!empty($row['image']) && file_exists("../uploads/" . $row['image']))
+                        ? "../uploads/" . $row['image']
+                        : "assets/images/p2.webp";
+                ?>
+                    <tr>
+                        <td><?php echo $i++; ?></td>
+
+                        <td>
+                            <img src="<?php echo $img; ?>" class="user-thumb me-2">
+                            <?php echo $row['name']; ?>
+                        </td>
+
+                        <td><?php echo $row['email']; ?></td>
+
+                        <td>
+                            <span class="badge badge-faculty">faculty</span>
+                        </td>
+
+                        <td><span class="badge badge-active">Active</span></td>
+
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                <?php } ?>
 
                 </tbody>
             </table>
@@ -167,7 +164,6 @@ $students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 
     <!-- STUDENTS -->
     <div class="custom-card">
-
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="text-danger mb-0">All Students List</h5>
             <input type="text" id="studentSearch" class="form-control search-box" placeholder="Search student...">
@@ -175,7 +171,6 @@ $students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 
         <div class="table-responsive">
             <table class="table align-middle" id="studentTable">
-
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
@@ -192,39 +187,36 @@ $students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 
                 <tbody>
 
-                    <?php
-                    $i = 1;
-                    while ($row = mysqli_fetch_assoc($students)) {
+                <?php
+                $i = 1;
+                while ($row = mysqli_fetch_assoc($students)) {
 
-                        // 🔥 ONLY FIX (IMAGE PATH)
-                        $img = (!empty($row['clubimage']) && file_exists("../uploads/" . $row['clubimage']))
-                            ? "../uploads/" . $row['clubimage']
-                            : "assets/images/p2.webp";
-                        ?>
+                    $img = (!empty($row['clubimage']) && file_exists("../uploads/" . $row['clubimage']))
+                        ? "../uploads/" . $row['clubimage']
+                        : "assets/images/p2.webp";
+                ?>
+                    <tr>
+                        <td><?php echo $i++; ?></td>
 
-                        <tr>
-                            <td><?php echo $i++; ?></td>
+                        <td>
+                            <img src="<?php echo $img; ?>" class="user-thumb">
+                        </td>
 
-                            <td>
-                                <img src="<?php echo $img; ?>" class="user-thumb">
-                            </td>
+                        <td><?php echo $row['fullname']; ?></td>
+                        <td><?php echo $row['enrollment']; ?></td>
+                        <td><?php echo $row['email']; ?></td>
+                        <td><?php echo $row['mobile']; ?></td>
+                        <td><?php echo $row['department']; ?></td>
 
-                            <td><?php echo $row['fullname']; ?></td>
-                            <td><?php echo $row['enrollment']; ?></td>
-                            <td><?php echo $row['email']; ?></td>
-                            <td><?php echo $row['mobile']; ?></td>
-                            <td><?php echo $row['department']; ?></td>
+                        <td><span class="badge badge-active">Approved</span></td>
 
-                            <td><span class="badge badge-active">Approved</span></td>
-
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                    <?php } ?>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-secondary action-btn delete-btn">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                <?php } ?>
 
                 </tbody>
             </table>
@@ -236,31 +228,31 @@ $students = mysqli_query($con, "SELECT * FROM User WHERE role='user'");
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
-    // DELETE
-    $('.delete-btn').click(function (e) {
-        e.preventDefault();
-        let row = $(this).closest('tr');
+// DELETE UI ONLY
+$('.delete-btn').click(function (e) {
+    e.preventDefault();
+    let row = $(this).closest('tr');
 
-        Swal.fire({
-            title: 'Are you sure?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                row.remove();
-                Swal.fire('Deleted!', '', 'success');
-            }
-        });
+    Swal.fire({
+        title: 'Are you sure?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            row.remove();
+            Swal.fire('Deleted!', '', 'success');
+        }
     });
+});
 
-    // SEARCH
-    $('#studentSearch').on('keyup', function () {
-        let value = $(this).val().toLowerCase();
-        $("#studentTable tbody tr").filter(function () {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-        });
+// SEARCH STUDENTS
+$('#studentSearch').on('keyup', function () {
+    let value = $(this).val().toLowerCase();
+    $("#studentTable tbody tr").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
     });
+});
 </script>
 
 <?php include 'admin_footer.php'; ?>
