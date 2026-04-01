@@ -97,6 +97,14 @@ if (session_status() === PHP_SESSION_NONE) {
         <?php } ?>
 
         <li class="nav-item"><a class="nav-link" href="aboutrku_view.php">About RKU</a></li>
+
+        <!-- ✅ ONLY ADD THIS -->
+        <li class="nav-item">
+          <a class="nav-link text-warning fw-bold" href="#">
+            <i class=""></i> My participate 
+          </a>
+        </li>
+
       </ul>
 
       <!-- Right Side -->
