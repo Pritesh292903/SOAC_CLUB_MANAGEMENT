@@ -259,14 +259,7 @@ if (!$user) {
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <div class="search-box d-none d-md-block">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
-                    <input type="text" class="form-control border-start-0" placeholder="Search here...">
-                </div>
-            </div>
+            
 
         </div>
 
