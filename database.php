@@ -70,19 +70,15 @@ mysqli_query($con, "CREATE TABLE IF NOT EXISTS events (
 
 
 // Create Clubs Table
-//select database
 mysqli_select_db($con, "SOAE_CLUB");
 mysqli_query($con, "CREATE TABLE IF NOT EXISTS clubs (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-    clubimage VARCHAR(255),
-    clubname VARCHAR(100) NOT NULL,
-    faculty_id INT NOT NULL,
-    totalmembers INT NOT NULL,
-    status VARCHAR(20) NOT NULL,
-    description TEXT NOT NULL,
+ id INT AUTO_INCREMENT PRIMARY KEY,
+    image VARCHAR(255),
+    name VARCHAR(100),
+    date DATE,
+    status VARCHAR(50),
+    description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )");
-
-
 
 ?>
