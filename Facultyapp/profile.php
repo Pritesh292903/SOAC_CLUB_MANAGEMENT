@@ -21,22 +21,20 @@ if (!$result) {
 
 $user = mysqli_fetch_assoc($result);
 
-// 🔥 FINAL IMAGE FIX (NO file_exists)
-if (!empty($user['image'])) {
-    $profileImage = "../" . $user['image'] . "?t=" . time();
-} else {
-    $profileImage = "assets/images/user.jpg";
-}
+// PROFILE IMAGE (CACHE FIX)
+$profileImage = !empty($user['image']) 
+    ? "../" . $user['image'] . "?t=" . time() 
+    : "assets/images/user.jpg";
 ?>
 
 <div class="container my-5">
     <div class="card shadow border-0 rounded-4"
-        style="max-width: 400px; margin: 0 auto; text-align: center; padding: 30px; background: #fff;">
+         style="max-width: 400px; margin: 0 auto; text-align: center; padding: 30px; background: #fff;">
 
         <!-- PROFILE IMAGE -->
         <div class="mb-3">
             <img src="<?php echo $profileImage; ?>" alt="Profile Image"
-                style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #dc3545;">
+                 style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #dc3545;">
         </div>
 
         <h2><?php echo htmlspecialchars($user['name']); ?></h2>
@@ -50,8 +48,8 @@ if (!empty($user['image'])) {
             <p><b>Designation:</b> <?php echo htmlspecialchars($user['designation']); ?></p>
         </div>
 
-        <a href="editprofile.php"
-            style="display:inline-block; margin-top:15px; padding:10px 20px; border-radius:25px; background:#dc3545; color:#fff; text-decoration:none;">
+        <a href="Editprofile.php"
+           style="display:inline-block; margin-top:15px; padding:10px 20px; border-radius:25px; background:#dc3545; color:#fff; text-decoration:none;">
             ✏ Edit Profile
         </a>
     </div>

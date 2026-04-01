@@ -47,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             if (move_uploaded_file($file_tmp, "../" . $new_name)) {
                 $image = $new_name;
             }
+        } else {
+            echo "<script>alert('❌ Invalid file type or size exceeded 2MB');</script>";
         }
     }
 
@@ -61,16 +63,19 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         WHERE id='$user_id'";
 
     if (mysqli_query($con, $update)) {
-        echo "<script>alert('✅ Profile Updated'); window.location='profile.php';</script>";
+        echo "<script>
+                alert('✅ Profile Updated');
+                window.location='profile.php';
+              </script>";
         exit();
     } else {
-        echo "<script>alert('❌ Error');</script>";
+        echo "<script>alert('❌ Error updating profile');</script>";
     }
 }
 
 // PROFILE IMAGE (CACHE FIX)
-$profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
-    ? "../" . $user['image'] . "?v=" . filemtime("../" . $user['image'])
+$profileImage = !empty($user['image']) 
+    ? "../" . $user['image'] . "?t=" . time() 
     : "assets/images/user.jpg";
 ?>
 
@@ -84,14 +89,11 @@ $profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
 
                 <!-- IMAGE -->
                 <div class="col-md-4 text-center">
+                    <img id="profilePreview" src="<?php echo $profileImage; ?>" 
+                         class="img-fluid rounded-circle shadow" style="width:180px;height:180px;object-fit:cover;">
 
-                    <img id="profilePreview"
-                        src="<?php echo $profileImage; ?>"
-                        class="img-fluid rounded-circle shadow"
-                        style="width:180px;height:180px;object-fit:cover;">
-
-                    <button type="button" id="changePhotoBtn"
-                        class="btn btn-outline-secondary btn-sm rounded-pill mt-3">
+                    <button type="button" id="changePhotoBtn" 
+                            class="btn btn-outline-secondary btn-sm rounded-pill mt-3">
                         Change Photo
                     </button>
 
@@ -100,61 +102,51 @@ $profileImage = (!empty($user['image']) && file_exists("../" . $user['image']))
 
                 <!-- FORM -->
                 <div class="col-md-8">
-
                     <form method="POST" enctype="multipart/form-data">
-
-                        <!-- 🔥 IMPORTANT -->
                         <input type="file" id="profileImage" name="profileImage" hidden>
 
                         <div class="mb-3">
                             <label>Full Name</label>
-                            <input type="text" name="name" class="form-control"
-                                value="<?php echo $user['name']; ?>" required>
+                            <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($user['name']); ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label>Email</label>
-                            <input type="email" name="email" class="form-control"
-                                value="<?php echo $user['email']; ?>" required>
+                            <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label>Phone</label>
-                            <input type="text" name="mobile" class="form-control"
-                                value="<?php echo $user['mobile']; ?>" required>
+                            <input type="text" name="mobile" class="form-control" value="<?php echo htmlspecialchars($user['mobile']); ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label>Department</label>
-                            <input type="text" name="department" class="form-control"
-                                value="<?php echo $user['department']; ?>" required>
+                            <input type="text" name="department" class="form-control" value="<?php echo htmlspecialchars($user['department']); ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label>Designation</label>
-                            <input type="text" name="designation" class="form-control"
-                                value="<?php echo $user['designation']; ?>" required>
+                            <input type="text" name="designation" class="form-control" value="<?php echo htmlspecialchars($user['designation']); ?>" required>
                         </div>
 
                         <button type="submit" class="btn btn-danger">Save Changes</button>
                         <a href="profile.php" class="btn btn-secondary">Cancel</a>
-
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- JS -->
 <script>
+// OPEN FILE DIALOG
 document.getElementById("changePhotoBtn").onclick = () => {
     document.getElementById("profileImage").click();
 };
 
+// PREVIEW IMAGE
 document.getElementById("profileImage").onchange = function () {
-
     const file = this.files[0];
     const preview = document.getElementById("profilePreview");
 
