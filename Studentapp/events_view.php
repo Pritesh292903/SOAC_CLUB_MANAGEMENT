@@ -1,4 +1,21 @@
-<?php include 'header.php'; ?>
+<?php 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+include 'header.php';
+
+// ✅ PHP LOGIN CHECK
+if(isset($_GET['join'])){
+    if(!isset($_SESSION['user_id'])){
+        echo "<script>
+            alert('⚠️ Please login first to join event!');
+            window.location.href='login_view.php';
+        </script>";
+        exit();
+    }
+}
+?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,9 +42,12 @@
                     <h5 class="card-title text-danger">Music Festival</h5>
                     <p class="text-muted">25th Feb 2026</p>
                     <p>Enjoy live performances from amazing artists.</p>
-                    <button class="btn btn-danger w-100 joinBtn" data-event="Music Festival">
+
+                    <!-- ✅ ONLY CHANGE -->
+                    <a href="?join=Music Festival" class="btn btn-danger w-100">
                         Join Event
-                    </button>
+                    </a>
+
                 </div>
             </div>
         </div>
@@ -102,14 +122,13 @@
 <script>
 $(document).ready(function(){
 
-    // Open modal & set event name
-    $(".joinBtn").click(function(){
-        let eventName = $(this).data("event");
-        $("#event_name").val(eventName);
+    // ✅ AUTO OPEN MODAL AFTER LOGIN (PHP CONTROLLED)
+    <?php if(isset($_GET['join']) && isset($_SESSION['user_id'])){ ?>
+        $("#event_name").val("<?php echo $_GET['join']; ?>");
         $("#joinModal").modal("show");
-    });
+    <?php } ?>
 
-    // Validation
+    // ✅ YOUR ORIGINAL VALIDATION (UNCHANGED)
     $("#eventForm").validate({
         rules:{
             name:{ required:true, minlength:3 },
@@ -129,7 +148,6 @@ $(document).ready(function(){
         unhighlight:function(el){ $(el).removeClass("is-invalid"); },
 
         submitHandler: function(form) {
-            // SweetAlert popup
             Swal.fire({
                 title: "Success!",
                 text: "You have successfully joined the event.",

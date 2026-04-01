@@ -1,4 +1,50 @@
-<?php include 'header.php'; ?>
+<?php 
+include 'header.php';
+include "../database.php";
+
+// CHECK LOGIN
+$isLoggedIn = isset($_SESSION['user_id']);
+
+// HANDLE FORM SUBMISSION
+if(isset($_POST['submit_event'])) {
+    if(!$isLoggedIn){
+        echo "<script>
+            alert('Please login first!');
+            window.location.href='login_view.php';
+        </script>";
+        exit();
+    }
+
+    $user_id     = $_SESSION['user_id'];
+    $name        = mysqli_real_escape_string($con, $_POST['name']);
+    $email       = mysqli_real_escape_string($con, $_POST['email']);
+    $phone       = mysqli_real_escape_string($con, $_POST['phone']);
+    $event_name  = mysqli_real_escape_string($con, $_POST['event_name']);
+    $message     = mysqli_real_escape_string($con, $_POST['message']);
+
+    // INSERT INTO database (allow unlimited joins)
+    $query = "INSERT INTO club_join_requests 
+              (user_id, name, email, phone, club_name, message) 
+              VALUES ('$user_id', '$name', '$email', '$phone', '$event_name', '$message')";
+
+    if(mysqli_query($con, $query)) {
+        echo "<script>
+        document.addEventListener('DOMContentLoaded', function(){
+            Swal.fire({
+                title: 'Success!',
+                text: 'You have successfully joined the event.',
+                icon: 'success',
+                confirmButtonColor: '#d90429',
+            }).then(() => {
+                window.location.href='clubs_view.php';
+            });
+        });
+        </script>";
+    } else {
+        echo "<script>alert('Database error!');</script>";
+    }
+}
+?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -6,19 +52,19 @@
 <div class="container my-5">
     <div class="card">
 
-        <!-- Banner Image -->
+        <!-- Banner Image --> 
         <img src="assets/images/e1.avif" alt="Cricket Tournament" class="hero-img mx-auto d-block">
 
         <div class="card-body">
 
             <!-- Event Name -->
-            <h2 class="mb-4 text-center">Sports club</h2>
+            <h2 class="mb-4 text-center">Sports Club</h2>
 
             <!-- Event Info -->
             <div class="event-info mx-auto" style="max-width:700px;">
                 <h4>Clube Details</h4>
                 <ul class="list-unstyled mb-0">
-                    <li><strong>Event Name:</strong> Sport Clube</li>
+                    <li><strong>Event Name:</strong> Cricket Tournament</li>
                     <li><strong>Date:</strong> 25-02-2026</li>
                     <li><strong>Status:</strong> Active</li>
                     <li><strong>Description:</strong> This is a cricket tournament organized by the Sports Club. All students are welcome to participate.</li>
@@ -27,7 +73,9 @@
 
             <!-- Join Event Button -->
             <div class="text-center mb-4 mt-4">
-                <button class="btn btn-theme btn-lg joinBtn" data-event="Cricket Tournament">
+                <button class="btn btn-theme btn-lg joinBtn" 
+                        data-event="Cricket Tournament"
+                        data-login="<?php echo $isLoggedIn ? 'yes' : 'no'; ?>">
                     Join Club
                 </button>
             </div>
@@ -51,7 +99,7 @@
       </div>
 
       <div class="modal-body">
-        <form id="eventForm">
+        <form id="eventForm" method="POST">
 
             <div class="mb-3">
                 <label>Your Name</label>
@@ -78,7 +126,7 @@
                 <textarea name="message" rows="3" class="form-control"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-danger w-100">Submit</button>
+            <button type="submit" name="submit_event" class="btn btn-danger w-100">Submit</button>
 
         </form>
       </div>
@@ -177,6 +225,23 @@ $(document).ready(function(){
 
     // Open modal & prefill event name
     $(".joinBtn").click(function(){
+        let isLogin = $(this).data("login");
+        if(isLogin === "no"){
+            Swal.fire({
+                title: "Oops!",
+                text: "You need to login first",
+                icon: "warning",
+                confirmButtonColor: "#d90429",
+                showClass: { popup: 'animate__animated animate__zoomIn' },
+                hideClass: { popup: 'animate__animated animate__zoomOut' }
+            }).then((result) => {
+                if(result.isConfirmed){
+                    window.location.href = "login_view.php";
+                }
+            });
+            return;
+        }
+
         let eventName = $(this).data("event");
         $("#event_name").val(eventName);
         $("#joinModal").modal("show");
@@ -199,21 +264,7 @@ $(document).ready(function(){
         errorClass:"text-danger",
         errorElement:"small",
         highlight:function(el){ $(el).addClass("is-invalid"); },
-        unhighlight:function(el){ $(el).removeClass("is-invalid"); },
-
-        submitHandler: function(form) {
-            Swal.fire({
-                title: "Success!",
-                text: "You have successfully joined the event.",
-                icon: "success",
-                confirmButtonColor: "#d90429",
-                confirmButtonText: "OK"
-            }).then((result) => {
-                if(result.isConfirmed){
-                    window.location.href = "clubs_view.php"; // redirect after success
-                }
-            });
-        }
+        unhighlight:function(el){ $(el).removeClass("is-invalid"); }
     });
 
 });

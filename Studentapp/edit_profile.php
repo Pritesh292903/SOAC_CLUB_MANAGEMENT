@@ -1,89 +1,144 @@
-<?php include 'header.php'; ?>
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+include 'header.php';
+include "../database.php";
+
+// CHECK LOGIN
+if(!isset($_SESSION['user_id'])){
+    header("Location: login_view.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// FETCH USER DATA
+$result = mysqli_query($con,"SELECT * FROM User WHERE id='$user_id'");
+$user = mysqli_fetch_assoc($result);
+
+// IMAGE PATH
+$image_path = !empty($user['clubimage']) 
+    ? "../uploads/" . $user['clubimage'] 
+    : "assets/images/user.jpg";
+
+// UPDATE DATA
+if(isset($_POST['update_profile'])){
+
+    $fullname   = mysqli_real_escape_string($con, $_POST['fullname']);
+    $email      = mysqli_real_escape_string($con, $_POST['email']);
+    $mobile     = mysqli_real_escape_string($con, $_POST['phone']);
+    $department = mysqli_real_escape_string($con, $_POST['department']);
+
+    $image_name = $user['clubimage']; // default old image
+
+    // ✅ IMAGE UPLOAD FIX
+    if(isset($_FILES['photo']) && $_FILES['photo']['error'] == 0){
+
+        $file_tmp  = $_FILES['photo']['tmp_name'];
+        $file_name = $_FILES['photo']['name'];
+
+        $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        $allowed = ['jpg','jpeg','png'];
+
+        if(in_array($ext, $allowed)){
+
+            $new_name = "user_" . time() . "." . $ext;
+            $upload_path = "../uploads/" . $new_name;
+
+            if(move_uploaded_file($file_tmp, $upload_path)){
+                $image_name = $new_name;
+            }
+        }
+    }
+
+    // UPDATE QUERY
+    $update = "UPDATE User SET 
+        fullname='$fullname',
+        email='$email',
+        mobile='$mobile',
+        department='$department',
+        clubimage='$image_name'
+        WHERE id='$user_id'";
+
+    if(mysqli_query($con, $update)){
+        header("Location: profile_view.php");
+        exit();
+    } else {
+        die("Update Error: " . mysqli_error($con));
+    }
+}
+?>
 
 <div class="container my-5">
 
     <div class="card shadow border-0 rounded-4">
         <div class="card-body p-4">
 
-            <!-- Page Title -->
             <div class="mb-4">
                 <h2 class="fw-bold text-danger">
                     <i class="bi bi-person-circle me-2"></i>Edit Profile
                 </h2>
-                <p class="text-muted mb-0">Update your profile information</p>
             </div>
 
             <div class="row">
 
-                <!-- Left Side: Profile Image -->
+                <!-- LEFT IMAGE -->
                 <div class="col-md-4 text-center mb-4">
 
-                    <img id="profilePreview" src="assets/images/user.jpg"
+                    <img id="profilePreview"
+                        src="<?php echo $image_path; ?>"
                         class="img-fluid rounded-circle shadow"
-                        style="width:180px; height:180px; object-fit:cover;">
+                        style="width:180px;height:180px;object-fit:cover;">
 
-                    <input type="file" id="photoInput" accept="image/*" style="display:none;">
+                    <!-- ✅ FIX: moved inside form using JS trigger -->
+                    <button type="button" id="changePhotoBtn"
+                        class="btn btn-outline-secondary btn-sm rounded-pill mt-3">
+                        Change Photo
+                    </button>
 
-                    <div class="mt-3">
-                        <button type="button" id="changePhotoBtn"
-                            class="btn btn-outline-secondary btn-sm rounded-pill">
-                            Change Photo
-                        </button>
-                    </div>
                 </div>
 
-                <!-- Right Side: Form -->
+                <!-- RIGHT FORM -->
                 <div class="col-md-8">
 
-                    <form id="editProfileForm">
+                    <!-- ✅ IMPORTANT -->
+                    <form method="POST" enctype="multipart/form-data" id="editProfileForm">
 
-                        <!-- Full Name -->
-                        <div class="mb-3 position-relative">
-                            <label class="form-label fw-semibold">Full Name</label>
+                        <!-- 🔥 FILE INPUT INSIDE FORM -->
+                        <input type="file" name="photo" id="photoInput" accept="image/*" style="display:none;">
+
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
                             <input type="text" name="fullname"
-                                class="form-control rounded-3 pe-5"
-                                value="kalariya Marmik S.">
-                            <span class="error-icon">!</span>
+                                class="form-control"
+                                value="<?php echo $user['fullname']; ?>" required>
                         </div>
 
-                        <!-- Email -->
-                        <div class="mb-3 position-relative">
-                            <label class="form-label fw-semibold">Email</label>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
                             <input type="email" name="email"
-                                class="form-control rounded-3 pe-5"
-                                value="mkalariya518@rku.ac.in">
-                            <span class="error-icon">!</span>
+                                class="form-control"
+                                value="<?php echo $user['email']; ?>" required>
                         </div>
 
-                        <!-- Phone -->
-                        <div class="mb-3 position-relative">
-                            <label class="form-label fw-semibold">Phone Number</label>
-                            <input type="tel" name="phone"
-                                class="form-control rounded-3 pe-5"
-                                value="9726866944">
-                            <span class="error-icon">!</span>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone"
+                                class="form-control"
+                                value="<?php echo $user['mobile']; ?>" required>
                         </div>
 
-                        <!-- Department -->
-                        <div class="mb-3 position-relative">
-                            <label class="form-label fw-semibold">Department</label>
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
                             <input type="text" name="department"
-                                class="form-control rounded-3 pe-5"
-                                value="COMPUTER ENGINEERING">
-                            <span class="error-icon">!</span>
-                        </div>
-
-                        <!-- Designation -->
-                        <div class="mb-4 position-relative">
-                            <label class="form-label fw-semibold">Designation</label>
-                            <input type="text" name="designation"
-                                class="form-control rounded-3 pe-5"
-                                value="PROBLEM SOLVING">
-                            <span class="error-icon">!</span>
+                                class="form-control"
+                                value="<?php echo $user['department']; ?>" required>
                         </div>
 
                         <div class="d-flex gap-3">
-                            <button type="submit"
+                            <button type="submit" name="update_profile"
                                 class="btn btn-danger rounded-pill px-4">
                                 Save Changes
                             </button>
@@ -95,146 +150,32 @@
                         </div>
 
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ================== STYLE ================== -->
-<style>
-input.error{
-    border:2px solid red !important;
-    background:#fff5f5;
-}
-
-label.error{
-    color:red;
-    font-size:14px;
-    margin-top:5px;
-    display:block;
-}
-
-.error-icon{
-    position:absolute;
-    right:15px;
-    top:42px;
-    color:red;
-    font-weight:bold;
-    font-size:18px;
-    display:none;
-}
-</style>
-
-<!-- ================== SCRIPTS ================== -->
-
+<!-- JS -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
-
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-$(document).ready(function(){
+// OPEN FILE
+$("#changePhotoBtn").click(function () {
+    $("#photoInput").click();
+});
 
-    // Image Change Button
-    $("#changePhotoBtn").click(function () {
-        $("#photoInput").click();
-    });
-
-    // Image Preview
-    $("#photoInput").change(function (event) {
-        let file = event.target.files[0];
-        if (file) {
-            let reader = new FileReader();
-            reader.onload = function (e) {
-                $("#profilePreview").attr("src", e.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // ================= VALIDATION =================
-    $("#editProfileForm").validate({
-
-        rules:{
-            fullname:{
-                required:true,
-                minlength:3
-            },
-            email:{
-                required:true,
-                email:true
-            },
-            phone:{
-                required:true,
-                digits:true,
-                minlength:10,
-                maxlength:10
-            },
-            department:{
-                required:true
-            },
-            designation:{
-                required:true
-            }
-        },
-
-        messages:{
-            fullname:{
-                required:"Full name is required",
-                minlength:"Minimum 3 characters required"
-            },
-            email:{
-                required:"Email is required",
-                email:"Enter valid email"
-            },
-            phone:{
-                required:"Phone number is required",
-                digits:"Only numbers allowed",
-                minlength:"Enter 10 digit number",
-                maxlength:"Enter 10 digit number"
-            },
-            department:{
-                required:"Department is required"
-            },
-            designation:{
-                required:"Designation is required"
-            }
-        },
-
-        errorPlacement:function(error,element){
-            error.insertAfter(element);
-        },
-
-        highlight:function(element){
-            $(element).addClass("error");
-            $(element).siblings(".error-icon").show();
-        },
-
-        unhighlight:function(element){
-            $(element).removeClass("error");
-            $(element).siblings(".error-icon").hide();
-        },
-
-        submitHandler: function(form) {
-            // SweetAlert popup
-            Swal.fire({
-                title: "Profile Updated!",
-                text: "Your changes have been saved successfully.",
-                icon: "success",
-                confirmButtonColor: "#d90429",
-                confirmButtonText: "OK"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "profile_view.php";
-                }
-            });
-        }
-
-    });
-
+// PREVIEW IMAGE
+$("#photoInput").change(function (event) {
+    let file = event.target.files[0];
+    if (file) {
+        let reader = new FileReader();
+        reader.onload = function (e) {
+            $("#profilePreview").attr("src", e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
 });
 </script>
 

@@ -1,6 +1,80 @@
-<?php include 'header.php'; ?>
+<?php 
+include 'header.php'; 
 
-<!-- ===== STYLE ===== -->
+// DATABASE CONNECTION
+$con = mysqli_connect("localhost","root","","soae_club");
+
+// CHECK CONNECTION
+if(!$con){
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// CHECK LOGIN
+if(!isset($_SESSION['user_id'])){
+    header("Location: login_view.php");
+    exit();
+}
+
+// CHANGE PASSWORD LOGIC
+if(isset($_POST['change_password']))
+{
+    $user_id = $_SESSION['user_id'];
+
+    $currentPassword = $_POST['currentPassword'];
+    $newPassword     = $_POST['newPassword'];
+
+    // FETCH USER DATA
+    $query = mysqli_query($con, "SELECT * FROM user WHERE id='$user_id'");
+    $user  = mysqli_fetch_assoc($query);
+
+    $dbPassword = $user['password'];
+
+    // CHECK PASSWORD (PLAIN + HASH BOTH)
+    if($currentPassword === $dbPassword || password_verify($currentPassword, $dbPassword))
+    {
+        // HASH NEW PASSWORD
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+        // UPDATE PASSWORD
+        $update = mysqli_query($con, "UPDATE user SET password='$hashedPassword' WHERE id='$user_id'");
+
+        if($update){
+            echo "<script>
+                Swal.fire({
+                    title: 'Success',
+                    text: 'Password updated successfully',
+                    icon: 'success',
+                    confirmButtonColor: '#d90429'
+                }).then(() => {
+                    window.location.href = 'profile_view.php';
+                });
+            </script>";
+        } else {
+            echo "<script>
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Something went wrong',
+                    icon: 'error',
+                    confirmButtonColor: '#d90429'
+                });
+            </script>";
+        }
+    } 
+    else 
+    {
+        echo "<script>
+            Swal.fire({
+                title: 'Error',
+                text: 'Current password is incorrect',
+                icon: 'error',
+                confirmButtonColor: '#d90429'
+            });
+        </script>";
+    }
+}
+?>
+
+<!-- ===== STYLE (UNCHANGED) ===== -->
 <style>
 html, body {
     height: 100%;
@@ -103,7 +177,7 @@ html, body {
     <div class="password-card">
         <h2>Change Password</h2>
 
-        <form id="changePasswordForm" novalidate>
+        <form id="changePasswordForm" method="POST" novalidate>
 
             <div class="form-group">
                 <label>Current Password</label>
@@ -120,13 +194,13 @@ html, body {
                 <input type="password" name="confirmPassword" placeholder="Confirm new password">
             </div>
 
-            <button type="submit" class="submit-btn">Update Password</button>
+            <button type="submit" name="change_password" class="submit-btn">Update Password</button>
 
         </form>
     </div>
 </div>
 
-<!-- ===== SCRIPTS ===== -->
+<!-- ===== SCRIPTS (UNCHANGED) ===== -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -147,7 +221,7 @@ $(document).ready(function () {
                 },
                 newPassword: {
                     required:"New password is required",
-                    minlength:"Minimum 8 characters required"
+                    minlength:"Minimum 6 characters required"
                 },
                 confirmPassword: {
                     required:"Confirm password is required",
@@ -166,19 +240,7 @@ $(document).ready(function () {
                 error.insertAfter(element);
             },
             submitHandler: function(form) {
-                // SweetAlert2 success alert with redirect
-                Swal.fire({
-                    title: "Password Changed!",
-                    text: "Your password has been updated successfully.",
-                    icon: "success",
-                    confirmButtonColor: "#d90429",
-                    confirmButtonText: "OK"
-                }).then((result) => {
-                    if(result.isConfirmed) {
-                        // Redirect to profile page
-                        window.location.href = "profile_view.php";
-                    }
-                });
+                form.submit();
             }
         });
     }

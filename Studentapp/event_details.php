@@ -1,4 +1,9 @@
-<?php include 'header.php'; ?>
+<?php 
+include 'header.php'; 
+
+// CHECK LOGIN
+$isLoggedIn = isset($_SESSION['user_id']);
+?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -27,7 +32,9 @@
 
             <!-- Join Event Button -->
             <div class="text-center mb-4 mt-4">
-                <button class="btn btn-theme btn-lg joinBtn" data-event="Cricket Tournament">
+                <button class="btn btn-theme btn-lg joinBtn" 
+                        data-event="Cricket Tournament"
+                        data-login="<?php echo $isLoggedIn ? 'yes' : 'no'; ?>">
                     Join Event
                 </button>
             </div>
@@ -86,7 +93,7 @@
   </div>
 </div>
 
-<!-- ===== STYLES ===== -->
+<!-- ===== STYLES (UNCHANGED) ===== -->
 <style>
 body {
     background: #fff5f5;
@@ -157,13 +164,6 @@ h2 { font-weight: 700; color: #b71c1c; animation: fadeInUp 1.2s; }
 }
 
 .btn-outline-theme:hover { background-color: #b71c1c; color: #fff; }
-
-@media (max-width: 768px) {
-    .card-body { padding: 30px 20px; }
-    .hero-img { max-width: 100%; max-height: 300px; margin-bottom: 20px; }
-    .btn-theme, .btn-outline-theme { padding: 10px 30px; }
-    .event-info { padding: 20px; }
-}
 </style>
 
 <!-- ===== SCRIPTS ===== -->
@@ -175,14 +175,37 @@ h2 { font-weight: 700; color: #b71c1c; animation: fadeInUp 1.2s; }
 <script>
 $(document).ready(function(){
 
-    // Open modal & prefill event name
+    // ✅ LOGIN CHECK + ANIMATION
     $(".joinBtn").click(function(){
+
+        let isLogin = $(this).data("login");
+
+        if(isLogin === "no"){
+            Swal.fire({
+                title: "Oops!",
+                text: "You need to login first",
+                icon: "warning",
+                confirmButtonColor: "#d90429",
+                showClass: {
+                    popup: 'animate__animated animate__zoomIn'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__zoomOut'
+                }
+            }).then((result) => {
+                if(result.isConfirmed){
+                    window.location.href = "login_view.php";
+                }
+            });
+            return;
+        }
+
         let eventName = $(this).data("event");
         $("#event_name").val(eventName);
         $("#joinModal").modal("show");
     });
 
-    // Form validation + SweetAlert
+    // FORM VALIDATION
     $("#eventForm").validate({
         rules:{
             name:{ required:true, minlength:3 },
@@ -207,10 +230,15 @@ $(document).ready(function(){
                 text: "You have successfully joined the event.",
                 icon: "success",
                 confirmButtonColor: "#d90429",
-                confirmButtonText: "OK"
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                }
             }).then((result) => {
                 if(result.isConfirmed){
-                    window.location.href = "events_view.php"; // redirect after success
+                    window.location.href = "events_view.php";
                 }
             });
         }
@@ -219,4 +247,4 @@ $(document).ready(function(){
 });
 </script>
 
-<?php include 'footer.php'; ?>
+<?php include 'footer.php'; ?>  

@@ -1,4 +1,5 @@
 <?php 
+session_start();
 include 'header.php'; 
 include "../database.php";
 
@@ -13,7 +14,19 @@ $user_id = $_SESSION['user_id'];
 
 $query = "SELECT * FROM User WHERE id='$user_id'";
 $result = mysqli_query($con, $query);
+
+if(!$result){
+    die("Query Error: " . mysqli_error($con));
+}
+
 $user = mysqli_fetch_assoc($result);
+
+// IMAGE PATH FIX
+if(!empty($user['clubimage'])){
+    $image_path = "../uploads/" . $user['clubimage'];
+} else {
+    $image_path = "assets/images/user.jpg";
+}
 ?>
 
 <style>
@@ -86,30 +99,26 @@ html, body {
   <div class="profile-card">
 
     <!-- PROFILE IMAGE -->
-    <?php if(!empty($user['clubimage'])) { ?>
-      <img src="../uploads/<?php echo $user['clubimage']; ?>" class="avatar-img">
-    <?php } else { ?>
-      <img src="assets/images/user.jpg" class="avatar-img">
-    <?php } ?>
+    <img src="<?php echo $image_path; ?>" class="avatar-img">
 
     <!-- NAME -->
-    <input type="text"  class="form-control"
+    <input type="text" class="form-control"
       value="<?php echo $user['fullname'] ?? ''; ?>" readonly>
 
     <!-- EMAIL -->
-    <input type="email"  class="form-control"
+    <input type="email" class="form-control"
       value="<?php echo $user['email'] ?? ''; ?>" readonly>
 
-    <!-- PHONE -->
-    <input type="text"   class="form-control"
-      value="<?php echo $user['phone'] ?? ''; ?>" readonly>
+    <!-- PHONE (FIXED 🔥) -->
+    <input type="text" class="form-control"
+      value="<?php echo $user['mobile'] ?? ''; ?>" readonly>
 
     <!-- DEPARTMENT -->
-    <input type="text"  class="form-control"
+    <input type="text" class="form-control"
       value="<?php echo $user['department'] ?? ''; ?>" readonly>
 
     <!-- DESIGNATION -->
-    <input type="text"  class="form-control"
+    <input type="text" class="form-control"
       value="<?php echo $user['designation'] ?? ''; ?>" readonly>
 
     <!-- BUTTONS -->
@@ -121,4 +130,5 @@ html, body {
 
   </div>
 </div>
+
 <?php include 'footer.php'; ?>

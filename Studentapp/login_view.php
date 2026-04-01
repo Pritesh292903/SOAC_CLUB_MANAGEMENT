@@ -127,7 +127,7 @@ body {
         <p>Login to continue</p>
     </div>
 
-    <form id="loginForm" novalidate>
+    <form id="loginForm" method="POST" novalidate>
 
         <div class="form-group">
             <label>Email Address</label>
@@ -161,7 +161,7 @@ $(document).ready(function(){
             },
             password:{
                 required:true,
-                minlength:2
+                minlength:6
             }
         },
 
