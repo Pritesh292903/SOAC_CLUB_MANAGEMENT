@@ -1,4 +1,74 @@
-<?php include 'F_header.php'; ?>
+<?php 
+include 'F_header.php';
+include '../database.php';
+
+// GET ID
+if(!isset($_GET['id'])){
+    header("Location: Manage_events.php");
+    exit();
+}
+
+$id = $_GET['id'];
+
+// FETCH DATA
+$result = mysqli_query($con, "SELECT * FROM manage_clubs WHERE Club_id='$id'");
+$data = mysqli_fetch_assoc($result);
+
+// UPDATE LOGIC
+if(isset($_POST['update'])){
+
+    $name = $_POST['eventName'];
+    $club = $_POST['eventClub'];
+    $date = $_POST['eventDate'];
+    $status = $_POST['eventStatus'];
+    $desc = $_POST['eventDescription'];
+
+    // ===== IMAGE UPLOAD =====
+    if(!empty($_FILES['eventImage']['name'])){
+
+        $img_name = $_FILES['eventImage']['name'];
+        $tmp = $_FILES['eventImage']['tmp_name'];
+
+        // Create unique file name
+        $ext = pathinfo($img_name, PATHINFO_EXTENSION);
+        $new_name = time() . "_" . rand(1000,9999) . "." . $ext;
+
+        $upload_dir = "../uploads/";
+
+        // Create folder if not exists
+        if(!is_dir($upload_dir)){
+            mkdir($upload_dir, 0777, true);
+        }
+
+        $path = $upload_dir . $new_name;
+
+        // Move file
+        if(move_uploaded_file($tmp, $path)){
+            // Save relative path in DB
+            $db_path = "uploads/" . $new_name;
+        } else {
+            $db_path = $data['Image'];
+        }
+
+    } else {
+        $db_path = $data['Image'];
+    }
+
+    // UPDATE QUERY
+    mysqli_query($con, "UPDATE manage_clubs SET 
+        club_name='$name',
+        Description='$desc',
+        Status='$status',
+        Image='$db_path'
+        WHERE Club_id='$id'
+    ");
+
+    echo "<script>
+        alert('Updated Successfully');
+        window.location='Manage_events.php';
+    </script>";
+}
+?>
 
 <!-- SweetAlert2 -->
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
@@ -26,18 +96,20 @@
           Edit Event
         </h3>
 
-        <form id="editEventForm">
+        <form id="editEventForm" method="POST" enctype="multipart/form-data">
 
           <!-- Image Preview -->
           <div class="text-center mb-3">
-            <img src="assets/images/e1.webp"
+            <img src="../<?php echo $data['Image']; ?>"
                  id="eventImagePreview"
                  class="event-img">
+
             <input type="file"
                    class="form-control mt-2"
                    id="eventImage"
                    name="eventImage"
                    accept="image/*">
+
             <small class="text-muted">JPG, PNG or GIF (Max 5MB)</small>
           </div>
 
@@ -48,7 +120,7 @@
                    class="form-control"
                    name="eventName"
                    id="eventName"
-                   value="Hackathon 2026">
+                   value="<?php echo $data['club_name']; ?>">
           </div>
 
           <!-- Club -->
@@ -58,7 +130,7 @@
                    class="form-control"
                    name="eventClub"
                    id="eventClub"
-                   value="Coding Club">
+                   value="<?php echo $data['Category']; ?>">
           </div>
 
           <!-- Date -->
@@ -67,8 +139,7 @@
             <input type="date"
                    class="form-control"
                    name="eventDate"
-                   id="eventDate"
-                   value="2026-08-15">
+                   id="eventDate">
           </div>
 
           <!-- Status -->
@@ -78,9 +149,9 @@
                     name="eventStatus"
                     id="eventStatus">
               <option value="">Select Status</option>
-              <option selected>Active</option>
-              <option>Upcoming</option>
-              <option>Closed</option>
+              <option <?php if($data['Status']=="Active") echo "selected"; ?>>Active</option>
+              <option <?php if($data['Status']=="Upcoming") echo "selected"; ?>>Upcoming</option>
+              <option <?php if($data['Status']=="Closed") echo "selected"; ?>>Closed</option>
             </select>
           </div>
 
@@ -90,7 +161,7 @@
             <textarea class="form-control"
                       name="eventDescription"
                       id="eventDescription"
-                      rows="4">Coding competition organized by Coding Club.</textarea>
+                      rows="4"><?php echo $data['Description']; ?></textarea>
           </div>
 
           <!-- Buttons -->
@@ -101,6 +172,7 @@
             </a>
 
             <button type="submit"
+                    name="update"
                     class="btn btn-danger rounded-pill px-4">
               Save Changes
             </button>
@@ -114,120 +186,19 @@
   </div>
 </div>
 
-<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<!-- jQuery Validation -->
-<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-
 <script>
-$(document).ready(function(){
-
-  // ===== Image Preview =====
-  $('#eventImage').change(function(){
-      const file = this.files[0];
-      if(file){
-          const reader = new FileReader();
-          reader.onload = function(e){
-              $('#eventImagePreview').attr('src', e.target.result);
-          }
-          reader.readAsDataURL(file);
-      }
-  });
-
-  // ===== Custom File Validation =====
-  $.validator.addMethod("fileSize", function(value, element){
-      if(element.files.length === 0) return true;
-      return element.files[0].size <= 5*1024*1024;
-  }, "File size must not exceed 5MB");
-
-  $.validator.addMethod("fileType", function(value, element){
-      if(element.files.length === 0) return true;
-      return /\.(jpe?g|png|gif)$/i.test(element.files[0].name);
-  }, "Please upload a valid image file");
-
-  // ===== Form Validation =====
-  $("#editEventForm").validate({
-
-      rules: {
-          eventImage: {
-              fileType: true,
-              fileSize: true
-          },
-          eventName: {
-              required: true,
-              minlength: 3,
-              maxlength: 100
-          },
-          eventClub: {
-              required: true
-          },
-          eventDate: {
-              required: true,
-              date: true
-          },
-          eventStatus: {
-              required: true
-          },
-          eventDescription: {
-              required: true,
-              minlength: 10,
-              maxlength: 500
-          }
-      },
-
-      messages: {
-          eventName: {
-              required: "Event name is required",
-              minlength: "Minimum 3 characters required",
-              maxlength: "Maximum 100 characters allowed"
-          },
-          eventClub: "Please enter club name",
-          eventDate: "Please select valid date",
-          eventStatus: "Please select status",
-          eventDescription: {
-              required: "Description is required",
-              minlength: "Minimum 10 characters required",
-              maxlength: "Maximum 500 characters allowed"
-          }
-      },
-
-      highlight: function(element){
-          $(element).addClass("is-invalid").removeClass("is-valid");
-      },
-
-      unhighlight: function(element){
-          if ($(element).attr('type') === 'file' && $(element).val() === '') {
-              $(element).removeClass("is-invalid is-valid");
-          } else {
-              $(element).removeClass("is-invalid").addClass("is-valid");
-          }
-      },
-
-      errorElement: 'div',
-      errorClass: 'invalid-feedback',
-      errorPlacement: function(error, element){
-          error.insertAfter(element);
-      },
-
-      submitHandler: function(form){
-
-          Swal.fire({
-              icon: 'success',
-              title: 'Event Updated!',
-              text: 'Your changes have been saved successfully.',
-              confirmButtonText: 'OK'
-          }).then((result) => {
-              if(result.isConfirmed){
-                  window.location.href = "Manage_events.php";
-              }
-          });
-
-          return false;
-      }
-
-  });
-
+// Image Preview
+$('#eventImage').change(function(){
+    const file = this.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = function(e){
+            $('#eventImagePreview').attr('src', e.target.result);
+        }
+        reader.readAsDataURL(file);
+    }
 });
 </script>
 

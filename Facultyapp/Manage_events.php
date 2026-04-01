@@ -1,4 +1,10 @@
-<?php include 'F_header.php'; ?>
+<?php 
+include 'F_header.php';
+include '../database.php';
+
+// FETCH DATA
+$result = mysqli_query($con, "SELECT * FROM manage_clubs");
+?>
 
 <div class="container my-5">
 
@@ -13,52 +19,64 @@
             class="btn btn-danger rounded-pill px-4 fw-semibold">
             <i class="bi bi-plus-circle me-1"></i> Add Event
         </a>
-
     </div>
 
     <!-- Events Row -->
     <div class="row g-4">
 
-        <!-- Event 1 -->
+        <?php while($row = mysqli_fetch_assoc($result)) { ?>
+
         <div class="col-lg-4 col-md-6">
             <div class="card shadow-sm border-0 rounded-4 h-100 position-relative">
 
+                <!-- DATE (Static for now) -->
                 <span class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill">
-                    15 Aug
+                    Club
                 </span>
-                <img src="assets/images/hackathon.jpg"
+
+                <!-- IMAGE FROM DB -->
+                <img src="../<?php echo $row['Image']; ?>"
                     class="card-img-top rounded-top-4"
                     style="height:200px; object-fit:cover;">
 
                 <div class="card-body text-center">
+
+                    <!-- CLUB NAME -->
                     <h5 class="fw-bold text-danger">
-                        Hackathon 2026
+                        <?php echo $row['club_name']; ?>
                     </h5>
 
+                    <!-- DESCRIPTION -->
                     <p class="text-muted">
-                        Coding competition organized by Coding Club.
+                        <?php echo $row['Description']; ?>
                     </p>
 
-                        <div class="d-flex justify-content-center gap-2 mt-3">
+                    <!-- OPTIONAL -->
+                    <small class="text-secondary d-block">
+                        <?php echo $row['Category']; ?> | <?php echo $row['Status']; ?>
+                    </small>
 
-                        <a href="Viewhackathon.php" class="btn btn-success btn-sm rounded-pill px-3">
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+
+                        <!-- VIEW -->
+                        <a href="Viewhackathon.php?id=<?php echo $row['Club_id']; ?>" 
+                           class="btn btn-success btn-sm rounded-pill px-3">
                             <i class="bi bi-eye me-1"></i> View
                         </a>
 
-                        <a href="Edit_event.php" class="btn btn-warning btn-sm rounded-pill px-3">
+                        <!-- EDIT -->
+                        <a href="Edit_event.php?id=<?php echo $row['Club_id']; ?>" 
+                           class="btn btn-warning btn-sm rounded-pill px-3">
                             <i class="bi bi-pencil-square me-1"></i> Edit
                         </a>
 
-                        <button class="btn btn-danger btn-sm rounded-pill px-3">
-                            <i class="bi bi-trash me-1"></i> Delete
-                        </button>
                     </div>
                 </div>
 
             </div>
         </div>
 
-  
+        <?php } ?>
 
     </div>
 
