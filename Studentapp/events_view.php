@@ -7,6 +7,10 @@ include 'header.php';
 include "../database.php";
 
 // =====================
+// SAFE GET VALUE
+$selected_event = isset($_GET['join']) ? htmlspecialchars($_GET['join']) : "";
+
+// =====================
 // LOGIN CHECK
 if(isset($_GET['join'])){
     if(!isset($_SESSION['user_id'])){
@@ -19,7 +23,7 @@ if(isset($_GET['join'])){
 }
 
 // =====================
-// FORM SUBMIT BACKEND (SAME AS CLUB)
+// FORM SUBMIT BACKEND
 if(isset($_POST['submit_event']))
 {
     if(!isset($_SESSION['user_id'])){
@@ -34,7 +38,7 @@ if(isset($_POST['submit_event']))
     $name     = mysqli_real_escape_string($con, $_POST['name']);
     $email    = mysqli_real_escape_string($con, $_POST['email']);
     $phone    = mysqli_real_escape_string($con, $_POST['phone']);
-    $event    = trim(mysqli_real_escape_string($con, $_POST['event_name']));
+    $event    = mysqli_real_escape_string($con, $_POST['event_name']);
     $message  = mysqli_real_escape_string($con, $_POST['message']);
 
     $query = "INSERT INTO event_join_requests 
@@ -42,6 +46,7 @@ if(isset($_POST['submit_event']))
               VALUES ('$user_id','$name','$email','$phone','$event','$message')";
 
     if(mysqli_query($con, $query)){
+        // SweetAlert popup + redirect after OK
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -49,7 +54,7 @@ if(isset($_POST['submit_event']))
                     text: 'You have successfully joined the event.',
                     icon: 'success'
                 }).then(() => {
-                    window.location.href='event_view.php';
+                    window.location.href='events_view.php';
                 });
             });
         </script>";
@@ -126,7 +131,7 @@ if(isset($_POST['submit_event']))
       </div>
 
       <div class="modal-body">
-        <form method="POST">
+        <form id="eventForm" method="POST">
 
             <div class="mb-3">
                 <label>Your Name</label>
@@ -164,17 +169,44 @@ if(isset($_POST['submit_event']))
 <!-- SCRIPTS -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function(){
 
+    var selectedEvent = "<?php echo $selected_event; ?>";
+
     <?php if(isset($_GET['join']) && isset($_SESSION['user_id'])){ ?>
-        $("#event_name").val("<?php echo $_GET['join']; ?>");
+        $("#event_name").val(selectedEvent);
         $("#joinModal").modal("show");
     <?php } ?>
+
+    // =====================
+    // FORM VALIDATION
+    $("#eventForm").validate({
+        rules: {
+            name: { required: true, minlength: 3 },
+            email: { required: true, email: true },
+            phone: { required: true, digits: true, minlength: 10, maxlength: 10 },
+            message: { required: true, minlength: 10 }
+        },
+        messages: {
+            name: "Enter valid name",
+            email: "Enter valid email",
+            phone: "Enter 10 digit phone",
+            message: "Please enter at least 10 characters"
+        },
+        errorClass: "text-danger",
+        errorElement: "small",
+        highlight: function(el) { $(el).addClass("is-invalid"); },
+        unhighlight: function(el) { $(el).removeClass("is-invalid"); },
+        submitHandler: function(form) { form.submit(); }
+    });
 
 });
 </script>
 
 <?php include 'footer.php'; ?>
+</body>
+</html>
