@@ -1,25 +1,23 @@
-<?php 
+<?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 include 'header.php';
-include "../database.php";
+include "../database.php"; // Database connection
 
 // =====================
-// SAFE GET VALUE
+// SAFE GET VALUE FOR JOIN
 $selected_event = isset($_GET['join']) ? htmlspecialchars($_GET['join']) : "";
 
 // =====================
-// LOGIN CHECK
-if(isset($_GET['join'])){
-    if(!isset($_SESSION['user_id'])){
-        echo "<script>
-            alert('⚠️ Please login first to join event!');
-            window.location.href='login_view.php';
-        </script>";
-        exit();
-    }
+// LOGIN CHECK FOR JOIN
+if($selected_event && !isset($_SESSION['user_id'])){
+    echo "<script>
+        alert('⚠️ Please login first to join event!');
+        window.location.href='login_view.php';
+    </script>";
+    exit();
 }
 
 // =====================
@@ -46,22 +44,20 @@ if(isset($_POST['submit_event']))
               VALUES ('$user_id','$name','$email','$phone','$event','$message')";
 
     if(mysqli_query($con, $query)){
-        // SweetAlert popup + redirect after OK
-        echo "<script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'You have successfully joined the event.',
-                    icon: 'success'
-                }).then(() => {
-                    window.location.href='events_view.php';
-                });
-            });
-        </script>";
+        header("Location: events_view.php");
+        exit();
     } else {
         echo "<script>alert('Database Error');</script>";
     }
 }
+
+// =====================
+// FETCH ALL ACTIVE EVENTS
+$events_result = mysqli_query($con, "SELECT * FROM events WHERE status='Active' ORDER BY id ASC");
+if(!$events_result){
+    die("Query Error: ".mysqli_error($con));
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -101,23 +97,30 @@ if(isset($_POST['submit_event']))
     </div>
 
     <div class="row g-4">
-
-        <!-- EVENT CARD -->
+        <?php if(mysqli_num_rows($events_result) > 0) {
+            while($event = mysqli_fetch_assoc($events_result)) { 
+                $event_name = htmlspecialchars($event['name']);
+                $event_date = htmlspecialchars($event['date']);
+                $event_desc = htmlspecialchars($event['description']);
+                $event_img  = htmlspecialchars($event['image']);
+        ?>
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
-                <img src="assets/images/e1.avif" class="card-img-top">
+                <img src="../uploads/<?php echo $event_img; ?>" class="card-img-top" alt="<?php echo $event_name; ?>">
                 <div class="card-body">
-                    <h5 class="card-title text-danger">Music Festival</h5>
-                    <p class="text-muted">25th Feb 2026</p>
-                    <p>Enjoy live performances from amazing artists.</p>
+                    <h5 class="card-title text-danger"><?php echo $event_name; ?></h5>
+                    <p class="text-muted"><?php echo $event_date; ?></p>
+                    <p><?php echo $event_desc; ?></p>
 
-                    <a href="?join=Music Festival" class="btn btn-danger w-100">
+                    <a href="?join=<?php echo $event_name; ?>" class="btn btn-danger w-100">
                         Join Event
                     </a>
                 </div>
             </div>
         </div>
-
+        <?php } } else { ?>
+            <p class="text-center text-muted">No events available right now.</p>
+        <?php } ?>
     </div>
 </div>
 
@@ -170,7 +173,6 @@ if(isset($_POST['submit_event']))
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function(){
@@ -182,8 +184,6 @@ $(document).ready(function(){
         $("#joinModal").modal("show");
     <?php } ?>
 
-    // =====================
-    // FORM VALIDATION
     $("#eventForm").validate({
         rules: {
             name: { required: true, minlength: 3 },
