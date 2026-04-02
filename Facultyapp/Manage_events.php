@@ -76,7 +76,7 @@ $result = mysqli_query($con, "SELECT * FROM events ORDER BY date DESC");
                         </a>
 
                         <!-- EDIT -->
-                        <a href="Edit_event.php?id=<?php echo $row['id']; ?>" 
+                        <a href="Edits_event.php?id=<?php echo $row['id']; ?>" 
                            class="btn btn-warning btn-sm rounded-pill px-3">
                             <i class="bi bi-pencil-square me-1"></i> Edit
                         </a>
