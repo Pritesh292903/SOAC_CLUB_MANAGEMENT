@@ -19,45 +19,61 @@ if (!$club) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-/* Ensure content is below header */
-.content {
-    animation: fadeIn 0.6s ease-in-out;
-    margin-top: 100px; /* Adjust this according to your header height */
-    margin-bottom: 50px;
-}
+    /* Ensure content is below header */
+    .content {
+        animation: fadeIn 0.6s ease-in-out;
+        margin-top: 100px;
+        /* Adjust this according to your header height */
+        margin-bottom: 50px;
+    }
 
-/* Fade-in animation */
-@keyframes fadeIn {
-    from { opacity:0; transform:translateY(15px); }
-    to { opacity:1; transform:translateY(0); }
-}
+    /* Fade-in animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
 
-/* Club image styling */
-.club-img {
-    width:200px; 
-    height:200px; 
-    object-fit:cover; 
-    border-radius:12px; 
-    margin-bottom:20px;
-    border: 2px solid #ddd;
-}
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-/* Card styling */
-.card {
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    background-color: #fff;
-}
+    /* Club image styling */
+    .club-img {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 2px solid #ddd;
+    }
 
-/* Titles */
-.card-title { font-weight:700; font-size:1.8rem; }
+    /* Card styling */
+    .card {
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+    }
 
-/* Field labels */
-.fw-bold { font-weight:600; }
+    /* Titles */
+    .card-title {
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
 
-/* Back button */
-.back-btn { border-radius:50px; padding:10px 25px; }
+    /* Field labels */
+    .fw-bold {
+        font-weight: 600;
+    }
+
+    /* Back button */
+    .back-btn {
+        border-radius: 50px;
+        padding: 10px 25px;
+    }
 </style>
 
 <div class="content container">
@@ -82,7 +98,7 @@ if (!$club) {
         <div class="row mb-3">
             <div class="col-md-4 fw-bold">Status:</div>
             <div class="col-md-8">
-                <?php if($club['status'] == 'Active') { ?>
+                <?php if ($club['status'] == 'Active') { ?>
                     <span class="badge bg-success">Active</span>
                 <?php } else { ?>
                     <span class="badge bg-secondary">Inactive</span>

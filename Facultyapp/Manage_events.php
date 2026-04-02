@@ -27,11 +27,6 @@ $result = mysqli_query($con, "SELECT * FROM events ORDER BY date DESC");
             <h2 class="fw-bold text-danger">Manage Events</h2>
             <p class="text-muted mb-0">Add, Edit or Delete Events</p>
         </div>
-
-        <a href="Addevent.php"
-            class="btn btn-danger rounded-pill px-4 fw-semibold">
-            <i class="bi bi-plus-circle me-1"></i> Add Event
-        </a>
     </div>
 
     <!-- Events Row -->
@@ -76,7 +71,7 @@ $result = mysqli_query($con, "SELECT * FROM events ORDER BY date DESC");
                         </a>
 
                         <!-- EDIT -->
-                        <a href="Edit_event.php?id=<?php echo $row['id']; ?>" 
+                        <a href="Edits_event.php?id=<?php echo $row['id']; ?>" 
                            class="btn btn-warning btn-sm rounded-pill px-3">
                             <i class="bi bi-pencil-square me-1"></i> Edit
                         </a>
