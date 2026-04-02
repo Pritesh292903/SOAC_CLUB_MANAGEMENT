@@ -100,7 +100,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <!-- ✅ ONLY ADD THIS -->
         <li class="nav-item">
-          <a class="nav-link text-warning fw-bold" href="#">
+          <a class="nav-link text-warning fw-bold" href="my_participate.php">
             <i class=""></i> My participate 
           </a>
         </li>

@@ -1,4 +1,7 @@
-<?php include 'admin_header.php'; ?>
+<?php 
+include 'admin_header.php'; 
+include '../database.php'; // Your database connection and tables
+?>
 
 <style>
 /* ===== Page Animation ===== */
@@ -91,12 +94,12 @@
 
 /* Badges */
 .badge-success{
-    background-color:#dc3545 !important;
+    background-color:#28a745 !important;
 }
 
 .badge-warning{
-    background-color:#ff6b6b !important;
-    color:#fff !important;
+    background-color:#ffc107 !important;
+    color:#212529 !important;
 }
 
 .badge-danger{
@@ -119,13 +122,28 @@
         <span class="text-muted">Welcome back, Admin 👋</span>
     </div>
 
+    <!-- Fetch dynamic counts -->
+    <?php
+        // Total Events
+        $totalEvents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events"));
+
+        // Total Clubs
+        $totalClubs = mysqli_num_rows(mysqli_query($con, "SELECT id FROM clubs"));
+
+        // Total Students
+        $totalStudents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM User WHERE role='user'"));
+
+        // Total Faculties
+        $totalFaculties = mysqli_num_rows(mysqli_query($con, "SELECT id FROM Faculty_register"));
+    ?>
+
     <!-- Statistics Cards -->
     <div class="row g-4 mb-4">
 
         <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
             <div class="stat-card">
                 <i class="bi bi-calendar-event"></i>
-                <h3 class="fw-bold">24</h3>
+                <h3 class="fw-bold"><?= $totalEvents ?></h3>
                 <p class="text-muted mb-0">Total Events</p>
             </div>
         </div>
@@ -133,7 +151,7 @@
         <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
             <div class="stat-card">
                 <i class="bi bi-people"></i>
-                <h3 class="fw-bold">10</h3>
+                <h3 class="fw-bold"><?= $totalClubs ?></h3>
                 <p class="text-muted mb-0">Total Clubs</p>
             </div>
         </div>
@@ -141,7 +159,7 @@
         <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
             <div class="stat-card">
                 <i class="bi bi-mortarboard"></i>
-                <h3 class="fw-bold">350</h3>
+                <h3 class="fw-bold"><?= $totalStudents ?></h3>
                 <p class="text-muted mb-0">Total Students</p>
             </div>
         </div>
@@ -149,7 +167,7 @@
         <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
             <div class="stat-card">
                 <i class="bi bi-person-badge"></i>
-                <h3 class="fw-bold">25</h3>
+                <h3 class="fw-bold"><?= $totalFaculties ?></h3>
                 <p class="text-muted mb-0">Total Faculties</p>
             </div>
         </div>
@@ -173,24 +191,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Cricket Tournament</td>
-                        <td>Sports Club</td>
-                        <td>25 Feb 2026</td>
-                        <td><span class="badge bg-success">Active</span></td>
-                    </tr>
-                    <tr>
-                        <td>Music Fest</td>
-                        <td>Music Club</td>
-                        <td>10 Mar 2026</td>
-                        <td><span class="badge bg-warning">Upcoming</span></td>
-                    </tr>
-                    <tr>
-                        <td>Tech Workshop</td>
-                        <td>Tech Club</td>
-                        <td>05 Apr 2026</td>
-                        <td><span class="badge bg-danger">Closed</span></td>
-                    </tr>
+                    <?php
+                    $eventsRes = mysqli_query($con, "SELECT e.*, c.clubname FROM events e LEFT JOIN clubs c ON c.id=e.id ORDER BY e.id DESC LIMIT 5");
+                    if(mysqli_num_rows($eventsRes) > 0){
+                        while($row = mysqli_fetch_assoc($eventsRes)){
+                            $statusClass = ($row['status']=='Active')?'badge-success':(($row['status']=='Upcoming')?'badge-warning':'badge-danger');
+                            echo "<tr>
+                                    <td>{$row['name']}</td>
+                                    <td>".($row['clubname'] ?? 'N/A')."</td>
+                                    <td>".date('d M Y', strtotime($row['date']))."</td>
+                                    <td><span class='{$statusClass}'>{$row['status']}</span></td>
+                                  </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='4' class='text-center'>No events found</td></tr>";
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
