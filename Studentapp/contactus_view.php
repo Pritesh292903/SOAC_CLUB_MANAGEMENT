@@ -72,22 +72,22 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
 
                 <form id="contactForm">
 
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <label class="form-label">Full Name</label>
                         <input type="text" name="name" class="form-control border-danger">
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <label class="form-label">Email Address</label>
                         <input type="email" name="email" class="form-control border-danger">
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <label class="form-label">Subject</label>
                         <input type="text" name="subject" class="form-control border-danger">
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <label class="form-label">Message</label>
                         <textarea name="message" rows="5" class="form-control border-danger"></textarea>
                     </div>
@@ -104,6 +104,31 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
     </div>
 </div>
 
+<style>
+/* Red border */
+input.error, textarea.error {
+    border-color: #dc3545 !important;
+}
+
+/* ! icon */
+.error-icon {
+    position: absolute;
+    right: 10px;
+    top: 38px;
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* error text */
+label.error {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 5px;
+    display: block;
+}
+</style>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -111,30 +136,42 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
 <script>
 $(document).ready(function () {
 
-    $.validator.addMethod("lettersOnly", function(value, element) {
-        return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
-    });
-
     $("#contactForm").validate({
 
         rules: {
+            name: { required: true, minlength: 3 },
+            email: { required: true, email: true },
+            subject: { required: true, minlength: 5 },
+            message: { required: true, minlength: 10 }
+        },
+
+        messages: {
             name: {
-                required: true,
-                minlength: 3,
-                lettersOnly: true
+                required: "This field is required",
+                minlength: "Minimum 3 characters required"
             },
             email: {
-                required: true,
-                email: true
+                required: "This field is required",
+                email: "Enter valid email"
             },
             subject: {
-                required: true,
-                minlength: 5
+                required: "This field is required",
+                minlength: "Minimum 5 characters required"
             },
             message: {
-                required: true,
-                minlength: 10
+                required: "This field is required",
+                minlength: "Minimum 10 characters required"
             }
+        },
+
+        errorPlacement: function(error, element) {
+            element.closest(".mb-3").find(".error-icon").remove();
+            element.closest(".mb-3").append('<span class="error-icon">!</span>');
+            error.insertAfter(element);
+        },
+
+        success: function(label, element) {
+            $(element).closest(".mb-3").find(".error-icon").remove();
         },
 
         submitHandler: function(form) {
@@ -150,7 +187,7 @@ $(document).ready(function () {
 
                         Swal.fire({
                             title: "Success!",
-                            text: "Your message has send successfully.",
+                            text: "Your message has been sent successfully.",
                             icon: "success",
                             confirmButtonColor: "#d90429"
                         });
