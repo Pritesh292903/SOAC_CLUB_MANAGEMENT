@@ -94,6 +94,7 @@ if (isset($_POST['club_name'])) {
     <div class="card-body p-4">
 
       <h2 class="text-danger fw-bold mb-4">Edit Club</h2>
+      
 
       <form method="POST" enctype="multipart/form-data">
 
@@ -114,6 +115,9 @@ if (isset($_POST['club_name'])) {
                 <img src="https://via.placeholder.com/150" id="previewImage" class="preview-img mb-3">
             <?php } ?>
 
+            <br>
+            <label>Edit Club Image</label>
+            <br>
             <input type="file" name="club_image" id="clubImage" class="form-control">
 
           </div>

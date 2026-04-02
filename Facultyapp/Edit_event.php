@@ -104,12 +104,14 @@ if(isset($_POST['update'])){
                  id="eventImagePreview"
                  class="event-img">
 
+            <label class="form-label fw-semibold">Edit Club Image *</label>
             <input type="file"
                    class="form-control mt-2"
                    id="eventImage"
                    name="eventImage"
                    accept="image/*">
 
+                   
             <small class="text-muted">JPG, PNG or GIF (Max 5MB)</small>
           </div>
 
