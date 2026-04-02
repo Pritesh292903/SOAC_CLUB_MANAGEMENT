@@ -1,8 +1,29 @@
 <?php 
 include 'header.php'; 
+include "../database.php";
 
 // CHECK LOGIN
 $isLoggedIn = isset($_SESSION['user_id']);
+
+// GET EVENT ID
+$event_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+// FETCH EVENT
+if($event_id > 0){
+    $query = mysqli_query($con, "SELECT * FROM events WHERE id = $event_id");
+    $event = mysqli_fetch_assoc($query);
+}else{
+    // fallback first event
+    $query = mysqli_query($con, "SELECT * FROM events ORDER BY id ASC LIMIT 1");
+    $event = mysqli_fetch_assoc($query);
+}
+
+// SAFE DATA
+$event_name = $event['name'] ?? 'No Event';
+$event_date = $event['date'] ?? 'N/A';
+$status     = $event['status'] ?? 'N/A';
+$desc       = $event['description'] ?? 'No Description';
+$image      = $event['image'] ?? 'default.jpg';
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -12,28 +33,30 @@ $isLoggedIn = isset($_SESSION['user_id']);
     <div class="card">
 
         <!-- Banner Image -->
-        <img src="assets/images/e1.avif" alt="Cricket Tournament" class="hero-img mx-auto d-block">
+        <img src="../uploads/<?php echo $image; ?>" 
+             alt="<?php echo $event_name; ?>" 
+             class="hero-img mx-auto d-block">
 
         <div class="card-body">
 
             <!-- Event Name -->
-            <h2 class="mb-4 text-center">Cricket Tournament</h2>
+            <h2 class="mb-4 text-center"><?php echo $event_name; ?></h2>
 
             <!-- Event Info -->
             <div class="event-info mx-auto" style="max-width:700px;">
                 <h4>Event Details</h4>
                 <ul class="list-unstyled mb-0">
-                    <li><strong>Event Name:</strong> Cricket Tournament</li>
-                    <li><strong>Date:</strong> 25-02-2026</li>
-                    <li><strong>Status:</strong> Active</li>
-                    <li><strong>Description:</strong> This is a cricket tournament organized by the Sports Club. All students are welcome to participate.</li>
+                    <li><strong>Event Name:</strong> <?php echo $event_name; ?></li>
+                    <li><strong>Date:</strong> <?php echo $event_date; ?></li>
+                    <li><strong>Status:</strong> <?php echo $status; ?></li>
+                    <li><strong>Description:</strong> <?php echo $desc; ?></li>
                 </ul>
             </div>
 
             <!-- Join Event Button -->
             <div class="text-center mb-4 mt-4">
                 <button class="btn btn-theme btn-lg joinBtn" 
-                        data-event="Cricket Tournament"
+                        data-event="<?php echo $event_name; ?>"
                         data-login="<?php echo $isLoggedIn ? 'yes' : 'no'; ?>">
                     Join Event
                 </button>
@@ -95,74 +118,19 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
 <!-- ===== STYLES (UNCHANGED) ===== -->
 <style>
-body {
-    background: #fff5f5;
-    color: #333;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-.card {
-    border-radius: 25px;
-    border: none;
-    overflow: hidden;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-}
-
+/* SAME CSS - NO CHANGE */
+body { background: #fff5f5; color: #333; font-family: 'Segoe UI', sans-serif; }
+.card { border-radius: 25px; border: none; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
 .card:hover { transform: translateY(-10px); }
-
-.hero-img {
-    width: 100%;
-    max-width: 450px;
-    height: auto;
-    object-fit: cover;
-    border-radius: 25px 25px 0 0;
-    animation: fadeInDown 1s;
-}
-
+.hero-img { width: 100%; max-width: 450px; height: auto; object-fit: cover; border-radius: 25px 25px 0 0; animation: fadeInDown 1s; }
 .card-body { padding: 50px; }
-
 h2 { font-weight: 700; color: #b71c1c; animation: fadeInUp 1.2s; }
-
-.event-info {
-    background: #fff;
-    border-left: 5px solid #b71c1c;
-    border-radius: 15px;
-    padding: 30px;
-    margin-bottom: 40px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    animation: fadeIn 1.5s;
-}
-
+.event-info { background: #fff; border-left: 5px solid #b71c1c; border-radius: 15px; padding: 30px; margin-bottom: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); animation: fadeIn 1.5s; }
 .event-info h4 { font-weight: 600; margin-bottom: 15px; color: #b71c1c; }
-
 .event-info ul li { margin-bottom: 12px; font-size: 1rem; }
-
-.btn-theme {
-    background-color: #b71c1c;
-    color: #fff;
-    font-weight: 600;
-    border-radius: 50px;
-    padding: 12px 45px;
-    transition: all 0.3s;
-    animation: fadeInUp 1.8s;
-    text-decoration: none;
-    display: inline-block;
-}
-
+.btn-theme { background-color: #b71c1c; color: #fff; font-weight: 600; border-radius: 50px; padding: 12px 45px; transition: all 0.3s; animation: fadeInUp 1.8s; text-decoration: none; display: inline-block; }
 .btn-theme:hover { background-color: #d32f2f; color: #fff; }
-
-.btn-outline-theme {
-    border: 2px solid #b71c1c;
-    color: #b71c1c;
-    border-radius: 50px;
-    padding: 10px 35px;
-    transition: all 0.3s;
-    animation: fadeInUp 2s;
-    text-decoration: none;
-    display: inline-block;
-}
-
+.btn-outline-theme { border: 2px solid #b71c1c; color: #b71c1c; border-radius: 50px; padding: 10px 35px; transition: all 0.3s; animation: fadeInUp 2s; text-decoration: none; display: inline-block; }
 .btn-outline-theme:hover { background-color: #b71c1c; color: #fff; }
 </style>
 
@@ -175,7 +143,6 @@ h2 { font-weight: 700; color: #b71c1c; animation: fadeInUp 1.2s; }
 <script>
 $(document).ready(function(){
 
-    // ✅ LOGIN CHECK + ANIMATION
     $(".joinBtn").click(function(){
 
         let isLogin = $(this).data("login");
@@ -186,12 +153,8 @@ $(document).ready(function(){
                 text: "You need to login first",
                 icon: "warning",
                 confirmButtonColor: "#d90429",
-                showClass: {
-                    popup: 'animate__animated animate__zoomIn'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__zoomOut'
-                }
+                showClass: { popup: 'animate__animated animate__zoomIn' },
+                hideClass: { popup: 'animate__animated animate__zoomOut' }
             }).then((result) => {
                 if(result.isConfirmed){
                     window.location.href = "login_view.php";
@@ -205,7 +168,6 @@ $(document).ready(function(){
         $("#joinModal").modal("show");
     });
 
-    // FORM VALIDATION
     $("#eventForm").validate({
         rules:{
             name:{ required:true, minlength:3 },
@@ -230,12 +192,8 @@ $(document).ready(function(){
                 text: "You have successfully joined the event.",
                 icon: "success",
                 confirmButtonColor: "#d90429",
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                }
+                showClass: { popup: 'animate__animated animate__fadeInDown' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' }
             }).then((result) => {
                 if(result.isConfirmed){
                     window.location.href = "events_view.php";
@@ -247,4 +205,4 @@ $(document).ready(function(){
 });
 </script>
 
-<?php include 'footer.php'; ?>  
+<?php include 'footer.php'; ?>

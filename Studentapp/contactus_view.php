@@ -7,10 +7,15 @@ if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = 0;
 }
 
-// INSERT LOGIC (ADDED)
+// INSERT LOGIC
 if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
 
     $user_id = $_SESSION['user_id'];
+
+    if(empty($_POST['name']) || empty($_POST['email']) || empty($_POST['subject']) || empty($_POST['message'])){
+        echo "empty";
+        exit();
+    }
 
     $name = mysqli_real_escape_string($con,$_POST['name']);
     $email = mysqli_real_escape_string($con,$_POST['email']);
@@ -33,7 +38,6 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
 
 <div class="container my-5">
 
-    <!-- Animated Heading -->
     <div class="text-center mb-5">
         <h1 class="display-4 fw-bold text-danger animate__animated animate__fadeInDown" style="color:#9b0000;">
             Contact Us
@@ -50,17 +54,13 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
             <div class="card shadow-sm border-0 h-100 p-4">
                 <h4 class="text-danger mb-3">Get in Touch</h4>
                 <p><i class="bi bi-geo-alt-fill me-2 text-danger"></i>
-                    RK University, Bhavnagar Highway, Kasturbadham,
-                    Rajkot - 360020, Gujarat, India.
+                    RK University, Rajkot
                 </p>
                 <p><i class="bi bi-telephone-fill me-2 text-danger"></i>
-                    +91-9909952030/31
+                    +91-9909952030
                 </p>
                 <p><i class="bi bi-envelope-fill me-2 text-danger"></i>
                     info@rku.ac.in
-                </p>
-                <p><i class="bi bi-clock-fill me-2 text-danger"></i>
-                    Mon - Fri: 8:00 AM - 5:00 PM
                 </p>
             </div>
         </div>
@@ -104,34 +104,8 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
     </div>
 </div>
 
-<!-- Custom Styles -->
-<style>
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(217, 4, 41, 0.3);
-    transition: 0.3s;
-}
-
-.form-control:focus {
-    border-color: #d90429;
-    box-shadow: 0 0 0 2px rgba(217, 4, 41, 0.15);
-}
-
-.form-control.is-invalid {
-    border-color: #dc3545;
-}
-</style>
-
-<!-- Animate.css -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
-<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<!-- jQuery Validation -->
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -139,7 +113,7 @@ $(document).ready(function () {
 
     $.validator.addMethod("lettersOnly", function(value, element) {
         return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
-    }, "Only letters allowed");
+    });
 
     $("#contactForm").validate({
 
@@ -163,37 +137,6 @@ $(document).ready(function () {
             }
         },
 
-        messages: {
-            name: {
-                required: "Please enter your name",
-                minlength: "Minimum 3 characters required"
-            },
-            email: {
-                required: "Please enter your email",
-                email: "Enter valid email address"
-            },
-            subject: {
-                required: "Please enter subject",
-                minlength: "Subject must be at least 5 characters"
-            },
-            message: {
-                required: "Please enter your message",
-                minlength: "Message must be at least 10 characters"
-            }
-        },
-
-        errorElement: "small",
-        errorClass: "text-danger",
-
-        highlight: function (element) {
-            $(element).addClass("is-invalid");
-        },
-
-        unhighlight: function (element) {
-            $(element).removeClass("is-invalid");
-        },
-
-        // ONLY CHANGE HERE
         submitHandler: function(form) {
 
             $.ajax({
@@ -203,19 +146,22 @@ $(document).ready(function () {
 
                 success: function(response) {
 
-                    if (response == "success") {
+                    if (response.trim() == "success") {
+
                         Swal.fire({
                             title: "Success!",
-                            text: "Your message has been sent successfully.",
+                            text: "Your message has send successfully.",
                             icon: "success",
-                            confirmButtonColor: "#d90429",
-                            confirmButtonText: "OK"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "index.php";
-                            }
+                            confirmButtonColor: "#d90429"
                         });
-                    } else {
+
+                        $("#contactForm")[0].reset();
+
+                    } 
+                    else if(response == "empty"){
+                        Swal.fire("Warning!", "All fields are required!", "warning");
+                    }
+                    else {
                         Swal.fire("Error!", "Database error!", "error");
                     }
                 }
