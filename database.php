@@ -83,4 +83,19 @@ mysqli_query($con, "CREATE TABLE IF NOT EXISTS clubs (
     status ENUM('Active','Inactive') DEFAULT 'Active'
 )");
 
+
+//contect us table
+//select database
+mysqli_select_db($con, "SOAE_CLUB");
+mysqli_query($con, "CREATE TABLE IF NOT EXISTS contact_us (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    subject VARCHAR(255),
+    message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
+
+
 ?>
