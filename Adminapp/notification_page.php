@@ -1,4 +1,39 @@
 <?php include 'admin_header.php'; ?>
+<?php
+include '../database.php';
+
+// Fetch notifications array
+$notifications = [];
+
+// 1️⃣ Contact messages
+$msgQuery = "SELECT name, subject, created_at FROM contact_us ORDER BY created_at DESC LIMIT 5";
+$msgResult = mysqli_query($con, $msgQuery);
+while($row = mysqli_fetch_assoc($msgResult)){
+    $notifications[] = [
+        'type' => 'message',
+        'title' => "New Contact Message",
+        'desc' => "{$row['name']} sent a message: {$row['subject']}",
+        'time' => date("d M Y H:i", strtotime($row['created_at']))
+    ];
+}
+
+// 2️⃣ Admin profile changes (using Option 1: current timestamp)
+$profileQuery = "SELECT fullname, email FROM User WHERE role='admin' ORDER BY id DESC LIMIT 5";
+$profileResult = mysqli_query($con, $profileQuery);
+while($row = mysqli_fetch_assoc($profileResult)){
+    $notifications[] = [
+        'type' => 'profile',
+        'title' => "Admin Profile Updated",
+        'desc' => "Profile updated: {$row['fullname']} ({$row['email']})",
+        'time' => date("d M Y H:i") // current time as placeholder
+    ];
+}
+
+// Sort notifications by time descending (latest first)
+usort($notifications, function($a, $b){
+    return strtotime($b['time']) - strtotime($a['time']);
+});
+?>
 
 <style>
 /* ===== PAGE ANIMATION ===== */
@@ -58,51 +93,32 @@
 
     <div class="page-header">
         <h3><i class="bi bi-bell-fill me-2"></i>Notifications</h3>
+        <a href="admin_dashboard.php" class="btn btn-outline-danger">Back to Dashboard</a>
     </div>
 
     <!-- Notifications List -->
     <div class="notifications-list">
-
-        <div class="notification-card unread d-flex align-items-start gap-3">
-            <i class="bi bi-envelope-fill text-danger mt-1"></i>
-            <div>
-                <p class="mb-1"><strong>New Message</strong> from Marmik Kalariya</p>
-                <span class="time">2 minutes ago</span>
-            </div>
-        </div>
-
-        <div class="notification-card d-flex align-items-start gap-3">
-            <i class="bi bi-calendar-event-fill text-danger mt-1"></i>
-            <div>
-                <p class="mb-1"><strong>Event Reminder:</strong> Tech Club Meeting</p>
-                <span class="time">30 minutes ago</span>
-            </div>
-        </div>
-
-        <div class="notification-card unread d-flex align-items-start gap-3">
-            <i class="bi bi-person-fill text-danger mt-1"></i>
-            <div>
-                <p class="mb-1"><strong>New User Registered:</strong> yashgirir Gauswami</p>
-                <span class="time">1 hour ago</span>
-            </div>
-        </div>
-
-        <div class="notification-card d-flex align-items-start gap-3">
-            <i class="bi bi-check-circle-fill text-danger mt-1"></i>
-            <div>
-                <p class="mb-1">System update completed successfully</p>
-                <span class="time">Yesterday</span>
-            </div>
-        </div>
-
-        <div class="notification-card d-flex align-items-start gap-3">
-            <i class="bi bi-info-circle-fill text-danger mt-1"></i>
-            <div>
-                <p class="mb-1">Your profile has been updated</p>
-                <span class="time">2 days ago</span>
-            </div>
-        </div>
-
+        <?php if(!empty($notifications)): ?>
+            <?php foreach($notifications as $n): ?>
+                <?php 
+                $unreadClass = ($n['type'] == 'message') ? 'unread' : '';
+                $icon = 'bi-info-circle-fill';
+                if($n['type'] == 'message') $icon = 'bi-envelope-fill';
+                if($n['type'] == 'profile') $icon = 'bi-person-fill';
+                ?>
+                <div class="notification-card <?= $unreadClass ?> d-flex align-items-start gap-3">
+                    <i class="bi <?= $icon ?> text-danger mt-1"></i>
+                    <div>
+                        <p class="mb-1"><strong><?= $n['title'] ?></strong> - <?= $n['desc'] ?></p>
+                        <span class="time"><?= $n['time'] ?></span>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="text-center text-muted py-4">No notifications found.</p>
+        <?php endif; ?>
     </div>
 
 </div>
+
+<?php include 'admin_footer.php'; ?>

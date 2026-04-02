@@ -1,3 +1,34 @@
+<?php
+session_start();
+include '../database.php';
+
+// guest user
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['user_id'] = 0;
+}
+
+// INSERT LOGIC (ADDED)
+if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
+
+    $user_id = $_SESSION['user_id'];
+
+    $name = mysqli_real_escape_string($con,$_POST['name']);
+    $email = mysqli_real_escape_string($con,$_POST['email']);
+    $subject = mysqli_real_escape_string($con,$_POST['subject']);
+    $message = mysqli_real_escape_string($con,$_POST['message']);
+
+    $query = "INSERT INTO contact_us(user_id,name,email,subject,message)
+              VALUES('$user_id','$name','$email','$subject','$message')";
+
+    if(mysqli_query($con,$query)){
+        echo "success";
+    } else {
+        echo "error";
+    }
+    exit();
+}
+?>
+
 <?php include 'header.php'; ?>
 
 <div class="container my-5">
@@ -66,6 +97,7 @@
                     </button>
 
                 </form>
+
             </div>
         </div>
 
@@ -91,8 +123,7 @@
 </style>
 
 <!-- Animate.css -->
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -162,18 +193,31 @@ $(document).ready(function () {
             $(element).removeClass("is-invalid");
         },
 
+        // ONLY CHANGE HERE
         submitHandler: function(form) {
 
-            // SweetAlert popup
-            Swal.fire({
-                title: "Success!",
-                text: "Your message has been sent successfully.",
-                icon: "success",
-                confirmButtonColor: "#d90429",
-                confirmButtonText: "OK"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "index.php";
+            $.ajax({
+                url: "",
+                type: "POST",
+                data: $("#contactForm").serialize() + "&action=sendMessage",
+
+                success: function(response) {
+
+                    if (response == "success") {
+                        Swal.fire({
+                            title: "Success!",
+                            text: "Your message has been sent successfully.",
+                            icon: "success",
+                            confirmButtonColor: "#d90429",
+                            confirmButtonText: "OK"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "index.php";
+                            }
+                        });
+                    } else {
+                        Swal.fire("Error!", "Database error!", "error");
+                    }
                 }
             });
 

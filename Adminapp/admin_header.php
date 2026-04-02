@@ -272,12 +272,7 @@ if (!$user) {
                 </div>
             </a>
 
-            <a href="msg_page.php" class="text-decoration-none">
-                <div class="icon-btn position-relative">
-                    <i class="bi bi-envelope fs-5"></i>
-                    <span class="badge bg-primary badge-notify">5</span>
-                </div>
-            </a>
+        
 
             <a href="setting_page.php" class="text-decoration-none">
                 <div class="icon-btn">

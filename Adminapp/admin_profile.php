@@ -145,12 +145,12 @@ if (!$user) {
             <!-- PROFILE IMAGE -->
             <div class="position-relative d-inline-block mb-4" style="z-index:1;">
                 <img src="<?php
-                if (!empty($user['clubimage'])) {
-                    echo '../uploads/' . $user['clubimage'];
-                } else {
-                    echo 'assets/clubimage/profile.png';
-                }
-                ?>" class="rounded-circle profile-img" alt="Profile">
+                            if (!empty($user['clubimage'])) {
+                                echo '../uploads/' . $user['clubimage'];
+                            } else {
+                                echo 'assets/clubimage/profile.png';
+                            }
+                            ?>" class="rounded-circle profile-img" alt="Profile">
             </div>
 
             <!-- fullname AND EMAIL -->
