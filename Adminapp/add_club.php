@@ -9,52 +9,81 @@ $faculty_result = mysqli_query($con, $faculty_query);
 // Insert Data
 if(isset($_POST['submit']))
 {
-    $clubname = $_POST['clubname'];
-    $faculty = $_POST['faculty'];
-    $totalmembers = $_POST['totalmembers'];
-    $clubdescription = $_POST['clubdescription'];
-    $status = $_POST['status'];
+    $clubname = mysqli_real_escape_string($con, $_POST['clubname']);
+    $faculty = mysqli_real_escape_string($con, $_POST['faculty']);
+    $totalmembers = intval($_POST['totalmembers']);
+    $clubdescription = mysqli_real_escape_string($con, $_POST['clubdescription']);
+    $status = mysqli_real_escape_string($con, $_POST['status']);
 
-    $filename = $_FILES['clubimage']['name'];
-    $tempname = $_FILES['clubimage']['tmp_name'];
-    $folder = "uploads/".$filename;
-
-    move_uploaded_file($tempname, $folder);
-
-    $query = "INSERT INTO clubs (clubimage, clubname, faculty, totalmembers, clubdescription, status) 
-              VALUES ('$filename', '$clubname', '$faculty', '$totalmembers', '$clubdescription', '$status')";
-
-    if(mysqli_query($con, $query))
+    // Handle image upload
+    if(isset($_FILES['clubimage']) && $_FILES['clubimage']['error'] == 0)
     {
-        echo "
-        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-        <script>
-        Swal.fire({
-            title: 'Success!',
-            text: 'Club Added Successfully',
-            icon: 'success',
-            confirmButtonText: 'OK'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '../Adminapp/all_clubes_page.php';
+        $filename = time() . '_' . basename($_FILES['clubimage']['name']); // unique name
+        $target_dir = "uploads/"; 
+
+        // Create folder if it doesn't exist
+        if(!is_dir($target_dir)){
+            mkdir($target_dir, 0777, true);
+        }
+
+        $target_file = $target_dir . $filename;
+        $fileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $allowed = ['jpg','jpeg','png','gif'];
+
+        if(in_array($fileType, $allowed))
+        {
+            if(move_uploaded_file($_FILES['clubimage']['tmp_name'], $target_file))
+            {
+                // Insert into database
+                $query = "INSERT INTO clubs (clubimage, clubname, faculty, totalmembers, clubdescription, status) 
+                          VALUES ('$filename', '$clubname', '$faculty', '$totalmembers', '$clubdescription', '$status')";
+                if(mysqli_query($con, $query))
+                {
+                    echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+                    <script>
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Club Added Successfully',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '../Adminapp/all_clubes_page.php';
+                        }
+                    });
+                    </script>";
+                }
+                else
+                {
+                    $error = "DB Error: " . mysqli_error($con);
+                }
             }
-        });
-        </script>
-        ";
+            else
+            {
+                $error = "Failed to move uploaded file. Check folder permissions!";
+            }
+        }
+        else
+        {
+            $error = "Invalid file type. Only JPG, JPEG, PNG, GIF allowed.";
+        }
     }
     else
     {
-        echo "
-        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        $error = "Please upload an image.";
+    }
+
+    if(isset($error))
+    {
+        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
         <script>
         Swal.fire({
             title: 'Error!',
-            text: '".mysqli_error($con)."',
+            text: '$error',
             icon: 'error',
             confirmButtonText: 'OK'
         });
-        </script>
-        ";
+        </script>";
     }
 }
 ?>
@@ -62,74 +91,23 @@ if(isset($_POST['submit']))
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
 <style>
-.content {
-    animation: fadeIn 0.6s ease-in-out;
-}
-@keyframes fadeIn {
-    from { opacity:0; transform:translateY(15px);}
-    to { opacity:1; transform:translateY(0);}
-}
+.content { animation: fadeIn 0.6s ease-in-out; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(15px);} to { opacity:1; transform:translateY(0);} }
 
-.card.custom-card{
-    border:none;
-    border-radius:15px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
-    background:#fff;
-}
+.card.custom-card{ border:none; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.05); background:#fff; }
+.form-label{ font-weight:600; font-size:0.9rem; }
+.form-control, .form-select{ border-radius:10px; padding:10px; }
+.btn-effect{ border-radius:50px; transition:0.3s; }
+.btn-effect:hover{ transform:translateY(-2px); }
 
-.form-label{
-    font-weight:600;
-    font-size:0.9rem;
-}
-
-.form-control, .form-select{
-    border-radius:10px;
-    padding:10px;
-}
-
-.btn-effect{
-    border-radius:50px;
-    transition:0.3s;
-}
-.btn-effect:hover{
-    transform:translateY(-2px);
-}
-
-.event-img{
-    width:100%;
-    max-height:250px;
-    object-fit:cover;
-    border-radius:12px;
-    margin-bottom:10px;
-}
-
-.upload-box{
-    border:2px dashed #ddd;
-    padding:15px;
-    border-radius:12px;
-    text-align:center;
-    background:#fafafa;
-}
-.upload-box:hover{
-    border-color:#dc3545;
-}
+.event-img{ width:100%; max-height:250px; object-fit:cover; border-radius:12px; margin-bottom:10px; }
+.upload-box{ border:2px dashed #ddd; padding:15px; border-radius:12px; text-align:center; background:#fafafa; }
+.upload-box:hover{ border-color:#dc3545; }
 
 /* Validation Styles */
-.input-error {
-    border: 2px solid #dc3545 !important;
-    background: #fff5f5;
-}
-
-.input-valid {
-    border: 2px solid #28a745 !important;
-    background: #f6fffa;
-}
-
-.error-text {
-    color: #dc3545;
-    font-size: 0.8rem;
-    margin-top: 4px;
-}
+.input-error { border: 2px solid #dc3545 !important; background: #fff5f5; }
+.input-valid { border: 2px solid #28a745 !important; background: #f6fffa; }
+.error-text { color: #dc3545; font-size: 0.8rem; margin-top: 4px; }
 </style>
 
 <div class="content">
@@ -150,13 +128,9 @@ if(isset($_POST['submit']))
             <!-- IMAGE -->
             <div class="col-12">
                 <label class="form-label">Choose Club Image</label>
-
                 <div class="upload-box">
-                    <img src="https://via.placeholder.com/800x250?text=Club+Preview" 
-                         class="event-img" id="clubImagePreview">
-
-                    <input type="file" class="form-control mt-2" 
-                           id="clubImage" name="clubimage" accept="image/*">
+                    <img src="https://via.placeholder.com/800x250?text=Club+Preview" class="event-img" id="clubImagePreview">
+                    <input type="file" class="form-control mt-2" id="clubImage" name="clubimage" accept="image/*">
                 </div>
             </div>
 
@@ -203,10 +177,7 @@ if(isset($_POST['submit']))
             <button type="submit" name="submit" class="btn btn-danger btn-effect">
                 <i class="bi bi-save me-2"></i>Save Club
             </button>
-
-            <a href="all_club_page.php" class="btn btn-outline-secondary btn-effect">
-                Cancel
-            </a>
+            <a href="all_club_page.php" class="btn btn-outline-secondary btn-effect">Cancel</a>
         </div>
 
         </form>
@@ -216,21 +187,16 @@ if(isset($_POST['submit']))
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
 <script>
 $(document).ready(function(){
 
     // IMAGE PREVIEW
     $("#clubImage").on("change", function(){
         let reader = new FileReader();
-
         reader.onload = function(e){
             $("#clubImagePreview").attr("src", e.target.result);
         }
-
-        if(this.files[0]){
-            reader.readAsDataURL(this.files[0]);
-        }
+        if(this.files[0]) reader.readAsDataURL(this.files[0]);
     });
 
     // REMOVE ERROR ON INPUT
@@ -241,9 +207,7 @@ $(document).ready(function(){
 
     // FORM VALIDATION
     $("form").on("submit", function(e){
-
         let valid = true;
-
         function showError(element, message){
             element.addClass("input-error").removeClass("input-valid");
             if(element.next(".error-text").length == 0){
@@ -252,45 +216,24 @@ $(document).ready(function(){
         }
 
         let clubname = $("input[name='clubname']");
-        if(clubname.val().trim() == ""){
-            showError(clubname, "Club name is required");
-            valid = false;
-        }
+        if(clubname.val().trim() == ""){ showError(clubname, "Club name is required"); valid = false; }
 
         let faculty = $("select[name='faculty']");
-        if(faculty.val() == ""){
-            showError(faculty, "Please select faculty");
-            valid = false;
-        }
+        if(faculty.val() == ""){ showError(faculty, "Please select faculty"); valid = false; }
 
         let members = $("input[name='totalmembers']");
-        if(members.val() == "" || members.val() <= 0){
-            showError(members, "Enter valid number");
-            valid = false;
-        }
+        if(members.val() == "" || members.val() <= 0){ showError(members, "Enter valid number"); valid = false; }
 
         let status = $("select[name='status']");
-        if(status.val() == ""){
-            showError(status, "Select status");
-            valid = false;
-        }
+        if(status.val() == ""){ showError(status, "Select status"); valid = false; }
 
         let desc = $("textarea[name='clubdescription']");
-        if(desc.val().trim() == ""){
-            showError(desc, "Description required");
-            valid = false;
-        }
+        if(desc.val().trim() == ""){ showError(desc, "Description required"); valid = false; }
 
         let image = $("#clubImage");
-        if(image.val() == ""){
-            showError(image, "Upload image");
-            valid = false;
-        }
+        if(image.val() == ""){ showError(image, "Upload image"); valid = false; }
 
-        if(!valid){
-            e.preventDefault();
-        }
-
+        if(!valid) e.preventDefault();
     });
 
 });
