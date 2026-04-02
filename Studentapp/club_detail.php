@@ -5,6 +5,23 @@ include "../database.php";
 // CHECK LOGIN
 $isLoggedIn = isset($_SESSION['user_id']);
 
+// GET EVENT ID FROM URL
+$event_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+// FETCH EVENT DETAILS
+if($event_id > 0){
+    $event_query = mysqli_query($con, "SELECT * FROM events WHERE id='$event_id' LIMIT 1");
+} else {
+    $event_query = mysqli_query($con, "SELECT * FROM events ORDER BY id ASC LIMIT 1");
+}
+
+if(mysqli_num_rows($event_query) == 0){
+    echo "<script>alert('Event not found!'); window.location.href='clubs_view.php';</script>";
+    exit();
+}
+
+$event = mysqli_fetch_assoc($event_query);
+
 // HANDLE FORM SUBMISSION
 if(isset($_POST['submit_event'])) {
     if(!$isLoggedIn){
@@ -22,7 +39,6 @@ if(isset($_POST['submit_event'])) {
     $event_name  = mysqli_real_escape_string($con, $_POST['event_name']);
     $message     = mysqli_real_escape_string($con, $_POST['message']);
 
-    // INSERT INTO database (allow unlimited joins)
     $query = "INSERT INTO club_join_requests 
               (user_id, name, email, phone, club_name, message) 
               VALUES ('$user_id', '$name', '$email', '$phone', '$event_name', '$message')";
@@ -52,29 +68,31 @@ if(isset($_POST['submit_event'])) {
 <div class="container my-5">
     <div class="card">
 
-        <!-- Banner Image --> 
-        <img src="assets/images/e1.avif" alt="Cricket Tournament" class="hero-img mx-auto d-block">
+        <!-- Banner Image -->
+        <img src="<?php echo !empty($event['banner']) ? $event['banner'] : 'assets/images/e1.avif'; ?>" 
+             alt="<?php echo htmlspecialchars($event['name']); ?>" 
+             class="hero-img mx-auto d-block">
 
         <div class="card-body">
 
             <!-- Event Name -->
-            <h2 class="mb-4 text-center">Music Club</h2>
+            <h2 class="mb-4 text-center"><?php echo htmlspecialchars($event['name']); ?></h2>
 
             <!-- Event Info -->
             <div class="event-info mx-auto" style="max-width:700px;">
-                <h4>Clube Details</h4>
+                <h4>Club Details</h4>
                 <ul class="list-unstyled mb-0">
-                    <li><strong>Event Name:</strong> Music Compitition</li>
-                    <li><strong>Date:</strong> 25-02-2026</li>
-                    <li><strong>Status:</strong> Active</li>
-                    <li><strong>Description:</strong> This is a Music tournament organized by the music Club. All students are welcome to participate.</li>
+                    <li><strong>Event Name:</strong> <?php echo htmlspecialchars($event['name']); ?></li>
+                    <li><strong>Date:</strong> <?php echo date('d-m-Y', strtotime($event['date'])); ?></li>
+                    <li><strong>Status:</strong> <?php echo htmlspecialchars($event['status']); ?></li>
+                    <li><strong>Description:</strong> <?php echo nl2br(htmlspecialchars($event['description'])); ?></li>
                 </ul>
             </div>
 
             <!-- Join Event Button -->
             <div class="text-center mb-4 mt-4">
                 <button class="btn btn-theme btn-lg joinBtn" 
-                        data-event="Cricket Tournament"
+                        data-event="<?php echo htmlspecialchars($event['name']); ?>"
                         data-login="<?php echo $isLoggedIn ? 'yes' : 'no'; ?>">
                     Join Club
                 </button>
@@ -94,7 +112,7 @@ if(isset($_POST['submit_event'])) {
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title">Join Clube</h5>
+        <h5 class="modal-title">Join Club</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
@@ -134,7 +152,6 @@ if(isset($_POST['submit_event'])) {
   </div>
 </div>
 
-<!-- ===== STYLES ===== -->
 <style>
 body {
     background: #fff5f5;
@@ -149,12 +166,11 @@ body {
     box-shadow: 0 15px 35px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
 }
-
 .card:hover { transform: translateY(-10px); }
 
 .hero-img {
     width: 100%;
-    max-width: 450px;
+    max-width: 600px;
     height: auto;
     object-fit: cover;
     border-radius: 25px 25px 0 0;
@@ -180,18 +196,16 @@ h2 { font-weight: 700; color: #b71c1c; animation: fadeInUp 1.2s; }
 .event-info ul li { margin-bottom: 12px; font-size: 1rem; }
 
 .btn-theme {
-    background-color: #b71c1c;
-    color: #fff;
+    background-color: #b71c1c !important;
+    color: #fff !important;
     font-weight: 600;
     border-radius: 50px;
     padding: 12px 45px;
     transition: all 0.3s;
     animation: fadeInUp 1.8s;
-    text-decoration: none;
-    display: inline-block;
 }
 
-.btn-theme:hover { background-color: #d32f2f; color: #fff; }
+.btn-theme:hover { background-color: #d32f2f; }
 
 .btn-outline-theme {
     border: 2px solid #b71c1c;
@@ -200,10 +214,7 @@ h2 { font-weight: 700; color: #b71c1c; animation: fadeInUp 1.2s; }
     padding: 10px 35px;
     transition: all 0.3s;
     animation: fadeInUp 2s;
-    text-decoration: none;
-    display: inline-block;
 }
-
 .btn-outline-theme:hover { background-color: #b71c1c; color: #fff; }
 
 @media (max-width: 768px) {
@@ -214,7 +225,6 @@ h2 { font-weight: 700; color: #b71c1c; animation: fadeInUp 1.2s; }
 }
 </style>
 
-<!-- ===== SCRIPTS ===== -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
@@ -247,7 +257,7 @@ $(document).ready(function(){
         $("#joinModal").modal("show");
     });
 
-    // Form validation + SweetAlert
+    // Form validation
     $("#eventForm").validate({
         rules:{
             name:{ required:true, minlength:3 },
