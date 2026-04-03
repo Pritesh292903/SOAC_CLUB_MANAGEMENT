@@ -123,7 +123,7 @@ footer { margin-top: auto; }
                        <p class="text-muted small"><?php echo htmlspecialchars($club['clubdescription']); ?></p>
                         <div class="d-flex justify-content-center gap-2 mt-3">
                             <a href="?join=<?php echo urlencode($clubname); ?>" class="club-btn">Join</a>
-                            <a href="club_detail.php?club=<?php echo urlencode($clubname); ?>" class="club-btn">Details</a>
+                            <a href="club_detail.php?club_id=<?php echo $club['id']; ?>" class="club-btn">Details</a>
                         </div>
                     </div>
                 </div>
