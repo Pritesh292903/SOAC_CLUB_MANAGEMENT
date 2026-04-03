@@ -14,7 +14,7 @@
 .btn-effect:hover{ transform:translateY(-2px); }
 .event-img{ width:100%; max-height:250px; object-fit:cover; border-radius:12px; margin-bottom:10px; }
 .upload-box{ border:2px dashed #ddd; padding:15px; border-radius:12px; text-align:center; background:#fafafa; }
-.upload-box:hover{ border-color:#dc3545; }
+.upload-box:hover{ border-color:#dc3545; cursor:pointer; }
 </style>
 
 <div class="content">
@@ -34,11 +34,12 @@
 
                 <div class="col-12">
                     <label class="form-label">Choose Event Image</label>
-                    <div class="upload-box">
+                    <div class="upload-box" onclick="document.getElementById('eventImage').click();">
                         <img src="https://via.placeholder.com/800x250?text=Event+Preview" 
                              class="event-img" id="eventImagePreview">
                         <input type="file" class="form-control mt-2" 
-                               id="eventImage" name="eventImage" accept="image/*">
+                               id="eventImage" name="eventImage" accept="image/*" style="display:none;">
+                        <small class="text-muted">Click above to select image</small>
                     </div>
                 </div>
 
@@ -91,7 +92,9 @@ $(document).ready(function(){
     // IMAGE PREVIEW
     $("#eventImage").on("change", function(){
         let reader = new FileReader();
-        reader.onload = function(e){ $("#eventImagePreview").attr("src", e.target.result); }
+        reader.onload = function(e){
+            $("#eventImagePreview").attr("src", e.target.result);
+        }
         if(this.files[0]){ reader.readAsDataURL(this.files[0]); }
     });
 
@@ -126,7 +129,9 @@ $(document).ready(function(){
                     Swal.fire({ icon:"error", title:"Error", text: response });
                 }
             },
-            error: function(){ Swal.fire({ icon:"error", title:"Server Error", text:"Something went wrong!" }); }
+            error: function(){
+                Swal.fire({ icon:"error", title:"Server Error", text:"Something went wrong!" });
+            }
         });
     });
 
