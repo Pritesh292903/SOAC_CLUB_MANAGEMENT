@@ -132,6 +132,7 @@ a {
                     </div>
                     <h3 class="fw-bold counter"><?= $clubs_count ?></h3>
                     <p class="text-muted mb-0">Active Clubs</p>
+                    
                 </div>
             </a>
         </div>
