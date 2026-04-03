@@ -1,27 +1,33 @@
 <?php 
-include 'header.php';
-include "../database.php";
-
-// CHECK LOGIN
-$isLoggedIn = isset($_SESSION['user_id']);
-
-// GET EVENT ID FROM URL
-$event_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
-// FETCH EVENT DETAILS
-if($event_id > 0){
-    $event_query = mysqli_query($con, "SELECT * FROM events WHERE id='$event_id' LIMIT 1");
-} else {
-    $event_query = mysqli_query($con, "SELECT * FROM events ORDER BY id ASC LIMIT 1");
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-if(mysqli_num_rows($event_query) == 0){
-    echo "<script>alert('Event not found!'); window.location.href='clubs_view.php';</script>";
+include 'header.php';
+include '../database.php'; // DB connection
+
+// =====================
+// CHECK LOGIN FOR JOIN BUTTON
+$isLoggedIn = isset($_SESSION['user_id']);
+
+// GET CLUB ID FROM URL
+$club_id = isset($_GET['club_id']) ? intval($_GET['club_id']) : 0;
+
+// FETCH CLUB DETAILS
+if($club_id > 0){
+    $club_query = mysqli_query($con, "SELECT * FROM clubs WHERE id='$club_id' LIMIT 1");
+} else {
+    $club_query = mysqli_query($con, "SELECT * FROM clubs ORDER BY id ASC LIMIT 1");
+}
+
+if(mysqli_num_rows($club_query) == 0){
+    echo "<script>alert('Club not found!'); window.location.href='clubs_view.php';</script>";
     exit();
 }
 
-$event = mysqli_fetch_assoc($event_query);
+$club = mysqli_fetch_assoc($club_query);
 
+// =====================
 // HANDLE FORM SUBMISSION
 if(isset($_POST['submit_event'])) {
     if(!$isLoggedIn){
@@ -32,23 +38,28 @@ if(isset($_POST['submit_event'])) {
         exit();
     }
 
-    $user_id     = $_SESSION['user_id'];
-    $name        = mysqli_real_escape_string($con, $_POST['name']);
-    $email       = mysqli_real_escape_string($con, $_POST['email']);
-    $phone       = mysqli_real_escape_string($con, $_POST['phone']);
-    $event_name  = mysqli_real_escape_string($con, $_POST['event_name']);
-    $message     = mysqli_real_escape_string($con, $_POST['message']);
+    $user_id   = $_SESSION['user_id'];
+    $name      = mysqli_real_escape_string($con, $_POST['name']);
+    $email     = mysqli_real_escape_string($con, $_POST['email']);
+    $phone     = mysqli_real_escape_string($con, $_POST['phone']);
+    $club_id_post   = intval($_POST['club_id']);
+    $message   = mysqli_real_escape_string($con, $_POST['message']);
+
+    // Fetch club name safely from DB
+    $club_query2 = mysqli_query($con, "SELECT clubname FROM clubs WHERE id='$club_id_post' LIMIT 1");
+    $club_data   = mysqli_fetch_assoc($club_query2);
+    $club_name   = $club_data['clubname'] ?? 'Unknown Club';
 
     $query = "INSERT INTO club_join_requests 
-              (user_id, name, email, phone, club_name, message) 
-              VALUES ('$user_id', '$name', '$email', '$phone', '$event_name', '$message')";
+              (user_id, name, email, phone, club_name, message, club_id) 
+              VALUES ('$user_id', '$name', '$email', '$phone', '$club_name', '$message', '$club_id_post')";
 
     if(mysqli_query($con, $query)) {
         echo "<script>
         document.addEventListener('DOMContentLoaded', function(){
             Swal.fire({
                 title: 'Success!',
-                text: 'You have successfully joined the event.',
+                text: 'You have successfully joined the club.',
                 icon: 'success',
                 confirmButtonColor: '#d90429',
             }).then(() => {
@@ -57,7 +68,7 @@ if(isset($_POST['submit_event'])) {
         });
         </script>";
     } else {
-        echo "<script>alert('Database error!');</script>";
+        echo "<script>alert('Database error! ".mysqli_error($con)."');</script>";
     }
 }
 ?>
@@ -69,30 +80,30 @@ if(isset($_POST['submit_event'])) {
     <div class="card">
 
         <!-- Banner Image -->
-        <img src="<?php echo !empty($event['banner']) ? $event['banner'] : 'assets/images/e1.avif'; ?>" 
-             alt="<?php echo htmlspecialchars($event['name']); ?>" 
+        <img src="../Adminapp/uploads/<?php echo !empty($club['clubimage']) ? $club['clubimage'] : 'assets/images/e1.avif'; ?>" 
+             alt="<?php echo htmlspecialchars($club['clubname']); ?>" 
              class="hero-img mx-auto d-block">
 
         <div class="card-body">
 
-            <!-- Event Name -->
-            <h2 class="mb-4 text-center"><?php echo htmlspecialchars($event['name']); ?></h2>
+            <!-- Club Name -->
+            <h2 class="mb-4 text-center"><?php echo htmlspecialchars($club['clubname']); ?></h2>
 
-            <!-- Event Info -->
+            <!-- Club Info -->
             <div class="event-info mx-auto" style="max-width:700px;">
                 <h4>Club Details</h4>
                 <ul class="list-unstyled mb-0">
-                    <li><strong>Event Name:</strong> <?php echo htmlspecialchars($event['name']); ?></li>
-                    <li><strong>Date:</strong> <?php echo date('d-m-Y', strtotime($event['date'])); ?></li>
-                    <li><strong>Status:</strong> <?php echo htmlspecialchars($event['status']); ?></li>
-                    <li><strong>Description:</strong> <?php echo nl2br(htmlspecialchars($event['description'])); ?></li>
+                    <li><strong>Club Name:</strong> <?php echo htmlspecialchars($club['clubname']); ?></li>
+                    <li><strong>Faculty Name:</strong> <?php echo htmlspecialchars($club['faculty']); ?></li>
+                    <li><strong>Status:</strong> <?php echo htmlspecialchars($club['status']); ?></li>
+                    <li><strong>Description:</strong> <?php echo nl2br(htmlspecialchars($club['clubdescription'])); ?></li>
                 </ul>
             </div>
 
-            <!-- Join Event Button -->
+            <!-- Join Club Button -->
             <div class="text-center mb-4 mt-4">
                 <button class="btn btn-theme btn-lg joinBtn" 
-                        data-event="<?php echo htmlspecialchars($event['name']); ?>"
+                        data-clubid="<?php echo $club['id']; ?>"
                         data-login="<?php echo $isLoggedIn ? 'yes' : 'no'; ?>">
                     Join Club
                 </button>
@@ -100,14 +111,14 @@ if(isset($_POST['submit_event'])) {
 
             <!-- Back Button -->
             <div class="text-center">
-                <a href="clubs_view.php" class="btn btn-outline-theme">Back to Events</a>
+                <a href="clubs_view.php" class="btn btn-outline-theme">Back to Clubs</a>
             </div>
 
         </div>
     </div>
 </div>
 
-<!-- ===== JOIN EVENT MODAL ===== -->
+<!-- ===== JOIN CLUB MODAL ===== -->
 <div class="modal fade" id="joinModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -118,7 +129,6 @@ if(isset($_POST['submit_event'])) {
 
       <div class="modal-body">
         <form id="eventForm" method="POST">
-
             <div class="mb-3">
                 <label>Your Name</label>
                 <input type="text" name="name" class="form-control">
@@ -135,8 +145,9 @@ if(isset($_POST['submit_event'])) {
             </div>
 
             <div class="mb-3">
-                <label>Selected Event</label>
-                <input type="text" name="event_name" id="event_name" class="form-control" readonly>
+                <input type="hidden" name="club_id" id="club_id">
+                <label>Selected Club</label>
+                <input type="text" id="club_name_display" class="form-control" readonly>
             </div>
 
             <div class="mb-3">
@@ -145,7 +156,6 @@ if(isset($_POST['submit_event'])) {
             </div>
 
             <button type="submit" name="submit_event" class="btn btn-danger w-100">Submit</button>
-
         </form>
       </div>
     </div>
@@ -168,13 +178,16 @@ body {
 }
 .card:hover { transform: translateY(-10px); }
 
+/* Smaller hero image */
 .hero-img {
     width: 100%;
-    max-width: 600px;
+    max-width: 200px;  /* very small */
     height: auto;
     object-fit: cover;
     border-radius: 25px 25px 0 0;
     animation: fadeInDown 1s;
+    display: block;
+    margin: 0 auto 15px;
 }
 
 .card-body { padding: 50px; }
@@ -219,7 +232,7 @@ h2 { font-weight: 700; color: #b71c1c; animation: fadeInUp 1.2s; }
 
 @media (max-width: 768px) {
     .card-body { padding: 30px 20px; }
-    .hero-img { max-width: 100%; max-height: 300px; margin-bottom: 20px; }
+    .hero-img { max-width: 150px; max-height: 150px; margin-bottom: 10px; }
     .btn-theme, .btn-outline-theme { padding: 10px 30px; }
     .event-info { padding: 20px; }
 }
@@ -233,7 +246,7 @@ h2 { font-weight: 700; color: #b71c1c; animation: fadeInUp 1.2s; }
 <script>
 $(document).ready(function(){
 
-    // Open modal & prefill event name
+    // Prefill modal with club ID and name
     $(".joinBtn").click(function(){
         let isLogin = $(this).data("login");
         if(isLogin === "no"){
@@ -252,8 +265,11 @@ $(document).ready(function(){
             return;
         }
 
-        let eventName = $(this).data("event");
-        $("#event_name").val(eventName);
+        let clubId = $(this).data("clubid");
+        let clubName = "<?php echo htmlspecialchars($club['clubname']); ?>";
+
+        $("#club_id").val(clubId);
+        $("#club_name_display").val(clubName);
         $("#joinModal").modal("show");
     });
 

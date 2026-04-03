@@ -109,7 +109,7 @@ main { flex:1; }
                             <h5 class="mt-3 text-danger"><?php echo htmlspecialchars($club['clubname']); ?></h5>
                             <p class="text-secondary mb-1"><?php echo htmlspecialchars($club['faculty']); ?></p>
                             <p class="text-muted small"><?php echo htmlspecialchars($club['clubdescription']); ?></p>
-                            <a href="club_detail.php?club=<?php echo htmlspecialchars($club['id']); ?>" class="btn btn-outline-danger-custom btn-sm mt-2">Details</a>
+                            <a href="club_detail.php?club_id=<?php echo $club['id']; ?>" class="btn btn-outline-danger-custom btn-sm mt-2">Details</a>
                         </div>
                     </div>
                 <?php endwhile; ?>
@@ -131,7 +131,7 @@ main { flex:1; }
                             <div class="p-3">
                                 <h5 class="text-danger"><?php echo htmlspecialchars($event['name']); ?></h5>
                                 <p class="text-muted small"><?php echo htmlspecialchars($event['description']); ?></p>
-                                <a href="event_details.php?event=<?php echo htmlspecialchars($event['id']); ?>" class="btn btn-outline-danger-custom btn-sm mt-2">Details</a>
+                                <a href="event_details.php?id=<?php echo $event['id']; ?>" class="btn btn-outline-danger-custom btn-sm mt-2">Details</a>
                             </div>
                         </div>
                     </div>
