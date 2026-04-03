@@ -2,10 +2,22 @@
 include 'F_header.php'; 
 include '../database.php';
 mysqli_select_db($con, "SOAE_CLUB");
+
+// --- CREATE MASTER TABLE IF NOT EXISTS ---
+mysqli_query($con, "CREATE TABLE IF NOT EXISTS students_master (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    phone VARCHAR(20),
+    club_or_event VARCHAR(100),
+    type ENUM('club','event'),
+    join_date DATETIME,
+    status VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
 ?>
 
 <style>
-/* Keep your previous CSS as-is, no changes needed */
 .students-section{padding:40px 20px;animation:fadePage 0.6s ease-in-out;}
 @keyframes fadePage{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 .page-title{font-size:30px;font-weight:700;background:linear-gradient(120deg,#9b0000,#d90429);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
@@ -47,24 +59,10 @@ mysqli_select_db($con, "SOAE_CLUB");
                 </thead>
                 <tbody>
                     <?php
-                    // Fetch club join requests
-                    $club_requests = mysqli_query($con, "SELECT * FROM club_join_requests ORDER BY created_at DESC");
-                    // Fetch event join requests
-                    $event_requests = mysqli_query($con, "SELECT * FROM event_join_requests ORDER BY created_at DESC");
-
                     $i = 1;
 
-                    // Function to convert status to badge
-                    function statusBadge($status){
-                        switch($status){
-                            case 'approved': return '<span class="badge bg-success">Approved</span>'; 
-                            case 'pending': return '<span class="badge bg-warning text-dark">Pending</span>'; 
-                            case 'rejected': return '<span class="badge bg-danger">Rejected</span>'; 
-                            default: return '<span class="badge bg-secondary">Unknown</span>';
-                        }
-                    }
-
-                    // Display club requests
+                    // --- Fetch club join requests ---
+                    $club_requests = mysqli_query($con, "SELECT * FROM club_join_requests ORDER BY created_at DESC");
                     while($req = mysqli_fetch_assoc($club_requests)){
                         echo '<tr>
                                 <td>'.$i++.'</td>
@@ -74,11 +72,27 @@ mysqli_select_db($con, "SOAE_CLUB");
                                 <td>'.htmlspecialchars($req['phone']).'</td>
                                 <td><span class="badge badge-club">'.htmlspecialchars($req['club_name']).'</span></td>
                                 <td>'.date("d-m-Y", strtotime($req['created_at'])).'</td>
-                                <td>'.statusBadge($req['status']).'</td>
+                                <td>'.($req['status']=='approved'?'<span class="badge bg-success">Approved</span>':($req['status']=='pending'?'<span class="badge bg-warning text-dark">Pending</span>':'<span class="badge bg-danger">Rejected</span>')).'</td>
                               </tr>';
+
+                        // --- Insert into students_master ---
+                        $name = mysqli_real_escape_string($con, $req['name']);
+                        $email = mysqli_real_escape_string($con, $req['email']);
+                        $phone = mysqli_real_escape_string($con, $req['phone']);
+                        $club_name = mysqli_real_escape_string($con, $req['club_name']);
+                        $status = mysqli_real_escape_string($con, $req['status']);
+                        $join_date = $req['created_at'];
+
+                        // Check if already exists
+                        $check = mysqli_query($con, "SELECT id FROM students_master WHERE email='$email' AND type='club' AND club_or_event='$club_name' LIMIT 1");
+                        if(mysqli_num_rows($check) == 0){
+                            mysqli_query($con, "INSERT INTO students_master (name, email, phone, club_or_event, type, join_date, status)
+                                                VALUES ('$name','$email','$phone','$club_name','club','$join_date','$status')");
+                        }
                     }
 
-                    // Display event requests
+                    // --- Fetch event join requests ---
+                    $event_requests = mysqli_query($con, "SELECT * FROM event_join_requests ORDER BY created_at DESC");
                     while($req = mysqli_fetch_assoc($event_requests)){
                         echo '<tr>
                                 <td>'.$i++.'</td>
@@ -88,8 +102,23 @@ mysqli_select_db($con, "SOAE_CLUB");
                                 <td>'.htmlspecialchars($req['phone']).'</td>
                                 <td><span class="badge badge-club">'.htmlspecialchars($req['event_name']).'</span></td>
                                 <td>'.date("d-m-Y", strtotime($req['created_at'])).'</td>
-                                <td>'.statusBadge($req['status']).'</td>
+                                <td>'.($req['status']=='approved'?'<span class="badge bg-success">Approved</span>':($req['status']=='pending'?'<span class="badge bg-warning text-dark">Pending</span>':'<span class="badge bg-danger">Rejected</span>')).'</td>
                               </tr>';
+
+                        // --- Insert into students_master ---
+                        $name = mysqli_real_escape_string($con, $req['name']);
+                        $email = mysqli_real_escape_string($con, $req['email']);
+                        $phone = mysqli_real_escape_string($con, $req['phone']);
+                        $event_name = mysqli_real_escape_string($con, $req['event_name']);
+                        $status = mysqli_real_escape_string($con, $req['status']);
+                        $join_date = $req['created_at'];
+
+                        // Check if already exists
+                        $check = mysqli_query($con, "SELECT id FROM students_master WHERE email='$email' AND type='event' AND club_or_event='$event_name' LIMIT 1");
+                        if(mysqli_num_rows($check) == 0){
+                            mysqli_query($con, "INSERT INTO students_master (name, email, phone, club_or_event, type, join_date, status)
+                                                VALUES ('$name','$email','$phone','$event_name','event','$join_date','$status')");
+                        }
                     }
                     ?>
                 </tbody>
