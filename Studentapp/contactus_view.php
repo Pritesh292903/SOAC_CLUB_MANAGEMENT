@@ -7,15 +7,10 @@ if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = 0;
 }
 
-// INSERT LOGIC
+// INSERT LOGIC (ADDED)
 if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
 
     $user_id = $_SESSION['user_id'];
-
-    if(empty($_POST['name']) || empty($_POST['email']) || empty($_POST['subject']) || empty($_POST['message'])){
-        echo "empty";
-        exit();
-    }
 
     $name = mysqli_real_escape_string($con,$_POST['name']);
     $email = mysqli_real_escape_string($con,$_POST['email']);
@@ -38,6 +33,7 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
 
 <div class="container my-5">
 
+    <!-- Animated Heading -->
     <div class="text-center mb-5">
         <h1 class="display-4 fw-bold text-danger animate__animated animate__fadeInDown" style="color:#9b0000;">
             Contact Us
@@ -54,13 +50,17 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
             <div class="card shadow-sm border-0 h-100 p-4">
                 <h4 class="text-danger mb-3">Get in Touch</h4>
                 <p><i class="bi bi-geo-alt-fill me-2 text-danger"></i>
-                    RK University, Rajkot
+                    RK University, Bhavnagar Highway, Kasturbadham,
+                    Rajkot - 360020, Gujarat, India.
                 </p>
                 <p><i class="bi bi-telephone-fill me-2 text-danger"></i>
-                    +91-9909952030
+                    +91-9909952030/31
                 </p>
                 <p><i class="bi bi-envelope-fill me-2 text-danger"></i>
                     info@rku.ac.in
+                </p>
+                <p><i class="bi bi-clock-fill me-2 text-danger"></i>
+                    Mon - Fri: 8:00 AM - 5:00 PM
                 </p>
             </div>
         </div>
@@ -72,22 +72,22 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
 
                 <form id="contactForm">
 
-                    <div class="mb-3 position-relative">
+                    <div class="mb-3">
                         <label class="form-label">Full Name</label>
                         <input type="text" name="name" class="form-control border-danger">
                     </div>
 
-                    <div class="mb-3 position-relative">
+                    <div class="mb-3">
                         <label class="form-label">Email Address</label>
                         <input type="email" name="email" class="form-control border-danger">
                     </div>
 
-                    <div class="mb-3 position-relative">
+                    <div class="mb-3">
                         <label class="form-label">Subject</label>
                         <input type="text" name="subject" class="form-control border-danger">
                     </div>
 
-                    <div class="mb-3 position-relative">
+                    <div class="mb-3">
                         <label class="form-label">Message</label>
                         <textarea name="message" rows="5" class="form-control border-danger"></textarea>
                     </div>
@@ -104,76 +104,96 @@ if(isset($_POST['action']) && $_POST['action'] == "sendMessage"){
     </div>
 </div>
 
+<!-- Custom Styles -->
 <style>
-/* Red border */
-input.error, textarea.error {
-    border-color: #dc3545 !important;
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(217, 4, 41, 0.3);
+    transition: 0.3s;
 }
 
-/* ! icon */
-.error-icon {
-    position: absolute;
-    right: 10px;
-    top: 38px;
-    color: #dc3545;
-    font-weight: bold;
-    font-size: 18px;
+.form-control:focus {
+    border-color: #d90429;
+    box-shadow: 0 0 0 2px rgba(217, 4, 41, 0.15);
 }
 
-/* error text */
-label.error {
-    color: #dc3545;
-    font-size: 13px;
-    margin-top: 5px;
-    display: block;
+.form-control.is-invalid {
+    border-color: #dc3545;
 }
 </style>
 
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- jQuery Validation -->
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function () {
 
+    $.validator.addMethod("lettersOnly", function(value, element) {
+        return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
+    }, "Only letters allowed");
+
     $("#contactForm").validate({
 
         rules: {
-            name: { required: true, minlength: 3 },
-            email: { required: true, email: true },
-            subject: { required: true, minlength: 5 },
-            message: { required: true, minlength: 10 }
+            name: {
+                required: true,
+                minlength: 3,
+                lettersOnly: true
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            subject: {
+                required: true,
+                minlength: 5
+            },
+            message: {
+                required: true,
+                minlength: 10
+            }
         },
 
         messages: {
             name: {
-                required: "This field is required",
+                required: "Please enter your name",
                 minlength: "Minimum 3 characters required"
             },
             email: {
-                required: "This field is required",
-                email: "Enter valid email"
+                required: "Please enter your email",
+                email: "Enter valid email address"
             },
             subject: {
-                required: "This field is required",
-                minlength: "Minimum 5 characters required"
+                required: "Please enter subject",
+                minlength: "Subject must be at least 5 characters"
             },
             message: {
-                required: "This field is required",
-                minlength: "Minimum 10 characters required"
+                required: "Please enter your message",
+                minlength: "Message must be at least 10 characters"
             }
         },
 
-        errorPlacement: function(error, element) {
-            element.closest(".mb-3").find(".error-icon").remove();
-            element.closest(".mb-3").append('<span class="error-icon">!</span>');
-            error.insertAfter(element);
+        errorElement: "small",
+        errorClass: "text-danger",
+
+        highlight: function (element) {
+            $(element).addClass("is-invalid");
         },
 
-        success: function(label, element) {
-            $(element).closest(".mb-3").find(".error-icon").remove();
+        unhighlight: function (element) {
+            $(element).removeClass("is-invalid");
         },
 
+        // ONLY CHANGE HERE
         submitHandler: function(form) {
 
             $.ajax({
@@ -183,22 +203,19 @@ $(document).ready(function () {
 
                 success: function(response) {
 
-                    if (response.trim() == "success") {
-
+                    if (response == "success") {
                         Swal.fire({
                             title: "Success!",
                             text: "Your message has been sent successfully.",
                             icon: "success",
-                            confirmButtonColor: "#d90429"
+                            confirmButtonColor: "#d90429",
+                            confirmButtonText: "OK"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "index.php";
+                            }
                         });
-
-                        $("#contactForm")[0].reset();
-
-                    } 
-                    else if(response == "empty"){
-                        Swal.fire("Warning!", "All fields are required!", "warning");
-                    }
-                    else {
+                    } else {
                         Swal.fire("Error!", "Database error!", "error");
                     }
                 }
