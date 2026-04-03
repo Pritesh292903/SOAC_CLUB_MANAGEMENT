@@ -1,13 +1,12 @@
-<?php
-include 'F_header.php';
-include '../database.php';
+<?php 
+include 'F_header.php'; 
+include '../database.php';  
 
 // FETCH ALL CLUBS
-$result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC");
+$result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC"); 
 ?>
 
 <div class="container my-5">
-
     <div class="row g-4">
 
         <?php if (mysqli_num_rows($result) > 0): ?>
@@ -19,25 +18,29 @@ $result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC");
                         <?php
                         $image = $row['clubimage'];
 
-                        // SERVER PATH (for checking file)
-                        $filePath = __DIR__ . "/../uploads/" . $image;
+                        // ✅ CORRECT PATHS
+                        $uploadDir  = __DIR__ . "/../Adminapp/uploads/"; // SERVER PATH
+                        $displayDir = "../Adminapp/uploads/";            // BROWSER PATH
 
-                        // BROWSER PATH (for display)
-                        $displayPath = "../Adminapp/uploads/" . $image;
+                        $filePath = $uploadDir . $image;
 
+                        // CHECK IMAGE EXISTS
                         if (!empty($image) && file_exists($filePath)) {
-                            $finalImage = $displayPath . '?t=' . time();
+                            $finalImage = $displayDir . $image . '?t=' . time();
                         } else {
                             $finalImage = "https://via.placeholder.com/150";
                         }
                         ?>
 
+                        <!-- IMAGE -->
                         <div class="text-center mt-3">
                             <img src="<?php echo $finalImage; ?>"
-                                class="rounded-circle"
-                                style="width:120px;height:120px;object-fit:cover;">
+                                 onerror="this.src='https://via.placeholder.com/150';"
+                                 class="rounded-circle"
+                                 style="width:120px;height:120px;object-fit:cover;">
                         </div>
 
+                        <!-- CONTENT -->
                         <div class="card-body text-center">
 
                             <h5 class="fw-bold text-danger">
@@ -58,15 +61,16 @@ $result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC");
 
                             <br><br>
 
-                            <!-- EDIT + DELETE BUTTONS -->
+                            <!-- EDIT BUTTON -->
                             <a href="editclube.php?id=<?php echo $row['id']; ?>"
-                                class="btn btn-warning btn-sm me-2 text-dark">
+                               class="btn btn-warning btn-sm me-2 text-dark">
                                 Edit
                             </a>
 
+                            <!-- DELETE BUTTON -->
                             <a href="delete_club.php?id=<?php echo $row['id']; ?>"
-                                onclick="return confirm('Delete this club?')"
-                                class="btn btn-danger btn-sm">
+                               onclick="return confirm('Delete this club?')"
+                               class="btn btn-danger btn-sm">
                                 Delete
                             </a>
 
@@ -75,6 +79,7 @@ $result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC");
                 </div>
 
             <?php endwhile; ?>
+
         <?php else: ?>
             <div class="col-12 text-center">
                 <p>No clubs found.</p>

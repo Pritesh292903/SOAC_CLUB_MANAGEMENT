@@ -34,7 +34,7 @@ $result = mysqli_query($con, "SELECT * FROM events ORDER BY date DESC");
 
         <?php while($row = mysqli_fetch_assoc($result)) { 
             // Set image path
-            $imgPath = !empty($row['image']) ? "../uploads/events/" . $row['image'] : "../uploads/default.png";
+            $imgPath = !empty($row['image']) ? "../uploads/" . $row['image'] : "../uploads/default.png";
         ?>
 
         <div class="col-lg-4 col-md-6">
