@@ -1,9 +1,34 @@
-<?php include 'F_header.php'; ?>
+<?php 
+include 'F_header.php'; 
+include '../database.php';  
 
-<!-- ================= DASHBOARD CONTENT ================= -->
+mysqli_select_db($con, "SOAE_CLUB");
+
+// ---------------------- DYNAMIC COUNTS ----------------------
+
+// Total Students
+$students_result = mysqli_query($con, "SELECT COUNT(*) AS total_students FROM students_master");
+$students_count = mysqli_fetch_assoc($students_result)['total_students'] ?? 0;
+
+// Active Clubs
+$clubs_result = mysqli_query($con, "SELECT COUNT(*) AS total_clubs FROM clubs WHERE status='active'");
+$clubs_count = mysqli_fetch_assoc($clubs_result)['total_clubs'] ?? 0;
+
+// Upcoming Events (date >= today)
+$events_result = mysqli_query($con, "SELECT COUNT(*) AS total_events FROM events WHERE date >= CURDATE()");
+$events_count = mysqli_fetch_assoc($events_result)['total_events'] ?? 0;
+
+// Pending Requests (club + event join requests)
+$club_requests_result = mysqli_query($con, "SELECT COUNT(*) AS total FROM club_join_requests WHERE status='pending'");
+$club_requests_count = mysqli_fetch_assoc($club_requests_result)['total'] ?? 0;
+
+$event_requests_result = mysqli_query($con, "SELECT COUNT(*) AS total FROM event_join_requests WHERE status='pending'");
+$event_requests_count = mysqli_fetch_assoc($event_requests_result)['total'] ?? 0;
+
+$requests_count = $club_requests_count + $event_requests_count;
+?>
 
 <style>
-
 /* Background Gradient */
 body {
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
@@ -13,7 +38,6 @@ body {
 .dashboard-title {
     animation: fadeDown 1s ease;
 }
-
 @keyframes fadeDown {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -58,12 +82,10 @@ body {
     animation: fadeUp 1s ease forwards;
     opacity: 0;
 }
-
 .animate-card:nth-child(1) { animation-delay: 0.2s; }
 .animate-card:nth-child(2) { animation-delay: 0.4s; }
 .animate-card:nth-child(3) { animation-delay: 0.6s; }
 .animate-card:nth-child(4) { animation-delay: 0.8s; }
-
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(40px); }
     to { opacity: 1; transform: translateY(0); }
@@ -74,7 +96,6 @@ a {
     text-decoration: none !important;
     color: inherit !important;
 }
-
 </style>
 
 <div class="container py-5">
@@ -96,7 +117,7 @@ a {
                     <div class="icon-circle bg-students">
                         <i class="bi bi-people-fill"></i>
                     </div>
-                    <h3 class="fw-bold counter">120</h3>
+                    <h3 class="fw-bold counter"><?= $students_count ?></h3>
                     <p class="text-muted mb-0">Total Students</p>
                 </div>
             </a>
@@ -109,8 +130,9 @@ a {
                     <div class="icon-circle bg-clubs">
                         <i class="bi bi-diagram-3-fill"></i>
                     </div>
-                    <h3 class="fw-bold counter">8</h3>
+                    <h3 class="fw-bold counter"><?= $clubs_count ?></h3>
                     <p class="text-muted mb-0">Active Clubs</p>
+                    
                 </div>
             </a>
         </div>
@@ -122,7 +144,7 @@ a {
                     <div class="icon-circle bg-events">
                         <i class="bi bi-calendar-event-fill"></i>
                     </div>
-                    <h3 class="fw-bold counter">15</h3>
+                    <h3 class="fw-bold counter"><?= $events_count ?></h3>
                     <p class="text-muted mb-0">Upcoming Events</p>
                 </div>
             </a>
@@ -135,7 +157,7 @@ a {
                     <div class="icon-circle bg-requests">
                         <i class="bi bi-envelope-fill"></i>
                     </div>
-                    <h3 class="fw-bold counter">23</h3>
+                    <h3 class="fw-bold counter"><?= $requests_count ?></h3>
                     <p class="text-muted mb-0">Pending Requests</p>
                 </div>
             </a>

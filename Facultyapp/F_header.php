@@ -1,3 +1,32 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+include "../database.php"; // Database connection
+
+// LOGIN CHECK
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../Studentapp/login_view.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Default profile image
+$profileImage = "assets/images/user.jpg";
+
+// Fetch faculty image from DB
+$query = "SELECT image FROM Faculty_register WHERE id='$user_id'";
+$result = mysqli_query($con, $query);
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $user = mysqli_fetch_assoc($result);
+    if (!empty($user['image'])) {
+        $profileImage = "../" . $user['image'] . "?t=" . time(); // cache bust
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,7 +48,7 @@
       min-height: 200vh;
     }
 
-    /* ================= NAVBAR DESIGN ================= */
+    /* NAVBAR */
     .custom-navbar {
       background: linear-gradient(120deg, #9b0000, #d90429);
       box-shadow: 0 4px 15px rgba(0, 0, 0, .25);
@@ -30,7 +59,6 @@
       z-index: 9999;
     }
 
-    /* ================= LOGO ================= */
     .navbar-brand img {
       height: 75px;
       transition: transform 0.3s ease;
@@ -40,7 +68,6 @@
       transform: scale(1.05);
     }
 
-    /* ================= NAV LINKS ================= */
     .navbar-nav .nav-link {
       position: relative;
       font-weight: 600;
@@ -70,7 +97,7 @@
       width: 100%;
     }
 
-    /* ================= PROFILE IMAGE ================= */
+    /* PROFILE IMAGE */
     .profile-img {
       width: 42px;
       height: 42px;
@@ -85,7 +112,7 @@
       border-color: white;
     }
 
-    /* ================= NOTIFICATION ================= */
+    /* NOTIFICATION */
     .notification-btn {
       background: transparent;
       border: none;
@@ -108,7 +135,7 @@
       font-size: 12px;
     }
 
-    /* ================= LOGOUT BUTTON ================= */
+    /* LOGOUT BUTTON */
     .logout-btn {
       background: linear-gradient(135deg, #ffffff, #f8d7da);
       color: #9b0000;
@@ -166,7 +193,7 @@
         <!-- Faculty Menu -->
         <ul class="navbar-nav mx-auto">
           <li class="nav-item">
-            <a class="nav-link " href="faculty_dashboard.php">Dashboard</a>
+            <a class="nav-link" href="faculty_dashboard.php">Dashboard</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="manage_clube.php">My Clubs</a>
@@ -195,7 +222,7 @@
 
           <!-- Profile -->
           <a href="profile.php">
-            <img src="assets/images/user.jpg" class="profile-img" alt="User">
+            <img src="<?php echo $profileImage; ?>" class="profile-img" alt="User">
           </a>
 
           <!-- Logout Button -->
@@ -209,8 +236,6 @@
       </div>
     </div>
   </nav>
-
-
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
