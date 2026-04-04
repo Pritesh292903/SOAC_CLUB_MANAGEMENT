@@ -1,9 +1,14 @@
 <?php 
-include 'F_header.php'; 
-include '../database.php';  
+include '../database.php';
 
-// FETCH ALL CLUBS
-$result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC"); 
+// SESSION ALREADY STARTED IN HEADER
+include 'F_header.php';  
+
+// ✅ USE SAME SESSION AS HEADER
+$faculty_id = $_SESSION['user_id'];
+
+// ✅ FILTER CLUBS
+$result = mysqli_query($con, "SELECT * FROM clubs WHERE faculty_id='$faculty_id' ORDER BY id DESC"); 
 ?>
 
 <div class="container my-5">
@@ -18,13 +23,11 @@ $result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC");
                         <?php
                         $image = $row['clubimage'];
 
-                        // ✅ CORRECT PATHS
-                        $uploadDir  = __DIR__ . "/../Adminapp/uploads/"; // SERVER PATH
-                        $displayDir = "../Adminapp/uploads/";            // BROWSER PATH
+                        $uploadDir  = __DIR__ . "/../Adminapp/uploads/";
+                        $displayDir = "../Adminapp/uploads/";
 
                         $filePath = $uploadDir . $image;
 
-                        // CHECK IMAGE EXISTS
                         if (!empty($image) && file_exists($filePath)) {
                             $finalImage = $displayDir . $image . '?t=' . time();
                         } else {
@@ -32,15 +35,12 @@ $result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC");
                         }
                         ?>
 
-                        <!-- IMAGE -->
                         <div class="text-center mt-3">
                             <img src="<?php echo $finalImage; ?>"
-                                 onerror="this.src='https://via.placeholder.com/150';"
                                  class="rounded-circle"
                                  style="width:120px;height:120px;object-fit:cover;">
                         </div>
 
-                        <!-- CONTENT -->
                         <div class="card-body text-center">
 
                             <h5 class="fw-bold text-danger">
@@ -61,15 +61,12 @@ $result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC");
 
                             <br><br>
 
-                            <!-- EDIT BUTTON -->
-                            <a href="editclube.php?id=<?php echo $row['id']; ?>"
-                               class="btn btn-warning btn-sm me-2 text-dark">
+                            <a href="editclube.php?id=<?php echo $row['id']; ?>" class="btn btn-warning btn-sm me-2 text-dark">
                                 Edit
                             </a>
 
-                            <!-- DELETE BUTTON -->
-                            <a href="delete_club.php?id=<?php echo $row['id']; ?>"
-                               onclick="return confirm('Delete this club?')"
+                            <a href="delete_club.php?id=<?php echo $row['id']; ?>" 
+                               onclick="return confirm('Delete this club?')" 
                                class="btn btn-danger btn-sm">
                                 Delete
                             </a>
@@ -82,7 +79,7 @@ $result = mysqli_query($con, "SELECT * FROM clubs ORDER BY id DESC");
 
         <?php else: ?>
             <div class="col-12 text-center">
-                <p>No clubs found.</p>
+                <p>No clubs assigned to you.</p>
             </div>
         <?php endif; ?>
 
