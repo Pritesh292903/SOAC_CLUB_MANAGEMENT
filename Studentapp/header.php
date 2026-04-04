@@ -111,7 +111,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
           <a href="notification.php" class="notification-btn">
             <i class="bi bi-bell-fill"></i>
-            <span class="notification-badge">3</span>
+            
           </a>
           <?php
            $qry="SELECT *from user where id=$user_id";
