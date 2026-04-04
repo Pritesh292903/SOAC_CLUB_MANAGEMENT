@@ -51,16 +51,22 @@ mysqli_query($con, "CREATE TABLE IF NOT EXISTS students_master (
 <?php
 $i = 1;
 
-/* ================= CLUB REQUESTS ================= */
-$club_requests = mysqli_query($con, "SELECT * FROM club_join_requests ORDER BY created_at DESC");
+/* ================= CLUB REQUESTS (FIXED) ================= */
+$club_requests = mysqli_query($con, "
+    SELECT r.*, u.fullname, u.email, u.mobile, c.clubname AS club_name
+    FROM club_join_requests r
+    JOIN user u ON r.user_id = u.id
+    LEFT JOIN clubs c ON r.club_id = c.id
+    ORDER BY r.created_at DESC
+");
 
 if($club_requests){
 while($req = mysqli_fetch_assoc($club_requests)){
 
-    $name  = safe($req, ['name','student_name']);
-    $email = safe($req, ['email']);
-    $phone = safe($req, ['phone','mobile']);
-    $club  = safe($req, ['club_name','club']);
+    $name  = htmlspecialchars($req['fullname']);
+    $email = htmlspecialchars($req['email']);
+    $phone = htmlspecialchars($req['mobile']);
+    $club  = safe($req, ['club_name']); // ✅ FIXED
     $status= $req['status'] ?? 'pending';
     $date  = !empty($req['created_at']) ? date("d-m-Y", strtotime($req['created_at'])) : '-';
 
@@ -78,10 +84,10 @@ while($req = mysqli_fetch_assoc($club_requests)){
     /* ===== INSERT ONLY IF APPROVED ===== */
     if($status == "approved"){
 
-        $name_db  = mysqli_real_escape_string($con, $req['name'] ?? $req['student_name'] ?? '');
-        $email_db = mysqli_real_escape_string($con, $req['email'] ?? '');
-        $phone_db = mysqli_real_escape_string($con, $req['phone'] ?? $req['mobile'] ?? '');
-        $club_db  = mysqli_real_escape_string($con, $req['club_name'] ?? $req['club'] ?? '');
+        $name_db  = mysqli_real_escape_string($con, $req['fullname']);
+        $email_db = mysqli_real_escape_string($con, $req['email']);
+        $phone_db = mysqli_real_escape_string($con, $req['mobile']);
+        $club_db  = mysqli_real_escape_string($con, $club);
         $join     = $req['created_at'];
 
         $check = mysqli_query($con, "SELECT id FROM students_master 
@@ -97,15 +103,21 @@ while($req = mysqli_fetch_assoc($club_requests)){
 }
 
 /* ================= EVENT REQUESTS ================= */
-$event_requests = mysqli_query($con, "SELECT * FROM event_join_requests ORDER BY created_at DESC");
+$event_requests = mysqli_query($con, "
+    SELECT r.*, u.fullname, u.email, u.mobile, e.name AS event_name
+    FROM event_join_requests r
+    JOIN user u ON r.user_id = u.id
+    LEFT JOIN events e ON r.event_id = e.id
+    ORDER BY r.created_at DESC
+");
 
 if($event_requests){
 while($req = mysqli_fetch_assoc($event_requests)){
 
-    $name  = safe($req, ['name','student_name']);
-    $email = safe($req, ['email']);
-    $phone = safe($req, ['phone','mobile']);
-    $event = safe($req, ['event_name','event']);
+    $name  = htmlspecialchars($req['fullname']);
+    $email = htmlspecialchars($req['email']);
+    $phone = htmlspecialchars($req['mobile']);
+    $event = safe($req, ['event_name']);
     $status= $req['status'] ?? 'pending';
     $date  = !empty($req['created_at']) ? date("d-m-Y", strtotime($req['created_at'])) : '-';
 
@@ -123,10 +135,10 @@ while($req = mysqli_fetch_assoc($event_requests)){
     /* ===== INSERT ONLY IF APPROVED ===== */
     if($status == "approved"){
 
-        $name_db  = mysqli_real_escape_string($con, $req['name'] ?? $req['student_name'] ?? '');
-        $email_db = mysqli_real_escape_string($con, $req['email'] ?? '');
-        $phone_db = mysqli_real_escape_string($con, $req['phone'] ?? $req['mobile'] ?? '');
-        $event_db = mysqli_real_escape_string($con, $req['event_name'] ?? $req['event'] ?? '');
+        $name_db  = mysqli_real_escape_string($con, $req['fullname']);
+        $email_db = mysqli_real_escape_string($con, $req['email']);
+        $phone_db = mysqli_real_escape_string($con, $req['mobile']);
+        $event_db = mysqli_real_escape_string($con, $event);
         $join     = $req['created_at'];
 
         $check = mysqli_query($con, "SELECT id FROM students_master 
