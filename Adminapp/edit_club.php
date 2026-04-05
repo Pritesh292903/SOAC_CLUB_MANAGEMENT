@@ -17,28 +17,46 @@ $faculty_result = mysqli_query($con, $faculty_query);
 // UPDATE CLUB
 if (isset($_POST['update'])) {
     $clubname = trim($_POST['clubname']);
-    $faculty = trim($_POST['faculty']);
+    $faculty_id = intval($_POST['faculty']);
     $totalmembers = isset($_POST['totalmembers']) && $_POST['totalmembers'] !== "" ? intval($_POST['totalmembers']) : 0;
     $status = trim($_POST['status']);
     $description = trim($_POST['description']);
 
-    // IMAGE UPDATE (optional)
+    // GET FACULTY NAME
+    $getFaculty = mysqli_query($con, "SELECT name FROM Faculty_register WHERE id='$faculty_id'");
+    $fdata = mysqli_fetch_assoc($getFaculty);
+    $faculty_name = $fdata['name'];
+
+    // IMAGE CHECK
     if (!empty($_FILES['clubimage']['name'])) {
+
         $filename = time() . "_" . preg_replace("/[^a-zA-Z0-9._-]/", "", $_FILES['clubimage']['name']);
         $tempname = $_FILES['clubimage']['tmp_name'];
         move_uploaded_file($tempname, "uploads/" . $filename);
-    } else {
-        $filename = $club['clubimage']; // keep old image
-    }
 
-    $update = "UPDATE clubs SET 
-        clubimage='$filename',
-        clubname='$clubname',
-        faculty='$faculty',
-        totalmembers='$totalmembers',
-        status='$status',
-        clubdescription='$description'
-        WHERE id='$id'";
+        // ✅ UPDATE WITH IMAGE
+        $update = "UPDATE clubs SET 
+            clubimage='$filename',
+            clubname='$clubname',
+            faculty_id='$faculty_id',
+            faculty='$faculty_name',
+            totalmembers='$totalmembers',
+            status='$status',
+            clubdescription='$description'
+            WHERE id='$id'";
+
+    } else {
+
+        // ✅ UPDATE WITHOUT TOUCHING IMAGE
+        $update = "UPDATE clubs SET 
+            clubname='$clubname',
+            faculty_id='$faculty_id',
+            faculty='$faculty_name',
+            totalmembers='$totalmembers',
+            status='$status',
+            clubdescription='$description'
+            WHERE id='$id'";
+    }
 
     if (mysqli_query($con, $update)) {
         echo "
@@ -46,7 +64,7 @@ if (isset($_POST['update'])) {
         <script>
         Swal.fire({
             title: 'Success!',
-            html: '<img src=\"uploads/$filename\" style=\"width:100px;height:100px;object-fit:cover;border-radius:12px;\"><br><strong>$clubname</strong><br>Club updated successfully!',
+            html: '<img src=\"uploads/".$club['clubimage']."\" style=\"width:100px;height:100px;object-fit:cover;border-radius:12px;\"><br><strong>$clubname</strong><br>Club updated successfully!',
             icon: 'success',
             confirmButtonColor: '#d33',
             confirmButtonText: 'OK'
@@ -81,7 +99,6 @@ if (isset($_POST['update'])) {
     <div class="card p-4">
         <form method="POST" enctype="multipart/form-data" id="editForm">
 
-            <!-- CLUB IMAGE -->
             <div class="text-center mb-3">
                 <label class="form-label">Club Image</label><br>
                 <img src="uploads/<?php echo $club['clubimage']; ?>" class="club-img" id="preview">
@@ -90,20 +107,19 @@ if (isset($_POST['update'])) {
             </div>
 
             <div class="row g-3">
-                <!-- CLUB NAME -->
+
                 <div class="col-md-6">
-                    <label class="form-label">Club Name <span class="text-danger">*</span></label>
+                    <label class="form-label">Club Name *</label>
                     <input type="text" name="clubname" class="form-control" value="<?php echo htmlspecialchars($club['clubname']); ?>" required>
                     <div class="invalid-feedback">Please enter club name</div>
                 </div>
 
-                <!-- FACULTY -->
                 <div class="col-md-6">
-                    <label class="form-label">Assign Faculty <span class="text-danger">*</span></label>
+                    <label class="form-label">Assign Faculty *</label>
                     <select name="faculty" class="form-select" required>
                         <option value="">-- Select Faculty --</option>
                         <?php while ($f = mysqli_fetch_assoc($faculty_result)) { ?>
-                            <option value="<?php echo htmlspecialchars($f['name']); ?>" <?php if ($club['faculty'] == $f['name']) echo "selected"; ?>>
+                            <option value="<?php echo $f['id']; ?>" <?php if ($club['faculty_id'] == $f['id']) echo "selected"; ?>>
                                 <?php echo htmlspecialchars($f['name']); ?>
                             </option>
                         <?php } ?>
@@ -111,16 +127,14 @@ if (isset($_POST['update'])) {
                     <div class="invalid-feedback">Please select faculty</div>
                 </div>
 
-                <!-- TOTAL MEMBERS -->
                 <div class="col-md-6">
-                    <label class="form-label">Total Members <span class="text-danger">*</span></label>
+                    <label class="form-label">Total Members *</label>
                     <input type="number" name="totalmembers" class="form-control" value="<?php echo $club['totalmembers']; ?>" min="1" required>
                     <div class="invalid-feedback">Please enter total members</div>
                 </div>
 
-                <!-- STATUS -->
                 <div class="col-md-6">
-                    <label class="form-label">Status <span class="text-danger">*</span></label>
+                    <label class="form-label">Status *</label>
                     <select name="status" class="form-select" required>
                         <option value="">-- Select Status --</option>
                         <option value="Active" <?php if ($club['status'] == "Active") echo "selected"; ?>>Active</option>
@@ -129,15 +143,14 @@ if (isset($_POST['update'])) {
                     <div class="invalid-feedback">Please select status</div>
                 </div>
 
-                <!-- DESCRIPTION -->
                 <div class="col-12">
-                    <label class="form-label">Club Description <span class="text-danger">*</span></label>
+                    <label class="form-label">Club Description *</label>
                     <textarea name="description" class="form-control" rows="4" required><?php echo htmlspecialchars($club['clubdescription']); ?></textarea>
                     <div class="invalid-feedback">Please enter description</div>
                 </div>
+
             </div>
 
-            <!-- ACTION BUTTONS -->
             <div class="mt-4 text-center">
                 <button type="submit" name="update" class="btn btn-danger btn-effect">Update Club</button>
                 <a href="all_clubes_page.php" class="btn btn-secondary btn-effect">Cancel</a>
@@ -149,10 +162,10 @@ if (isset($_POST['update'])) {
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 $(document).ready(function() {
 
-    // IMAGE PREVIEW ONLY
     $("#image").on("change", function () {
         let file = this.files[0];
         if (file) {
@@ -160,46 +173,8 @@ $(document).ready(function() {
             reader.onload = function(e) { $("#preview").attr("src", e.target.result); }
             reader.readAsDataURL(file);
         } else {
-            // Restore old image if no new file selected
             $("#preview").attr("src", "uploads/<?php echo $club['clubimage']; ?>");
         }
-    });
-
-    // REAL-TIME VALIDATION
-    $("input, select, textarea").on("blur change", function() {
-        let val = $(this).val().trim();
-        if ($(this).attr("name") === "totalmembers") {
-            if (val === "" || isNaN(val) || parseInt(val) < 1) {
-                $(this).addClass("is-invalid");
-            } else {
-                $(this).removeClass("is-invalid");
-            }
-        } else {
-            if (val === "") {
-                $(this).addClass("is-invalid");
-            } else {
-                $(this).removeClass("is-invalid");
-            }
-        }
-    });
-
-    // FORM SUBMIT VALIDATION
-    $("#editForm").on("submit", function(e) {
-        let valid = true;
-
-        $("input, select, textarea").each(function() {
-            let val = $(this).val().trim();
-            if ($(this).attr("name") === "totalmembers") {
-                if (val === "" || isNaN(val) || parseInt(val) < 1) {
-                    $(this).addClass("is-invalid"); valid = false;
-                } else { $(this).removeClass("is-invalid"); }
-            } else {
-                if (val === "") { $(this).addClass("is-invalid"); valid = false; }
-                else { $(this).removeClass("is-invalid"); }
-            }
-        });
-
-        if (!valid) e.preventDefault();
     });
 
 });

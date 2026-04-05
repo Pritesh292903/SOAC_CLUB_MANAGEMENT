@@ -3,7 +3,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>
-
+<?php
+  include "../database.php";
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,28 +93,37 @@ if (session_status() === PHP_SESSION_NONE) {
         <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="clubs_view.php">Clubs</a></li>
         <li class="nav-item"><a class="nav-link" href="events_view.php">Events</a></li>
+        <li class="nav-item"><a class="nav-link" href="request.php">Requests</a></li>
 
         <?php if(isset($_SESSION['user_id'])) { ?>
           <li class="nav-item"><a class="nav-link" href="contactus_view.php">Contact Us</a></li>
         <?php } ?>
 
         <li class="nav-item"><a class="nav-link" href="aboutrku_view.php">About RKU</a></li>
-        
+
       </ul>
 
       <!-- Right Side -->
       <div class="d-flex align-items-center gap-3">
 
-        <?php if(isset($_SESSION['user_id'])) { ?>
+        <?php if(isset($_SESSION['user_id'])) {
+          $user_id=$_SESSION['user_id'] ?>
 
           <a href="notification.php" class="notification-btn">
             <i class="bi bi-bell-fill"></i>
-            <span class="notification-badge">3</span>
+            
           </a>
-
-          <a href="profile_view.php">
-            <img src="assets/images/user.jpg" class="profile-img">
-          </a>
+          <?php
+           $qry="SELECT *from user where id=$user_id";
+           $result=mysqli_query($con, $qry);
+           if(mysqli_num_rows($result)>0){
+            while($row=mysqli_fetch_assoc($result)){
+              echo "<a href='profile_view.php'>";
+               echo "<img src='../uploads/" . $row['clubimage'] . "' class='profile-img'>";
+              echo "</a>";
+            }
+           }
+          ?>
 
           <a href="logout.php">
             <button class="btn-custom">
