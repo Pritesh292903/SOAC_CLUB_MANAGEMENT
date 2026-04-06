@@ -4,7 +4,7 @@ include "../database.php";
 
 $table = "Faculty_register";
 
-$success = false; // popup control
+$success = false;
 
 if (isset($_POST['register'])) {
 
@@ -16,16 +16,11 @@ if (isset($_POST['register'])) {
     $password = $_POST['password'];
     $cpassword = $_POST['cpassword'];
 
-    if (empty($name) || empty($email) || empty($mobile) || empty($department) || empty($designation) || empty($password)) {
-        echo "<script>alert('All fields are required');</script>";
-    } elseif ($password != $cpassword) {
-        echo "<script>alert('Password not matched');</script>";
-    } else {
+    // Only password match check (rest handled by jQuery)
+    if ($password == $cpassword) {
 
         $check = mysqli_query($con, "SELECT * FROM $table WHERE email='$email'");
-        if (mysqli_num_rows($check) > 0) {
-            echo "<script>alert('Email already exists');</script>";
-        } else {
+        if (mysqli_num_rows($check) == 0) {
 
             // IMAGE UPLOAD
             $imageName = "";
@@ -44,14 +39,11 @@ if (isset($_POST['register'])) {
                 move_uploaded_file($_FILES['faculty_image']['tmp_name'], $target);
             }
 
-            // INSERT (NO HASH)
             $query = "INSERT INTO $table(name,email,mobile,department,designation,password,image)
                       VALUES('$name','$email','$mobile','$department','$designation','$password','$imageName')";
 
             if (mysqli_query($con, $query)) {
-                $success = true; // trigger popup
-            } else {
-                echo "<script>alert('Database Error');</script>";
+                $success = true;
             }
         }
     }
@@ -124,7 +116,7 @@ if (isset($_POST['register'])) {
 
     <div class="register-card">
 
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" id="facultyForm">
 
             <div class="form-grid">
 
@@ -193,6 +185,44 @@ $('#faculty_image').change(function () {
         $('#previewImage').attr('src', e.target.result).show();
     }
     reader.readAsDataURL(this.files[0]);
+});
+
+// jQuery Validation
+$('#facultyForm').submit(function (e) {
+
+    let name = $('input[name="name"]').val().trim();
+    let email = $('input[name="email"]').val().trim();
+    let mobile = $('input[name="mobile"]').val().trim();
+    let department = $('input[name="department"]').val().trim();
+    let designation = $('input[name="designation"]').val().trim();
+    let password = $('input[name="password"]').val().trim();
+    let cpassword = $('input[name="cpassword"]').val().trim();
+
+    if (name == "" || email == "" || mobile == "" || department == "" || designation == "" || password == "") {
+        Swal.fire("Error", "All fields are required", "error");
+        e.preventDefault();
+        return;
+    }
+
+    let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+        Swal.fire("Error", "Invalid email format", "error");
+        e.preventDefault();
+        return;
+    }
+
+    if (!/^[0-9]{10}$/.test(mobile)) {
+        Swal.fire("Error", "Mobile must be 10 digits", "error");
+        e.preventDefault();
+        return;
+    }
+
+    if (password !== cpassword) {
+        Swal.fire("Error", "Password not matched", "error");
+        e.preventDefault();
+        return;
+    }
+
 });
 </script>
 
