@@ -149,7 +149,7 @@ body, html {
                 </span>
             </div>
             <div class="info"><span><i class="fa fa-align-left"></i> Description:</span> <?= $event['description'] ?: 'No Description'; ?></div>
-            <a href="all_events.php" class="btn-back">← Back to Events</a>
+            <a href="all_events_page.php" class="btn-back">← Back to Events</a>
         </div>
     </div>
 <?php else: ?>

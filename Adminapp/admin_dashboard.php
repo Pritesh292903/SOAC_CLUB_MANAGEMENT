@@ -1,117 +1,132 @@
-<?php 
-include 'admin_header.php'; 
+<?php
+include 'admin_header.php';
 include '../database.php'; // Your database connection and tables
 ?>
 
 <style>
-/* ===== Page Animation ===== */
-.content{
-    animation: fadeIn 0.8s ease-in-out;
-}
-
-@keyframes fadeIn{
-    from{opacity:0; transform:translateY(20px);}
-    to{opacity:1; transform:translateY(0);}
-}
-
-/* ===== Stat Cards ===== */
-.stat-card{
-    transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
-    background:#fff;
-    border-radius:15px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
-    padding:25px;
-    text-align:center;
-}
-
-.stat-card:hover{
-    transform: translateY(-8px);
-    box-shadow: 0 20px 35px rgba(0,0,0,0.08);
-}
-
-/* Gradient Top Border */
-.stat-card::before{
-    content:"";
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:4px;
-    background:linear-gradient(to right,#dc3545,#ff6b6b);
-}
-
-/* Icon Style */
-.stat-card i{
-    transition: transform 0.4s ease;
-    font-size:2.5rem;
-    color:#dc3545;
-    margin-bottom:10px;
-}
-
-.stat-card:hover i{
-    transform: scale(1.2);
-}
-
-/* Card Fade Animation */
-.card{
-    animation: fadeUp 1s ease;
-    background:#fff;
-    border-radius:15px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
-    transition:0.3s;
-}
-
-.card:hover{
-    box-shadow:0 15px 35px rgba(0,0,0,0.08);
-}
-
-@keyframes fadeUp{
-    from{opacity:0; transform:translateY(30px);}
-    to{opacity:1; transform:translateY(0);}
-}
-
-/* Table Styling */
-.table tbody tr{
-    transition: all 0.3s ease;
-}
-
-.table tbody tr:hover{
-    background-color:#f8f9fa;
-    transform: scale(1.01);
-}
-
-/* Header Title */
-.content h4, .content h5{
-    color:#dc3545;
-}
-
-/* Buttons */
-.btn-danger{
-    border-radius:50px;
-}
-
-/* Badges */
-.badge-success{
-    background-color:#28a745 !important;
-}
-
-.badge-warning{
-    background-color:#ffc107 !important;
-    color:#212529 !important;
-}
-
-.badge-danger{
-    background-color:#6c757d !important;
-}
-
-/* Responsive */
-@media (max-width:767px){
-    .stat-card{
-        margin-bottom:20px;
+    /* ===== Page Animation ===== */
+    .content {
+        animation: fadeIn 0.8s ease-in-out;
     }
-}
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== Stat Cards ===== */
+    .stat-card {
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        padding: 25px;
+        text-align: center;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Gradient Top Border */
+    .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to right, #dc3545, #ff6b6b);
+    }
+
+    /* Icon Style */
+    .stat-card i {
+        transition: transform 0.4s ease;
+        font-size: 2.5rem;
+        color: #dc3545;
+        margin-bottom: 10px;
+    }
+
+    .stat-card:hover i {
+        transform: scale(1.2);
+    }
+
+    /* Card Fade Animation */
+    .card {
+        animation: fadeUp 1s ease;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        transition: 0.3s;
+    }
+
+    .card:hover {
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Table Styling */
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.01);
+    }
+
+    /* Header Title */
+    .content h4,
+    .content h5 {
+        color: #dc3545;
+    }
+
+    /* Buttons */
+    .btn-danger {
+        border-radius: 50px;
+    }
+
+    /* Badges */
+    .badge-success {
+        background-color: #28a745 !important;
+    }
+
+    .badge-warning {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .badge-danger {
+        background-color: #6c757d !important;
+    }
+
+    /* Responsive */
+    @media (max-width:767px) {
+        .stat-card {
+            margin-bottom: 20px;
+        }
+    }
 </style>
 
 <div class="content">
@@ -124,17 +139,17 @@ include '../database.php'; // Your database connection and tables
 
     <!-- Fetch dynamic counts -->
     <?php
-        // Total Events
-        $totalEvents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events"));
+    // Total Events
+    $totalEvents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events"));
 
-        // Total Clubs
-        $totalClubs = mysqli_num_rows(mysqli_query($con, "SELECT id FROM clubs"));
+    // Total Clubs
+    $totalClubs = mysqli_num_rows(mysqli_query($con, "SELECT id FROM clubs"));
 
-        // Total Students
-        $totalStudents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM User WHERE role='user'"));
+    // Total Students
+    $totalStudents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM User WHERE role='user'"));
 
-        // Total Faculties
-        $totalFaculties = mysqli_num_rows(mysqli_query($con, "SELECT id FROM Faculty_register"));
+    // Total Faculties
+    $totalFaculties = mysqli_num_rows(mysqli_query($con, "SELECT id FROM Faculty_register"));
     ?>
 
     <!-- Statistics Cards -->
@@ -193,13 +208,13 @@ include '../database.php'; // Your database connection and tables
                 <tbody>
                     <?php
                     $eventsRes = mysqli_query($con, "SELECT e.*, c.clubname FROM events e LEFT JOIN clubs c ON c.id=e.id ORDER BY e.id DESC LIMIT 5");
-                    if(mysqli_num_rows($eventsRes) > 0){
-                        while($row = mysqli_fetch_assoc($eventsRes)){
-                            $statusClass = ($row['status']=='Active')?'badge-success':(($row['status']=='Upcoming')?'badge-warning':'badge-danger');
+                    if (mysqli_num_rows($eventsRes) > 0) {
+                        while ($row = mysqli_fetch_assoc($eventsRes)) {
+                            $statusClass = ($row['status'] == 'Active') ? 'badge-success' : (($row['status'] == 'Upcoming') ? 'badge-warning' : 'badge-danger');
                             echo "<tr>
                                     <td>{$row['name']}</td>
-                                    <td>".($row['clubname'] ?? 'N/A')."</td>
-                                    <td>".date('d M Y', strtotime($row['date']))."</td>
+                                    <td>" . ($row['clubname'] ?? 'N/A') . "</td>
+                                    <td>" . date('d M Y', strtotime($row['date'])) . "</td>
                                     <td><span class='{$statusClass}'>{$row['status']}</span></td>
                                   </tr>";
                         }

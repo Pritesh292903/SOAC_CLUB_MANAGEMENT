@@ -212,13 +212,13 @@ if ($result && mysqli_num_rows($result) > 0) {
         <!-- Right Side -->
         <div class="d-flex align-items-center gap-3">
 
-          <!-- Notification -->
+          <!-- Notification
           <a href="notification.php" class="position-relative d-inline-block text-decoration-none">
             <button class="notification-btn" type="button">
               <i class="bi bi-bell-fill"></i>
               <span class="badge rounded-pill badge-custom">5</span>
             </button>
-          </a>
+          </a> -->
 
           <!-- Profile -->
           <a href="profile.php">
