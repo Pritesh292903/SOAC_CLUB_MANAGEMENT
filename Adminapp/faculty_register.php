@@ -4,7 +4,7 @@ include "../database.php";
 
 $table = "Faculty_register";
 
-$success = false;
+$success = false; 
 
 if (isset($_POST['register'])) {
 
