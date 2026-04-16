@@ -2,50 +2,64 @@
 include 'admin_header.php';
 include "../database.php";
 
-$table = "Faculty_register";
+mysqli_select_db($con, "SOAE_CLUB");
 
+$table = "Faculty_register";
 $success = false; 
 
 if (isset($_POST['register'])) {
 
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $mobile = $_POST['mobile'];
-    $department = $_POST['department'];
-    $designation = $_POST['designation'];
-    $password = $_POST['password'];
-    $cpassword = $_POST['cpassword'];
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $mobile = trim($_POST['mobile']);
+    $department = trim($_POST['department']);
+    $designation = trim($_POST['designation']);
+    $password = trim($_POST['password']);
+    $cpassword = trim($_POST['cpassword']);
 
-    // Only password match check (rest handled by jQuery)
-    if ($password == $cpassword) {
+    if ($password === $cpassword) {
 
         $check = mysqli_query($con, "SELECT * FROM $table WHERE email='$email'");
+
         if (mysqli_num_rows($check) == 0) {
 
-            // IMAGE UPLOAD
+            // ✅ IMAGE UPLOAD FIX
             $imageName = "";
 
-            if (!empty($_FILES['faculty_image']['name'])) {
+            if (isset($_FILES['faculty_image']) && $_FILES['faculty_image']['error'] == 0) {
 
-                $targetDir = "uploads/";
+                // 🔥 IMPORTANT PATH FIX
+                $targetDir = "../uploads/";
 
                 if (!is_dir($targetDir)) {
                     mkdir($targetDir, 0777, true);
                 }
 
-                $imageName = time() . "_" . $_FILES['faculty_image']['name'];
-                $target = $targetDir . $imageName;
+                $fileName = basename($_FILES['faculty_image']['name']);
+                $tmpName = $_FILES['faculty_image']['tmp_name'];
 
-                move_uploaded_file($_FILES['faculty_image']['tmp_name'], $target);
+                $imageName = time() . "_" . $fileName;
+                $targetFile = $targetDir . $imageName;
+
+                move_uploaded_file($tmpName, $targetFile);
             }
 
+            // PASSWORD HASH
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
             $query = "INSERT INTO $table(name,email,mobile,department,designation,password,image)
-                      VALUES('$name','$email','$mobile','$department','$designation','$password','$imageName')";
+                      VALUES('$name','$email','$mobile','$department','$designation','$hashedPassword','$imageName')";
 
             if (mysqli_query($con, $query)) {
                 $success = true;
             }
+
+        } else {
+            echo "<script>Swal.fire('Error','Email already exists','error');</script>";
         }
+
+    } else {
+        echo "<script>Swal.fire('Error','Password not matched','error');</script>";
     }
 }
 ?>
@@ -54,58 +68,17 @@ if (isset($_POST['register'])) {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-.content{
-    animation: fadeIn 0.5s ease-in-out;
-}
-@keyframes fadeIn{
-    from{opacity:0; transform:translateY(10px);}
-    to{opacity:1; transform:translateY(0);}
-}
-.page-header{
-    background:#fff;
-    padding:20px 25px;
-    border-radius:15px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.05);
-    margin-bottom:25px;
-}
-.register-card{
-    background:#fff;
-    padding:35px;
-    border-radius:15px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.05);
-}
-.form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-}
-.form-control{
-    border-radius:10px;
-    padding:10px 12px;
-}
-.btn-register{
-    background:#dc3545;
-    color:#fff;
-    border:none;
-    padding:12px;
-    border-radius:10px;
-}
-.full-width{
-    grid-column:span 2;
-}
-.image-preview{
-    width:120px;
-    height:120px;
-    border-radius:10px;
-    object-fit:cover;
-    border:2px solid #dc3545;
-    margin-top:10px;
-    display:none;
-}
-@media(max-width:768px){
-    .form-grid{ grid-template-columns:1fr; }
-    .full-width{ grid-column:span 1; }
-}
+/* SAME DESIGN */
+.content{animation:fadeIn 0.5s ease-in-out;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.page-header{background:#fff;padding:20px 25px;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.05);margin-bottom:25px;}
+.register-card{background:#fff;padding:35px;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.05);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.form-control{border-radius:10px;padding:10px 12px;}
+.btn-register{background:#dc3545;color:#fff;border:none;padding:12px;border-radius:10px;}
+.full-width{grid-column:span 2;}
+.image-preview{width:120px;height:120px;border-radius:10px;object-fit:cover;border:2px solid #dc3545;margin-top:10px;display:none;}
+@media(max-width:768px){.form-grid{grid-template-columns:1fr;}.full-width{grid-column:span 1;}}
 </style>
 
 <div class="content">
@@ -187,7 +160,7 @@ $('#faculty_image').change(function () {
     reader.readAsDataURL(this.files[0]);
 });
 
-// jQuery Validation
+// ✅ YOUR ORIGINAL STYLE VALIDATION (FIXED)
 $('#facultyForm').submit(function (e) {
 
     let name = $('input[name="name"]').val().trim();
@@ -217,7 +190,8 @@ $('#facultyForm').submit(function (e) {
         return;
     }
 
-    if (password !== cpassword) {
+    // ✅ PASSWORD FIX
+    if (password.trim() !== cpassword.trim()) {
         Swal.fire("Error", "Password not matched", "error");
         e.preventDefault();
         return;
