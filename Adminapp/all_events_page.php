@@ -16,16 +16,68 @@ $closed = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events WHERE status
 
 <style>
     /* KEEP YOUR CSS SAME */
-    .content { animation: fadeIn 0.6s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px);} to { opacity: 1; transform: translateY(0);} }
-    .stat-mini { border: none; border-radius: 12px; padding: 20px; text-align: center; transition: 0.3s; box-shadow: 0 8px 20px rgba(0,0,0,0.05); background:#fff;}
-    .stat-mini:hover { transform: translateY(-4px); box-shadow:0 12px 25px rgba(0,0,0,0.08);}
-    .stat-mini h6 { color:#6c757d;}
-    .custom-card { border:none; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.05); background:#fff;}
-    .custom-card:hover { box-shadow:0 15px 35px rgba(0,0,0,0.08);}
-    .table tbody tr:hover { background:#f8f9fa;}
-    .action-btn { border-radius:50px; padding:5px 10px; }
-    .event-thumb { width:50px; height:50px; object-fit:cover; border-radius:5px; margin-right:10px; }
+    .content {
+        animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-mini {
+        border: none;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: 0.3s;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        background: #fff;
+    }
+
+    .stat-mini:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-mini h6 {
+        color: #6c757d;
+    }
+
+    .custom-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        background: #fff;
+    }
+
+    .custom-card:hover {
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .action-btn {
+        border-radius: 50px;
+        padding: 5px 10px;
+    }
+
+    .event-thumb {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-right: 10px;
+    }
 </style>
 
 <div class="content">
@@ -38,9 +90,24 @@ $closed = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events WHERE status
     </div>
 
     <div class="row g-3 mb-4">
-        <div class="col-md-4"><div class="stat-mini"><h6>Total Events</h6><h5><?= $total; ?></h5></div></div>
-        <div class="col-md-4"><div class="stat-mini"><h6>Active</h6><h5><?= $active; ?></h5></div></div>
-        <div class="col-md-4"><div class="stat-mini"><h6>Closed</h6><h5><?= $closed; ?></h5></div></div>
+        <div class="col-md-4">
+            <div class="stat-mini">
+                <h6>Total Events</h6>
+                <h5><?= $total; ?></h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-mini">
+                <h6>Active</h6>
+                <h5><?= $active; ?></h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-mini">
+                <h6>Closed</h6>
+                <h5><?= $closed; ?></h5>
+            </div>
+        </div>
     </div>
 
     <div class="card custom-card p-4">
@@ -64,20 +131,23 @@ $closed = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events WHERE status
                             $name = $row['name'];
                             $date = $row['date'];
                             $status = $row['status'];
-                            $image = $row['image'] ?: 'default.png';
-                    ?>
-                    <tr>
-                        <td><?= $i++; ?></td>
-                        <td><img src="../uploads/<?= $image; ?>" class="event-thumb" onerror="this.src='../uploads/default.png'"> <?= $name; ?></td>
-                        <td><?= $date; ?></td>
-                        <td><?= $status; ?></td>
-                        <td class="text-center">
-                            <a href="view_event.php?id=<?= $id; ?>" class="btn btn-sm btn-outline-danger action-btn">View</a>
-                            <a href="edit_event.php?id=<?= $id; ?>" class="btn btn-sm btn-outline-warning action-btn">Edit</a>
-                            <button class="btn btn-sm btn-outline-secondary action-btn delete-btn" data-id="<?= $id; ?>">Delete</button>
-                        </td>
-                    </tr>
-                    <?php
+                            $image = !empty($row['image']) ? $row['image'] : 'default.png'; ?>
+                            <tr>
+                                <td><?= $i++; ?></td>
+                                <td><img src="../uploads/<?php echo $image; ?>" class="event-thumb"
+                                        onerror="this.src='../uploads/default.png'"></td>
+                                <td><?= $date; ?></td>
+                                <td><?= $status; ?></td>
+                                <td class="text-center">
+                                    <a href="view_event.php?id=<?= $id; ?>"
+                                        class="btn btn-sm btn-outline-danger action-btn">View</a>
+                                    <a href="edit_event.php?id=<?= $id; ?>"
+                                        class="btn btn-sm btn-outline-warning action-btn">Edit</a>
+                                    <button class="btn btn-sm btn-outline-secondary action-btn delete-btn"
+                                        data-id="<?= $id; ?>">Delete</button>
+                                </td>
+                            </tr>
+                            <?php
                         }
                     } else {
                         echo "<tr><td colspan='5' class='text-center'>No Events Found</td></tr>";
@@ -91,27 +161,27 @@ $closed = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events WHERE status
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-$('.delete-btn').click(function () {
-    let id = $(this).data('id');
-    let row = $(this).closest('tr');
+    $('.delete-btn').click(function () {
+        let id = $(this).data('id');
+        let row = $(this).closest('tr');
 
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.post('delete_event.php', { id: id }, function (res) {
-                row.remove();
-                Swal.fire('Deleted!', 'Event has been deleted.', 'success');
-            });
-        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('delete_event.php', { id: id }, function (res) {
+                    row.remove();
+                    Swal.fire('Deleted!', 'Event has been deleted.', 'success');
+                });
+            }
+        });
     });
-});
 </script>
 
 <?php include 'admin_footer.php'; ?>

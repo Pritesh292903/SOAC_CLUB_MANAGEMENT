@@ -1,49 +1,37 @@
 <?php
-include "../database.php";
+include '../database.php';
 
-if($_SERVER['REQUEST_METHOD'] == "POST"){
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $name = trim($_POST['eventName']);
+    $name = mysqli_real_escape_string($con, $_POST['eventName']);
     $date = $_POST['eventDate'];
     $status = $_POST['eventStatus'];
-    $description = trim($_POST['eventDescription']);
-
-    $imageName = "";
+    $desc = mysqli_real_escape_string($con, $_POST['eventDescription']);
 
     // IMAGE UPLOAD
-    if(isset($_FILES['eventImage']['name']) && $_FILES['eventImage']['name'] != ""){
-        $folder = "../uploads/events/"; // separate folder for events
-        if(!is_dir($folder)){ 
-            mkdir($folder, 0777, true); 
+    $imageName = "";
+
+    if (isset($_FILES['eventImage']) && $_FILES['eventImage']['error'] == 0) {
+
+        $ext = pathinfo($_FILES['eventImage']['name'], PATHINFO_EXTENSION);
+        $imageName = time() . "_" . rand(1000,9999) . "." . $ext;
+
+        $uploadPath = "../uploads/" . $imageName;
+
+        if (!move_uploaded_file($_FILES['eventImage']['tmp_name'], $uploadPath)) {
+            echo "Image upload failed!";
+            exit;
         }
-
-        // Optional: validate image type
-        $ext = strtolower(pathinfo($_FILES['eventImage']['name'], PATHINFO_EXTENSION));
-        $allowed = ['jpg','jpeg','png','webp'];
-        if(!in_array($ext, $allowed)){
-            echo "Invalid image format! Only JPG, PNG, JPEG, WEBP allowed.";
-            exit();
-        }
-
-        $imageName = time() . "_" . basename($_FILES['eventImage']['name']);
-        $imagePath = $folder . $imageName;
-
-        if(!move_uploaded_file($_FILES['eventImage']['tmp_name'], $imagePath)){
-            echo "Failed to upload image!";
-            exit();
-        }
-
-        // Save relative path for frontend
-        $imageName = "uploads/events/" . $imageName;
     }
 
+    // INSERT
     $query = "INSERT INTO events (image, name, date, status, description) 
-              VALUES ('$imageName','$name','$date','$status','$description')";
+              VALUES ('$imageName', '$name', '$date', '$status', '$desc')";
 
-    if(mysqli_query($con,$query)){
+    if (mysqli_query($con, $query)) {
         echo "success";
     } else {
-        echo "Database Error: " . mysqli_error($con);
+        echo "Database Error!";
     }
 }
-?>  
+?>
