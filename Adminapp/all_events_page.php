@@ -134,8 +134,11 @@ $closed = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events WHERE status
                             $image = !empty($row['image']) ? $row['image'] : 'default.png'; ?>
                             <tr>
                                 <td><?= $i++; ?></td>
-                                <td><img src="../uploads/<?php echo $image; ?>" class="event-thumb"
-                                        onerror="this.src='../uploads/default.png'"></td>
+                                <td class="d-flex align-items-center">
+                                    <img src="../uploads/<?php echo $image; ?>" class="event-thumb"
+                                        onerror="this.src='../uploads/default.png'">
+                                    <span><?= $name; ?></span>
+                                </td>
                                 <td><?= $date; ?></td>
                                 <td><?= $status; ?></td>
                                 <td class="text-center">
