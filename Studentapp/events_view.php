@@ -17,7 +17,6 @@ if(isset($_POST['join_event']))
     $user_id = $_SESSION['user_id'];
     $event_id = intval($_POST['event_id']);
 
-    // CHECK DUPLICATE
     $check = mysqli_query($con, "SELECT * FROM event_join_requests 
                                 WHERE user_id='$user_id' AND event_id='$event_id'");
 
@@ -44,7 +43,6 @@ if(isset($_POST['join_event']))
     }
 }
 
-// ================= FETCH EVENTS =================
 $events_result = mysqli_query($con, "SELECT * FROM events WHERE status='Active' ORDER BY id ASC");
 
 $user_id = $_SESSION['user_id'] ?? 0;
@@ -61,81 +59,170 @@ $user_id = $_SESSION['user_id'] ?? 0;
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(217,4,41,.3);
+
+/* ===== BACKGROUND ===== */
+body{
+    background: linear-gradient(135deg,#f8f9fa,#fff);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== TITLE ===== */
+.page-title{
+    text-align:center;
+    margin:40px 0;
+}
+
+.page-title h1{
+    font-weight:800;
+    color:#dc3545;
+}
+
+/* ===== CARD ===== */
+.event-card{
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     transition: 0.3s;
 }
-.card-img-top {
-    height: 200px;
+
+.event-card:hover{
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(220,53,69,0.25);
+}
+
+/* IMAGE */
+.event-card img{
+    height: 230px;
     object-fit: cover;
 }
-.badge-status {
-    font-size: 12px;
-    padding: 6px 10px;
-    border-radius: 20px;
+
+/* BODY */
+.event-body{
+    padding: 20px;
 }
+
+/* TITLE */
+.event-title{
+    font-size: 20px;
+    font-weight: 700;
+    color: #dc3545;
+}
+
+/* TAGS */
+.tag{
+    display:inline-block;
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12px;
+    margin-bottom:8px;
+}
+
+.tag-paid{
+    background:#dc3545;
+    color:#fff;
+}
+
+.tag-free{
+    background:#198754;
+    color:#fff;
+}
+
+/* BUTTON */
+.join-btn{
+    width:100%;
+    border-radius:30px;
+    padding:10px;
+    font-weight:600;
+}
+
+/* BADGE */
+.badge-status{
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:20px;
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="container my-5">
+<div class="container">
 
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold text-danger">Explore Our Events</h1>
-        <p class="lead text-muted">Join exciting events!</p>
+    <div class="page-title">
+        <h1>🎉 Explore Events</h1>
+        <p class="text-muted">Join amazing campus events</p>
     </div>
 
     <div class="row g-4">
 
-        <?php while($event = mysqli_fetch_assoc($events_result)): 
+    <?php while($event = mysqli_fetch_assoc($events_result)):
+
+        $status_q = mysqli_query($con, "SELECT status FROM event_join_requests 
+                                       WHERE user_id='$user_id' AND event_id='".$event['id']."'");
         
-            // CHECK STATUS
-            $status_q = mysqli_query($con, "SELECT status FROM event_join_requests 
-                                           WHERE user_id='$user_id' AND event_id='".$event['id']."'");
-            
-            $request = mysqli_fetch_assoc($status_q);
-            $status = $request['status'] ?? null;
-        ?>
+        $request = mysqli_fetch_assoc($status_q);
+        $status = $request['status'] ?? null;
 
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100">
+        $type = $event['event_type'] ?? 'Free';
+    ?>
 
-                <img src="../uploads/<?php echo $event['image']; ?>" class="card-img-top">
+    <div class="col-md-4">
 
-                <div class="card-body">
-                    <h5 class="card-title text-danger"><?php echo $event['name']; ?></h5>
-                    <p class="text-muted"><?php echo $event['date']; ?></p>
-                    <p><?php echo $event['description']; ?></p>
+        <div class="card event-card">
 
-                    <?php if($status == 'pending'): ?>
-                        <span class="badge bg-warning text-dark badge-status">Requested</span>
+            <img src="../uploads/<?php echo $event['image']; ?>">
 
-                    <?php elseif($status == 'approved'): ?>
-                        <span class="badge bg-success badge-status">Joined</span>
+            <div class="event-body">
 
-                    <?php elseif($status == 'rejected'): ?>
-                        <span class="badge bg-danger badge-status">Rejected</span>
-
-                    <?php else: ?>
-                        <button class="btn btn-danger w-100 join-btn"
-                            data-id="<?php echo $event['id']; ?>"
-                            data-name="<?php echo $event['name']; ?>">
-                            Join Event
-                        </button>
-                    <?php endif; ?>
-
+                <div class="event-title">
+                    <?php echo $event['name']; ?>
                 </div>
+
+                <p class="text-muted mb-1">📅 <?php echo $event['date']; ?></p>
+
+                <!-- TYPE TAG -->
+                <?php if($type == 'Paid'){ ?>
+                    <span class="tag tag-paid">Paid Event</span>
+                <?php } else { ?>
+                    <span class="tag tag-free">Free Event</span>
+                <?php } ?>
+
+                <p class="text-muted mt-2">
+                    <?php echo substr($event['description'],0,90); ?>...
+                </p>
+
+                <!-- STATUS -->
+                <?php if($status == 'pending'): ?>
+                    <span class="badge bg-warning text-dark badge-status">Requested</span>
+
+                <?php elseif($status == 'approved'): ?>
+                    <span class="badge bg-success badge-status">Joined</span>
+
+                <?php elseif($status == 'rejected'): ?>
+                    <span class="badge bg-danger badge-status">Rejected</span>
+
+                <?php else: ?>
+                    <button class="btn btn-danger join-btn"
+                        data-id="<?php echo $event['id']; ?>"
+                        data-name="<?php echo $event['name']; ?>">
+                        Join Event
+                    </button>
+                <?php endif; ?>
+
             </div>
         </div>
 
-        <?php endwhile; ?>
+    </div>
+
+    <?php endwhile; ?>
 
     </div>
 </div>
 
-<!-- HIDDEN FORM -->
+<!-- FORM -->
 <form id="joinForm" method="POST" style="display:none;">
     <input type="hidden" name="event_id" id="event_id">
     <input type="hidden" name="join_event">
@@ -148,18 +235,17 @@ $user_id = $_SESSION['user_id'] ?? 0;
 $(".join-btn").click(function(e){
     e.preventDefault();
 
-    let event_id = $(this).data("id");
-    let event_name = $(this).data("name");
+    let id = $(this).data("id");
+    let name = $(this).data("name");
 
     Swal.fire({
-        title: "Join " + event_name + "?",
-        text: "Do you want to join this event?",
+        title: "Join " + name + "?",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Yes"
-    }).then((result)=>{
-        if(result.isConfirmed){
-            $("#event_id").val(event_id);
+    }).then((res)=>{
+        if(res.isConfirmed){
+            $("#event_id").val(id);
             $("#joinForm").submit();
         }
     });
