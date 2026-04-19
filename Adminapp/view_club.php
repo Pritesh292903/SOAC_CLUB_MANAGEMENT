@@ -15,171 +15,169 @@ if (!$club) {
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
 <style>
-    html,
-    body {
-        height: 100%;
-        margin: 20px;
-        overflow: hidden;
-        /* 🚫 NO SCROLL */
-        background: linear-gradient(135deg, #f5f7fa, #e4e8f0);
-    }
+/* SAME DESIGN LIKE EVENT PAGE */
+.content {
+    margin-top: 80px;
+    margin-left: 250px;
+    padding: 20px;
+    animation: fadeIn 0.6s ease-in-out;
+}
 
-    /* FULL SCREEN CENTER */
-    .main-wrapper {
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-    }
+@media(max-width:992px){
+    .content{ margin-left: 0; }
+}
 
-    /* CARD */
-    .card-modern {
-        width: 100%;
-        max-width: 700px;
-        height: 90vh;
-        background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
+@keyframes fadeIn {
+    from {opacity:0; transform:translateY(20px);}
+    to {opacity:1; transform:translateY(0);}
+}
 
-    /* IMAGE */
-    .club-img {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        border-radius: 15px;
-        border: 3px solid #eee;
-    }
+/* CARD */
+.event-box {
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    margin: auto;
+}
 
-    /* TITLE */
-    .club-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #e63946;
-    }
+/* IMAGE SIDE */
+.event-img-box {
+    flex: 1;
+    min-height: 350px;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.event-img-box:hover {
+    transform: scale(1.03);
+}
 
-    /* INFO GRID */
-    .info {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 15px;
-    }
+/* DETAILS */
+.event-details {
+    flex: 1;
+    padding: 40px;
+}
 
-    .box {
-        background: #f8f9fa;
-        padding: 10px;
-        border-radius: 10px;
-        font-size: 0.9rem;
-    }
+.event-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #dc3545;
+    margin-bottom: 20px;
+}
 
-    .label {
-        font-weight: 600;
-        color: #555;
-    }
+.info-row {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
 
-    .value {
-        font-weight: 500;
-    }
+.info-row span {
+    font-weight: 600;
+    color: #555;
+}
 
-    /* DESCRIPTION LIMIT */
-    .desc {
-        font-size: 0.9rem;
-        max-height: 80px;
-        overflow: auto;
-        /* only inner scroll if long */
-    }
+/* BADGES */
+.badge-custom {
+    padding: 6px 15px;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 14px;
+}
 
-    /* BUTTON */
-    .back-btn {
-        border-radius: 50px;
-        padding: 8px 20px;
-    }
+.active { background: #28a745; }
+.inactive { background: #6c757d; }
+.paid { background: #dc3545; }
+.free { background: #17a2b8; }
 
-    /* MOBILE */
-    @media(max-width:600px) {
-        .card-modern {
-            height: 95vh;
-            padding: 15px;
-        }
+/* BUTTON */
+.back-btn {
+    margin-top: 25px;
+    border-radius: 50px;
+    padding: 10px 25px;
+}
 
-        .info {
-            grid-template-columns: 1fr;
-        }
-    }
+/* MOBILE */
+@media(max-width:768px){
+    .event-box { flex-direction: column; }
+    .event-details { padding: 20px; }
+}
 </style>
 
-<div class="main-wrapper">
+<div class="content">
 
-    <div class="card-modern text-center">
+<div class="event-box">
 
-        <!-- TOP -->
-        <div>
-            <img src="uploads/<?php echo htmlspecialchars($club['clubimage']); ?>" class="club-img mb-2">
+    <!-- IMAGE -->
+    <div class="event-img-box"
+        id="clubImage"
+        style="background-image: url('uploads/<?php echo $club['clubimage'] ?: 'default.png'; ?>');">
+    </div>
 
-            <div class="club-title">
-                <?php echo htmlspecialchars($club['clubname']); ?>
-            </div>
+    <!-- DETAILS -->
+    <div class="event-details">
+
+        <div class="event-title">
+            <?php echo htmlspecialchars($club['clubname']); ?>
         </div>
 
-        <!-- INFO -->
-        <div class="info">
-
-            <div class="box">
-                <div class="label">Faculty</div>
-                <div class="value"><?php echo htmlspecialchars($club['faculty']); ?></div>
-            </div>
-
-            <div class="box">
-                <div class="label">Members</div>
-                <div class="value"><?php echo htmlspecialchars($club['totalmembers']); ?></div>
-            </div>
-
-            <div class="box">
-                <div class="label">Status</div>
-                <div class="value">
-                    <?php if ($club['status'] == "Active") { ?>
-                        <span class="badge bg-success">Active</span>
-                    <?php } else { ?>
-                        <span class="badge bg-secondary">Inactive</span>
-                    <?php } ?>
-                </div>
-            </div>
-
-            <div class="box">
-                <div class="label">Type</div>
-                <div class="value">
-                    <?php if ($club['club_paid'] == "Paid") { ?>
-                        <span class="badge bg-warning text-dark">💰 Paid</span>
-                    <?php } else { ?>
-                        <span class="badge bg-info text-dark">🆓 Free</span>
-                    <?php } ?>
-                </div>
-            </div>
-
+        <div class="info-row">
+            <span>Faculty:</span>
+            <?php echo htmlspecialchars($club['faculty']); ?>
         </div>
 
-        <!-- DESCRIPTION -->
-        <div class="box mt-2">
-            <div class="label">Description</div>
-            <div class="desc">
-                <?php echo nl2br(htmlspecialchars($club['clubdescription'])); ?>
-            </div>
+        <div class="info-row">
+            <span>Total Members:</span>
+            <?php echo htmlspecialchars($club['totalmembers']); ?>
         </div>
 
-        <!-- BUTTON -->
-        <div>
-            <a href="all_clubes_page.php" class="btn btn-danger back-btn">Back</a>
+        <div class="info-row">
+            <span>Status:</span>
+            <span class="badge-custom <?php echo ($club['status']=='Active')?'active':'inactive'; ?>">
+                <?php echo $club['status']; ?>
+            </span>
         </div>
+
+        <div class="info-row">
+            <span>Club Type:</span>
+            <span class="badge-custom <?php echo ($club['club_paid']=='Paid')?'paid':'free'; ?>">
+                <?php echo $club['club_paid'] ?? 'Free'; ?>
+            </span>
+        </div>
+
+        <div class="info-row">
+            <span>Description:</span><br>
+            <?php echo nl2br(htmlspecialchars($club['clubdescription'])); ?>
+        </div>
+
+        <a href="all_clubes_page.php" class="btn btn-danger back-btn">
+            ← Back to Clubs
+        </a>
 
     </div>
+
 </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// IMAGE POPUP
+document.getElementById('clubImage')?.addEventListener('click', function () {
+    Swal.fire({
+        imageUrl: this.style.backgroundImage.slice(5, -2),
+        showCloseButton: true,
+        showConfirmButton: false,
+        width: '600px'
+    });
+});
+</script>
 
 <?php include 'admin_footer.php'; ?>

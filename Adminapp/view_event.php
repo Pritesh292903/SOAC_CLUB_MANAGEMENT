@@ -7,167 +7,181 @@ $res = mysqli_query($con, "SELECT * FROM events WHERE id='$id'");
 $event = mysqli_fetch_assoc($res);
 ?>
 
-<!-- SweetAlert2 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-/* Full-screen gradient background */
-body, html {
-    height: 100%;
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #ffe6e6, #ffd6d6);
+/* CONTENT FIX (SIDEBAR SPACE) */
+.content {
+    margin-top: 80px;
+    margin-left: 250px; /* ✅ sidebar space */
+    padding: 20px;
+    animation: fadeIn 0.6s ease-in-out;
 }
 
-/* Full-page container */
-.content {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn 0.8s ease-in-out;
-    padding: 20px;
-    box-sizing: border-box;
+/* MOBILE FIX */
+@media(max-width:992px){
+    .content{
+        margin-left: 0;
+    }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(50px);}
-    to { opacity: 1; transform: translateY(0);}
+    from {opacity:0; transform:translateY(20px);}
+    to {opacity:1; transform:translateY(0);}
 }
 
-/* Main event section */
-.event-full {
-    width: 100%;
-    height: 90%;
+/* MAIN CARD */
+.event-box {
     background: #fff;
-    border-radius: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 0 30px rgba(0,0,0,0.15);
-    animation: slideUp 0.8s ease forwards;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    margin: auto;
 }
 
-@keyframes slideUp {
-    from { transform: translateY(100px); opacity:0; }
-    to { transform: translateY(0); opacity:1; }
-}
-
-/* Left side - image */
-.event-full .left {
-    background: url('../uploads/<?= $event['image'] ?: 'default.png'; ?>') center center / cover no-repeat;
+/* IMAGE SIDE */
+.event-img-box {
+    flex: 1;
+    min-height: 350px;
+    background-size: cover;
+    background-position: center;
     cursor: pointer;
-    transition: transform 0.3s;
-}
-.event-full .left:hover {
-    transform: scale(1.05);
-}
-
-/* Right side - details */
-.event-full .right {
-    padding: 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 25px;
-}
-
-.event-full .right h1 {
-    color: #dc3545;
-    font-size: 48px;
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.event-full .right .info {
-    font-size: 20px;
-    line-height: 1.6;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.event-full .right .info span {
-    font-weight: bold;
-    color: #333;
-}
-
-/* Status badge */
-.status-badge {
-    display: inline-block;
-    padding: 5px 15px;
-    border-radius: 50px;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 16px;
-    color: #fff;
-}
-.status-active { background: #28a745; }
-.status-closed { background: #6c757d; }
-
-/* Back button */
-.btn-back {
-    margin-top: 30px;
-    background: #dc3545;
-    color: #fff;
-    padding: 12px 35px;
-    border-radius: 50px;
-    font-weight: 600;
-    text-decoration: none;
     transition: 0.3s;
-    width: fit-content;
 }
-.btn-back:hover {
-    background: #b71c1c;
+.event-img-box:hover {
+    transform: scale(1.03);
 }
 
-/* Responsive */
-@media (max-width: 900px){
-    .event-full {
-        grid-template-columns: 1fr;
-        height: auto;
+/* DETAILS SIDE */
+.event-details {
+    flex: 1;
+    padding: 40px;
+}
+
+.event-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+
+.info-row {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.info-row span {
+    font-weight: 600;
+    color: #555;
+}
+
+/* BADGES */
+.badge-custom {
+    padding: 6px 15px;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.active { background: #28a745; }
+.closed { background: #6c757d; }
+.paid { background: #dc3545; }
+.unpaid { background: #17a2b8; }
+
+/* BUTTON */
+.back-btn {
+    margin-top: 25px;
+    border-radius: 50px;
+    padding: 10px 25px;
+}
+
+/* MOBILE LAYOUT */
+@media(max-width:768px){
+    .event-box {
+        flex-direction: column;
     }
-    .event-full .left {
-        height: 300px;
+    .event-details {
+        padding: 20px;
     }
 }
 </style>
 
 <div class="content">
+
 <?php if($event): ?>
-    <div class="event-full">
-        <div class="left" id="popup-image"></div>
-        <div class="right">
-            <h1><?= $event['name']; ?></h1>
-            <div class="info"><span><i class="fa fa-calendar"></i> Date:</span> <?= date('d M, Y', strtotime($event['date'])); ?></div>
-            <div class="info"><span><i class="fa fa-toggle-on"></i> Status:</span>
-                <span class="status-badge <?= $event['status']=='Active'?'status-active':'status-closed'; ?>">
-                    <?= $event['status']; ?>
-                </span>
-            </div>
-            <div class="info"><span><i class="fa fa-align-left"></i> Description:</span> <?= $event['description'] ?: 'No Description'; ?></div>
-            <a href="all_events_page.php" class="btn-back">← Back to Events</a>
-        </div>
+
+<div class="event-box">
+
+    <!-- IMAGE -->
+    <div class="event-img-box"
+        id="eventImage"
+        style="background-image: url('../uploads/<?php echo $event['image'] ?: 'default.png'; ?>');">
     </div>
-<?php else: ?>
-    <p style="font-size:22px; color:#333;">Event not found.</p>
-<?php endif; ?>
+
+    <!-- DETAILS -->
+    <div class="event-details">
+
+        <div class="event-title">
+            <?php echo htmlspecialchars($event['name']); ?>
+        </div>
+
+        <div class="info-row">
+            <span>Date:</span>
+            <?php echo date('d M, Y', strtotime($event['date'])); ?>
+        </div>
+
+        <div class="info-row">
+            <span>Status:</span>
+            <span class="badge-custom <?php echo ($event['status']=='Active')?'active':'closed'; ?>">
+                <?php echo $event['status']; ?>
+            </span>
+        </div>
+
+        <div class="info-row">
+            <span>Event Type:</span>
+            <span class="badge-custom <?php echo ($event['event_type']=='Paid')?'paid':'unpaid'; ?>">
+                <?php echo $event['event_type'] ?? 'Unpaid'; ?>
+            </span>
+        </div>
+
+        <div class="info-row">
+            <span>Description:</span><br>
+            <?php echo nl2br(htmlspecialchars($event['description'])); ?>
+        </div>
+
+        <a href="all_events_page.php" class="btn btn-danger back-btn">
+            ← Back to Events
+        </a>
+
+    </div>
+
 </div>
 
+<?php else: ?>
+    <div class="text-center mt-5">
+        <h4>Event not found</h4>
+    </div>
+<?php endif; ?>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-// Popup for image
-document.getElementById('popup-image').addEventListener('click', function(){
+// IMAGE POPUP
+document.getElementById('eventImage')?.addEventListener('click', function () {
     Swal.fire({
-        title: 'Event Image',
         imageUrl: this.style.backgroundImage.slice(5, -2),
         imageAlt: 'Event Image',
         showCloseButton: true,
         showConfirmButton: false,
-        width: '600px',
-        background: '#fff0f0',
+        width: '600px'
     });
 });
 </script>
+
+<?php include 'admin_footer.php'; ?>
