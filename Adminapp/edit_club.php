@@ -2,39 +2,32 @@
 include 'admin_header.php';
 include '../database.php';
 
-// GET CLUB ID
 $id = $_GET['id'] ?? 0;
 
-// FETCH CLUB DATA
 $query = "SELECT * FROM clubs WHERE id='$id'";
 $result = mysqli_query($con, $query);
 $club = mysqli_fetch_assoc($result);
 
-// FETCH FACULTY DATA
 $faculty_query = "SELECT id, name FROM Faculty_register WHERE role='faculty'";
 $faculty_result = mysqli_query($con, $faculty_query);
 
-// UPDATE CLUB
 if (isset($_POST['update'])) {
+
     $clubname = trim($_POST['clubname']);
     $faculty_id = intval($_POST['faculty']);
-    $totalmembers = isset($_POST['totalmembers']) && $_POST['totalmembers'] !== "" ? intval($_POST['totalmembers']) : 0;
+    $totalmembers = intval($_POST['totalmembers']);
     $status = trim($_POST['status']);
     $description = trim($_POST['description']);
+    $club_paid = trim($_POST['club_paid']);
 
-    // GET FACULTY NAME
     $getFaculty = mysqli_query($con, "SELECT name FROM Faculty_register WHERE id='$faculty_id'");
     $fdata = mysqli_fetch_assoc($getFaculty);
     $faculty_name = $fdata['name'];
 
-    // IMAGE CHECK
     if (!empty($_FILES['clubimage']['name'])) {
+        $filename = time() . "_" . $_FILES['clubimage']['name'];
+        move_uploaded_file($_FILES['clubimage']['tmp_name'], "uploads/" . $filename);
 
-        $filename = time() . "_" . preg_replace("/[^a-zA-Z0-9._-]/", "", $_FILES['clubimage']['name']);
-        $tempname = $_FILES['clubimage']['tmp_name'];
-        move_uploaded_file($tempname, "uploads/" . $filename);
-
-        // ✅ UPDATE WITH IMAGE
         $update = "UPDATE clubs SET 
             clubimage='$filename',
             clubname='$clubname',
@@ -42,140 +35,231 @@ if (isset($_POST['update'])) {
             faculty='$faculty_name',
             totalmembers='$totalmembers',
             status='$status',
-            clubdescription='$description'
+            clubdescription='$description',
+            club_paid='$club_paid'
             WHERE id='$id'";
-
     } else {
-
-        // ✅ UPDATE WITHOUT TOUCHING IMAGE
         $update = "UPDATE clubs SET 
             clubname='$clubname',
             faculty_id='$faculty_id',
             faculty='$faculty_name',
             totalmembers='$totalmembers',
             status='$status',
-            clubdescription='$description'
+            clubdescription='$description',
+            club_paid='$club_paid'
             WHERE id='$id'";
     }
 
     if (mysqli_query($con, $update)) {
-        echo "
-        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
         <script>
-        Swal.fire({
-            title: 'Success!',
-            html: '<img src=\"uploads/".$club['clubimage']."\" style=\"width:100px;height:100px;object-fit:cover;border-radius:12px;\"><br><strong>$clubname</strong><br>Club updated successfully!',
-            icon: 'success',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'OK'
-        }).then(() => {
-            window.location.href = 'all_clubes_page.php';
-        });
-        </script>
-        ";
+        Swal.fire({title:'Updated!',icon:'success'})
+        .then(()=>{window.location='all_clubes_page.php';});
+        </script>";
     }
 }
 ?>
 
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-
 <style>
-.content { animation: fadeIn 0.6s ease-in-out; }
-@keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
-.club-img { width:150px; height:150px; object-fit:cover; border-radius:12px; margin-bottom:15px; }
-.form-label { font-weight:600; }
-.is-invalid { border-color:#dc3545 !important; }
-.invalid-feedback { color:#dc3545; font-size:0.85rem; }
-.btn-effect { border-radius:50px; transition:0.3s; }
-.btn-effect:hover { transform:translateY(-2px); }
+html,body{
+    height:100%;
+    margin:0;
+    background:#eef2f7;
+    font-family:sans-serif;
+    overflow:hidden;
+}
+
+/* MOBILE SCROLL FIX */
+@media(max-width:768px){
+    html,body{overflow:auto;}
+}
+
+.wrapper{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:10px;
+}
+
+.form-box{
+    width:100%;
+    max-width:900px;
+    max-height:92vh;
+    background:#fff;
+    border-radius:20px;
+    padding:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+    overflow:auto;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.full{grid-column:1/-1;}
+
+input, select, textarea{
+    width:100%;
+    padding:8px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+label{
+    font-size:0.8rem;
+    font-weight:600;
+}
+
+.img-box{text-align:center;}
+.img-box img{
+    width:100px;
+    height:100px;
+    border-radius:10px;
+    object-fit:cover;
+}
+
+button{
+    padding:8px 20px;
+    border:none;
+    border-radius:20px;
+    background:#e63946;
+    color:#fff;
+}
+
+/* VALIDATION */
+.input-success{border:2px solid #28a745 !important;}
+.input-error{border:2px solid red !important;}
+.error-text{color:red;font-size:0.8rem;}
+
+@media(max-width:600px){
+    .form-grid{grid-template-columns:1fr;}
+}
 </style>
 
-<div class="content">
-    <div class="page-header mb-4">
-        <h4 class="text-danger">Edit Club</h4>
-        <small class="text-muted">Update club details and assign faculty</small>
-    </div>
+<div class="wrapper">
+<div class="form-box">
 
-    <div class="card p-4">
-        <form method="POST" enctype="multipart/form-data" id="editForm">
+<h5 style="text-align:center;color:#e63946;">Edit Club</h5>
 
-            <div class="text-center mb-3">
-                <label class="form-label">Club Image</label><br>
-                <img src="uploads/<?php echo $club['clubimage']; ?>" class="club-img" id="preview">
-                <input type="file" name="clubimage" id="image" class="form-control mt-2" accept="image/*">
-                <small class="text-muted">Optional: JPG, PNG, GIF (Max 5MB)</small>
-            </div>
+<form method="POST" enctype="multipart/form-data">
 
-            <div class="row g-3">
+<div class="img-box full">
+    <label>Club Image</label><br>
+    <img src="uploads/<?php echo $club['clubimage']; ?>" id="preview"><br>
+    <input type="file" name="clubimage" id="image">
+</div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Club Name *</label>
-                    <input type="text" name="clubname" class="form-control" value="<?php echo htmlspecialchars($club['clubname']); ?>" required>
-                    <div class="invalid-feedback">Please enter club name</div>
-                </div>
+<div class="form-grid">
 
-                <div class="col-md-6">
-                    <label class="form-label">Assign Faculty *</label>
-                    <select name="faculty" class="form-select" required>
-                        <option value="">-- Select Faculty --</option>
-                        <?php while ($f = mysqli_fetch_assoc($faculty_result)) { ?>
-                            <option value="<?php echo $f['id']; ?>" <?php if ($club['faculty_id'] == $f['id']) echo "selected"; ?>>
-                                <?php echo htmlspecialchars($f['name']); ?>
-                            </option>
-                        <?php } ?>
-                    </select>
-                    <div class="invalid-feedback">Please select faculty</div>
-                </div>
+<div>
+<label>Club Name</label>
+<input type="text" name="clubname" value="<?php echo $club['clubname']; ?>">
+</div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Total Members *</label>
-                    <input type="number" name="totalmembers" class="form-control" value="<?php echo $club['totalmembers']; ?>" min="1" required>
-                    <div class="invalid-feedback">Please enter total members</div>
-                </div>
+<div>
+<label>Faculty</label>
+<select name="faculty">
+<option value="">Select</option>
+<?php while($f=mysqli_fetch_assoc($faculty_result)){ ?>
+<option value="<?php echo $f['id']; ?>" <?php if($club['faculty_id']==$f['id']) echo "selected"; ?>>
+<?php echo $f['name']; ?>
+</option>
+<?php } ?>
+</select>
+</div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Status *</label>
-                    <select name="status" class="form-select" required>
-                        <option value="">-- Select Status --</option>
-                        <option value="Active" <?php if ($club['status'] == "Active") echo "selected"; ?>>Active</option>
-                        <option value="Inactive" <?php if ($club['status'] == "Inactive") echo "selected"; ?>>Inactive</option>
-                    </select>
-                    <div class="invalid-feedback">Please select status</div>
-                </div>
+<div>
+<label>Members</label>
+<input type="number" name="totalmembers" value="<?php echo $club['totalmembers']; ?>">
+</div>
 
-                <div class="col-12">
-                    <label class="form-label">Club Description *</label>
-                    <textarea name="description" class="form-control" rows="4" required><?php echo htmlspecialchars($club['clubdescription']); ?></textarea>
-                    <div class="invalid-feedback">Please enter description</div>
-                </div>
+<div>
+<label>Status</label>
+<select name="status">
+<option value="">Select</option>
+<option value="Active" <?php if($club['status']=="Active") echo "selected"; ?>>Active</option>
+<option value="Inactive" <?php if($club['status']=="Inactive") echo "selected"; ?>>Inactive</option>
+</select>
+</div>
 
-            </div>
+<div>
+<label>Club Type</label>
+<select name="club_paid">
+<option value="">Select</option>
+<option value="Paid" <?php if($club['club_paid']=="Paid") echo "selected"; ?>>Paid</option>
+<option value="Unpaid" <?php if($club['club_paid']=="Unpaid") echo "selected"; ?>>Unpaid</option>
+</select>
+</div>
 
-            <div class="mt-4 text-center">
-                <button type="submit" name="update" class="btn btn-danger btn-effect">Update Club</button>
-                <a href="all_clubes_page.php" class="btn btn-secondary btn-effect">Cancel</a>
-            </div>
+<div class="full">
+<label>Description</label>
+<textarea name="description" rows="2"><?php echo $club['clubdescription']; ?></textarea>
+</div>
 
-        </form>
-    </div>
+</div>
+
+<div style="text-align:center;margin-top:10px;">
+<button type="submit" name="update">Update</button>
+</div>
+
+</form>
+</div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-$(document).ready(function() {
+// IMAGE PREVIEW
+$("#image").change(function(){
+    let reader=new FileReader();
+    reader.onload=e=>$("#preview").attr("src",e.target.result);
+    reader.readAsDataURL(this.files[0]);
+});
 
-    $("#image").on("change", function () {
-        let file = this.files[0];
-        if (file) {
-            let reader = new FileReader();
-            reader.onload = function(e) { $("#preview").attr("src", e.target.result); }
-            reader.readAsDataURL(file);
-        } else {
-            $("#preview").attr("src", "uploads/<?php echo $club['clubimage']; ?>");
+// VALIDATION
+$(document).ready(function(){
+
+$("input, select, textarea").not("#image").on("input change", function(){
+    if($(this).val().trim() !== ""){
+        $(this).removeClass("input-error").addClass("input-success");
+        $(this).next(".error-text").remove();
+    }
+});
+
+$("form").submit(function(e){
+
+    let valid=true;
+    $(".error-text").remove();
+    $("input, select, textarea").removeClass("input-error");
+
+    function showError(el,msg){
+        el.addClass("input-error");
+        if(el.next(".error-text").length===0){
+            el.after("<div class='error-text'>"+msg+"</div>");
         }
-    });
+        valid=false;
+    }
+
+    let clubname=$("input[name='clubname']");
+    let faculty=$("select[name='faculty']");
+    let members=$("input[name='totalmembers']");
+    let status=$("select[name='status']");
+    let type=$("select[name='club_paid']");
+    let desc=$("textarea[name='description']");
+
+    if(clubname.val().trim()==="") showError(clubname,"Enter club name");
+    if(faculty.val()==="") showError(faculty,"Select faculty");
+    if(members.val()==="" || members.val()<=0) showError(members,"Enter valid members");
+    if(status.val()==="") showError(status,"Select status");
+    if(type.val()==="") showError(type,"Select club type");
+    if(desc.val().trim()==="") showError(desc,"Enter description");
+
+    if(!valid){ e.preventDefault(); }
+
+});
 
 });
 </script>

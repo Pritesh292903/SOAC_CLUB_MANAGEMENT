@@ -2,16 +2,14 @@
 include 'admin_header.php';
 include '../database.php';
 
-// GET CLUB ID
 $id = $_GET['id'] ?? 0;
 
-// FETCH CLUB DATA
 $query = "SELECT * FROM clubs WHERE id='$id'";
 $result = mysqli_query($con, $query);
 $club = mysqli_fetch_assoc($result);
 
 if (!$club) {
-    echo "<script>alert('Club not found!'); window.location.href='all_club_page.php';</script>";
+    echo "<script>alert('Club not found!'); window.location.href='all_clubes_page.php';</script>";
     exit;
 }
 ?>
@@ -19,104 +17,169 @@ if (!$club) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-    /* Ensure content is below header */
-    .content {
-        animation: fadeIn 0.6s ease-in-out;
-        margin-top: 100px;
-        /* Adjust this according to your header height */
-        margin-bottom: 50px;
+    html,
+    body {
+        height: 100%;
+        margin: 20px;
+        overflow: hidden;
+        /* 🚫 NO SCROLL */
+        background: linear-gradient(135deg, #f5f7fa, #e4e8f0);
     }
 
-    /* Fade-in animation */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(15px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* FULL SCREEN CENTER */
+    .main-wrapper {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
     }
 
-    /* Club image styling */
+    /* CARD */
+    .card-modern {
+        width: 100%;
+        max-width: 700px;
+        height: 90vh;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    /* IMAGE */
     .club-img {
-        width: 200px;
-        height: 200px;
+        width: 120px;
+        height: 120px;
         object-fit: cover;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        border: 2px solid #ddd;
-    }
-
-    /* Card styling */
-    .card {
-        padding: 30px;
         border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
+        border: 3px solid #eee;
     }
 
-    /* Titles */
-    .card-title {
+    /* TITLE */
+    .club-title {
+        font-size: 1.5rem;
         font-weight: 700;
-        font-size: 1.8rem;
+        color: #e63946;
     }
 
-    /* Field labels */
-    .fw-bold {
+    /* INFO GRID */
+    .info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .box {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+    }
+
+    .label {
         font-weight: 600;
+        color: #555;
     }
 
-    /* Back button */
+    .value {
+        font-weight: 500;
+    }
+
+    /* DESCRIPTION LIMIT */
+    .desc {
+        font-size: 0.9rem;
+        max-height: 80px;
+        overflow: auto;
+        /* only inner scroll if long */
+    }
+
+    /* BUTTON */
     .back-btn {
         border-radius: 50px;
-        padding: 10px 25px;
+        padding: 8px 20px;
+    }
+
+    /* MOBILE */
+    @media(max-width:600px) {
+        .card-modern {
+            height: 95vh;
+            padding: 15px;
+        }
+
+        .info {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
-<div class="content container">
-    <div class="card mx-auto" style="max-width: 700px;">
-        <div class="text-center mb-4">
-            <img src="uploads/<?php echo htmlspecialchars($club['clubimage']); ?>" class="club-img" alt="Club Image">
-        </div>
+<div class="main-wrapper">
 
-        <h3 class="card-title text-center text-danger"><?php echo htmlspecialchars($club['clubname']); ?></h3>
-        <hr>
+    <div class="card-modern text-center">
 
-        <div class="row mb-3">
-            <div class="col-md-4 fw-bold">Assigned Faculty:</div>
-            <div class="col-md-8"><?php echo htmlspecialchars($club['faculty']); ?></div>
-        </div>
+        <!-- TOP -->
+        <div>
+            <img src="uploads/<?php echo htmlspecialchars($club['clubimage']); ?>" class="club-img mb-2">
 
-        <div class="row mb-3">
-            <div class="col-md-4 fw-bold">Total Members:</div>
-            <div class="col-md-8"><?php echo htmlspecialchars($club['totalmembers']); ?></div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4 fw-bold">Status:</div>
-            <div class="col-md-8">
-                <?php if ($club['status'] == 'Active') { ?>
-                    <span class="badge bg-success">Active</span>
-                <?php } else { ?>
-                    <span class="badge bg-secondary">Inactive</span>
-                <?php } ?>
+            <div class="club-title">
+                <?php echo htmlspecialchars($club['clubname']); ?>
             </div>
         </div>
 
-        <div class="row mb-3">
-            <div class="col-md-4 fw-bold">Description:</div>
-            <div class="col-md-8"><?php echo nl2br(htmlspecialchars($club['clubdescription'])); ?></div>
+        <!-- INFO -->
+        <div class="info">
+
+            <div class="box">
+                <div class="label">Faculty</div>
+                <div class="value"><?php echo htmlspecialchars($club['faculty']); ?></div>
+            </div>
+
+            <div class="box">
+                <div class="label">Members</div>
+                <div class="value"><?php echo htmlspecialchars($club['totalmembers']); ?></div>
+            </div>
+
+            <div class="box">
+                <div class="label">Status</div>
+                <div class="value">
+                    <?php if ($club['status'] == "Active") { ?>
+                        <span class="badge bg-success">Active</span>
+                    <?php } else { ?>
+                        <span class="badge bg-secondary">Inactive</span>
+                    <?php } ?>
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="label">Type</div>
+                <div class="value">
+                    <?php if ($club['club_paid'] == "Paid") { ?>
+                        <span class="badge bg-warning text-dark">💰 Paid</span>
+                    <?php } else { ?>
+                        <span class="badge bg-info text-dark">🆓 Free</span>
+                    <?php } ?>
+                </div>
+            </div>
+
         </div>
 
-        <div class="text-center mt-4">
-            <a href="all_clubes_page.php" class="btn btn-danger back-btn">Back to All Clubs</a>
+        <!-- DESCRIPTION -->
+        <div class="box mt-2">
+            <div class="label">Description</div>
+            <div class="desc">
+                <?php echo nl2br(htmlspecialchars($club['clubdescription'])); ?>
+            </div>
         </div>
+
+        <!-- BUTTON -->
+        <div>
+            <a href="all_clubes_page.php" class="btn btn-danger back-btn">Back</a>
+        </div>
+
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php include 'admin_footer.php'; ?>
