@@ -2,95 +2,201 @@
 include 'F_header.php';
 include '../database.php';
 
-// Select Database and Create Events Table if Not Exists
 mysqli_select_db($con, "SOAE_CLUB");
-mysqli_query($con, "CREATE TABLE IF NOT EXISTS events (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    image VARCHAR(255),
-    name VARCHAR(100),
-    date DATE,
-    status VARCHAR(50),
-    description TEXT,
-    category VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)");
 
-// FETCH DATA
-$result = mysqli_query($con, "SELECT * FROM events ORDER BY date DESC");
+/* ONLY ACTIVE EVENTS */
+$result = mysqli_query($con, "SELECT * FROM events WHERE status='Active' ORDER BY id DESC");
 ?>
 
-<div class="container my-5">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Page Title + Add Button -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-danger">Manage Events</h2>
-            <p class="text-muted mb-0">Add, Edit or Delete Events</p>
+<style>
+
+body{
+    background: linear-gradient(135deg,#f8f9fa,#eef1f7);
+    font-family:'Segoe UI',sans-serif;
+}
+
+.page-title{
+    text-align:center;
+    font-weight:800;
+    margin:30px 0;
+    color:#dc3545;
+}
+
+/* CARD */
+.event-card{
+    position:relative;
+    background:#fff;
+    border-radius:25px;
+    overflow:hidden;
+    transition:0.4s;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.event-card:hover{
+    transform: translateY(-10px);
+}
+
+/* IMAGE WRAPPER */
+.image-box{
+    position:relative;
+}
+
+/* IMAGE */
+.event-img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+}
+
+/* 🔥 PAID / FREE CENTER BADGE */
+.event-type-badge{
+    position:absolute;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    padding:6px 18px;
+    font-size:13px;
+    border-radius:30px;
+    font-weight:600;
+    backdrop-filter: blur(10px);
+    color:#fff;
+}
+
+.paid{
+    background: rgba(220,53,69,0.85);
+}
+
+.free{
+    background: rgba(25,135,84,0.85);
+}
+
+/* CONTENT */
+.event-body{
+    padding:20px;
+    text-align:center;
+}
+
+.event-name{
+    font-size:18px;
+    font-weight:700;
+    color:#dc3545;
+}
+
+.event-text{
+    font-size:14px;
+    color:#666;
+}
+
+/* BUTTONS */
+.btn-edit, .btn-delete{
+    display:inline-block;
+    padding:6px 14px;
+    border-radius:30px;
+    font-size:13px;
+    text-decoration:none;
+    margin:2px;
+}
+
+.btn-edit{
+    background: linear-gradient(135deg,#ffc107,#ffda6a);
+    color:#000;
+}
+
+.btn-delete{
+    background: linear-gradient(135deg,#dc3545,#ff6b6b);
+    color:#fff;
+}
+
+</style>
+
+<div class="container my-4">
+
+<h2 class="page-title">Manage Events</h2>
+
+<div class="row g-4">
+
+<?php while($row = mysqli_fetch_assoc($result)): ?>
+
+<?php
+$image = $row['image'] ?? '';
+$path = "../uploads/".$image;
+
+$finalImage = (!empty($image) && file_exists(__DIR__."/../uploads/".$image))
+    ? $path
+    : "https://via.placeholder.com/600x300";
+
+/* PAID / FREE */
+$type = strtolower(trim($row['event_type'] ?? ''));
+
+if(in_array($type,['paid','1','yes','true'])){
+    $label = "PAID EVENT";
+    $class = "paid";
+}else{
+    $label = "FREE EVENT";
+    $class = "free";
+}
+?>
+
+<div class="col-lg-4 col-md-6">
+
+    <div class="event-card">
+
+        <!-- IMAGE -->
+        <div class="image-box">
+
+            <img src="<?php echo $finalImage; ?>" class="event-img">
+
+            <!-- CENTER BADGE -->
+            <div class="event-type-badge <?php echo $class; ?>">
+                <?php echo $label; ?>
+            </div>
+
         </div>
-    </div>
 
-    <!-- Events Row -->
-    <div class="row g-4">
+        <!-- BODY -->
+        <div class="event-body">
 
-        <?php while($row = mysqli_fetch_assoc($result)) { 
-            // Set image path
-            $imgPath = !empty($row['image']) ? "../uploads/" . $row['image'] : "../uploads/default.png";
-        ?>
+            <div class="event-name">
+                <?php echo htmlspecialchars($row['name']); ?>
+            </div>
 
-        <div class="col-lg-4 col-md-6">
-            <div class="card shadow-sm border-0 rounded-4 h-100 position-relative">
+            <div class="event-text">
+                📅 <?php echo date('d M Y', strtotime($row['date'])); ?>
+            </div>
 
-                <!-- IMAGE FROM DB -->
-                <img src="<?php echo $imgPath; ?>" 
-                     class="card-img-top rounded-top-4" 
-                     style="height:200px; object-fit:cover;">
+            <div class="event-text">
+                🏷 <?php echo $row['category'] ?? 'General'; ?>
+            </div>
 
-                <div class="card-body text-center">
+            <div class="event-text">
+                <?php echo substr($row['description'],0,80); ?>...
+            </div>
 
-                    <!-- EVENT NAME -->
-                    <h5 class="fw-bold text-danger">
-                        <?php echo $row['name']; ?>
-                    </h5>
+            <div class="mt-3">
 
-                    <!-- DESCRIPTION -->
-                    <p class="text-muted">
-                        <?php echo $row['description']; ?>
-                    </p>
+                <a href="Edits_event.php?id=<?php echo $row['id']; ?>" class="btn-edit">
+                    Edit
+                </a>
 
-                    <!-- DATE AND STATUS -->
-                    <small class="text-secondary d-block">
-                        <?php echo date('d M Y', strtotime($row['date'])); ?> | <?php echo $row['status']; ?>
-                    </small>
-
-                    <div class="d-flex justify-content-center gap-2 mt-3">
-
-                        <!-- VIEW -->
-                        <a href="View_event.php?id=<?php echo $row['id']; ?>" 
-                           class="btn btn-success btn-sm rounded-pill px-3">
-                            <i class="bi bi-eye me-1"></i> View
-                        </a>
-
-                        <!-- EDIT -->
-                        <a href="Edits_event.php?id=<?php echo $row['id']; ?>" 
-                           class="btn btn-warning btn-sm rounded-pill px-3">
-                            <i class="bi bi-pencil-square me-1"></i> Edit
-                        </a>
-
-                        <!-- DELETE -->
-                        <a href="Delete_event.php?id=<?php echo $row['id']; ?>" 
-                           class="btn btn-danger btn-sm rounded-pill px-3">
-                            <i class="bi bi-trash me-1"></i> Delete
-                        </a>
-
-                    </div>
-                </div>
+                <a href="Delete_event.php?id=<?php echo $row['id']; ?>" 
+                   onclick="return confirm('Delete this event?')" 
+                   class="btn-delete">
+                    Delete
+                </a>
 
             </div>
+
         </div>
 
-        <?php } ?>
-
     </div>
+
+</div>
+
+<?php endwhile; ?>
+
+</div>
 
 </div>
 

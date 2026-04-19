@@ -1,28 +1,27 @@
 <?php
-ob_start(); // ADD THIS LINE
+ob_start();
 include 'F_header.php';
 include '../database.php';
 
 mysqli_select_db($con, "SOAE_CLUB");
 
-// CHECK ID
+/* CHECK ID */
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: Manage_events.php"); // FIXED
+    header("Location: Manage_events.php");
     exit();
 }
 
-$id = intval($_GET['id']); // safer
+$id = intval($_GET['id']);
 
-// FETCH DATA
+/* FETCH EVENT */
 $result = mysqli_query($con, "SELECT * FROM events WHERE id='$id'");
-
 if (!$result || mysqli_num_rows($result) == 0) {
     die("Event Not Found");
 }
 
 $row = mysqli_fetch_assoc($result);
 
-// UPDATE LOGIC
+/* ================= UPDATE ================= */
 if (isset($_POST['update'])) {
 
     $name = mysqli_real_escape_string($con, $_POST['name']);
@@ -30,7 +29,17 @@ if (isset($_POST['update'])) {
     $date = $_POST['date'];
     $status = $_POST['status'];
 
-    // IMAGE UPDATE
+    /* 🔥 SAFE EVENT TYPE FIX (IMPORTANT) */
+    $event_type = $_POST['event_type'] ?? '';
+
+    // Normalize value to avoid DB error
+    if (strtolower($event_type) === 'paid') {
+        $event_type = 'Paid';
+    } else {
+        $event_type = 'Unpaid';
+    }
+
+    /* IMAGE */
     if (!empty($_FILES['image']['name'])) {
 
         $image = time() . "_" . basename($_FILES['image']['name']);
@@ -43,6 +52,7 @@ if (isset($_POST['update'])) {
                 description='$description',
                 date='$date',
                 status='$status',
+                event_type='$event_type',
                 image='$image'
                 WHERE id='$id'";
         } else {
@@ -55,24 +65,23 @@ if (isset($_POST['update'])) {
             name='$name',
             description='$description',
             date='$date',
-            status='$status'
+            status='$status',
+            event_type='$event_type'
             WHERE id='$id'";
     }
 
-    // EXECUTE UPDATE
     if (mysqli_query($con, $sql)) {
-
-        // 🔥 REDIRECT FIXED HERE
         header("Location: Manage_events.php");
         exit();
-
     } else {
         echo "Update Failed: " . mysqli_error($con);
     }
 }
 ?>
 
+<!-- ================= UI ================= -->
 <div class="container my-5">
+
     <div class="card shadow border-0 rounded-4 p-4">
 
         <h3 class="text-danger mb-4">Edit Event</h3>
@@ -105,6 +114,20 @@ if (isset($_POST['update'])) {
                 <option value="Closed" <?php if($row['status']=='Closed') echo 'selected'; ?>>Closed</option>
             </select>
 
+            <!-- 🔥 EVENT TYPE -->
+            <label class="fw-semibold">Event Type</label>
+            <select name="event_type" class="form-control mb-3">
+
+                <option value="Unpaid" <?php if(($row['event_type'] ?? '')=='Unpaid') echo 'selected'; ?>>
+                    Free Event
+                </option>
+
+                <option value="Paid" <?php if(($row['event_type'] ?? '')=='Paid') echo 'selected'; ?>>
+                    Paid Event
+                </option>
+
+            </select>
+
             <!-- IMAGE -->
             <label class="fw-semibold">Change Image</label>
             <input type="file" name="image" class="form-control mb-3">
@@ -116,13 +139,19 @@ if (isset($_POST['update'])) {
                      class="mb-3 rounded">
             <?php } ?>
 
-            <!-- BUTTON -->
-            <button type="submit" name="update" class="btn btn-warning px-4">Update</button>
-            <a href="Manage_events.php" class="btn btn-secondary">Cancel</a>
+            <!-- BUTTONS -->
+            <button type="submit" name="update" class="btn btn-warning px-4">
+                Update
+            </button>
+
+            <a href="Manage_events.php" class="btn btn-secondary">
+                Cancel
+            </a>
 
         </form>
 
     </div>
+
 </div>
 
 <?php include 'F_footer.php'; ?>
