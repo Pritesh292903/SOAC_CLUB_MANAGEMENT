@@ -9,11 +9,11 @@ if(!isset($_SESSION['user_id'])){
 
 $user_id = $_SESSION['user_id'];
 
-$name = $_POST['name'];
-$email = $_POST['email'];
-$phone = $_POST['phone'];
-$club_name = $_POST['club_name'];
-$message = $_POST['message'];
+$name = mysqli_real_escape_string($con, $_POST['name']);
+$email = mysqli_real_escape_string($con, $_POST['email']);
+$phone = mysqli_real_escape_string($con, $_POST['phone']);
+$club_name = mysqli_real_escape_string($con, $_POST['club_name']);
+$message = mysqli_real_escape_string($con, $_POST['message']);
 
 // INSERT QUERY
 $query = "INSERT INTO club_join (user_id, name, email, phone, club_name, message) 

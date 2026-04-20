@@ -12,8 +12,8 @@ $error="";
 
 if(isset($_POST['reset'])){
 
-    $pass=$_POST['password'];
-    $cpass=$_POST['cpassword'];
+    $pass = mysqli_real_escape_string($con, $_POST['password']);
+    $cpass = mysqli_real_escape_string($con, $_POST['cpassword']);
 
     if($pass==$cpass){
 

@@ -9,13 +9,13 @@ $success = false;
 
 if (isset($_POST['register'])) {
 
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $mobile = trim($_POST['mobile']);
-    $department = trim($_POST['department']);
-    $designation = trim($_POST['designation']);
-    $password = trim($_POST['password']);
-    $cpassword = trim($_POST['cpassword']);
+    $name = mysqli_real_escape_string($con, trim($_POST['name']));
+    $email = mysqli_real_escape_string($con, trim($_POST['email']));
+    $mobile = mysqli_real_escape_string($con, trim($_POST['mobile']));
+    $department = mysqli_real_escape_string($con, trim($_POST['department']));
+    $designation = mysqli_real_escape_string($con, trim($_POST['designation']));
+    $password = mysqli_real_escape_string($con, trim($_POST['password']));
+    $cpassword = mysqli_real_escape_string($con, trim($_POST['cpassword']));
 
     if ($password === $cpassword) {
 
@@ -44,11 +44,8 @@ if (isset($_POST['register'])) {
                 move_uploaded_file($tmpName, $targetFile);
             }
 
-            // PASSWORD HASH
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
             $query = "INSERT INTO $table(name,email,mobile,department,designation,password,image)
-                      VALUES('$name','$email','$mobile','$department','$designation','$hashedPassword','$imageName')";
+                      VALUES('$name','$email','$mobile','$department','$designation','$password','$imageName')";
 
             if (mysqli_query($con, $query)) {
                 $success = true;

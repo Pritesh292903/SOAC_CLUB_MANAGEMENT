@@ -5,15 +5,15 @@ $success = false;
 
 if (isset($_POST['submit'])) {
 
-    $fullname = $_POST['fullname'];
-    $email = $_POST['email'];
-    $department = $_POST['department'];
-    $enrollment = $_POST['enrollment'];
-    $mobile = $_POST['mobile'];
-    $password = $_POST['password'];
-    $cpassword = $_POST['cpassword'];
+    $fullname = mysqli_real_escape_string($con, $_POST['fullname']);
+    $email = mysqli_real_escape_string($con, $_POST['email']);
+    $department = mysqli_real_escape_string($con, $_POST['department']);
+    $enrollment = mysqli_real_escape_string($con, $_POST['enrollment']);
+    $mobile = mysqli_real_escape_string($con, $_POST['mobile']);
+    $password = mysqli_real_escape_string($con, $_POST['password']);
+    $cpassword = mysqli_real_escape_string($con, $_POST['cpassword']);
 
-    $filename = $_FILES['clubimage']['name'];
+    $filename = uniqid() . '_' . basename($_FILES['clubimage']['name']);
     $tempname = $_FILES['clubimage']['tmp_name'];
     $folder = "../uploads/" . $filename;
 

@@ -24,8 +24,8 @@ if(isset($_POST['change_password']))
 {
     $user_id = $_SESSION['user_id'];
 
-    $currentPassword = $_POST['currentPassword'];
-    $newPassword     = $_POST['newPassword'];
+    $currentPassword = mysqli_real_escape_string($con, $_POST['currentPassword']);
+    $newPassword     = mysqli_real_escape_string($con, $_POST['newPassword']);
 
     // FETCH USER DATA
     $query = mysqli_query($con, "SELECT * FROM user WHERE id='$user_id'");
@@ -36,11 +36,8 @@ if(isset($_POST['change_password']))
     // CHECK PASSWORD (PLAIN + HASH BOTH)
     if($currentPassword === $dbPassword || password_verify($currentPassword, $dbPassword))
     {
-        // HASH NEW PASSWORD
-        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
-        // UPDATE PASSWORD
-        $update = mysqli_query($con, "UPDATE user SET password='$hashedPassword' WHERE id='$user_id'");
+        // UPDATE PASSWORD (Plain text as requested)
+        $update = mysqli_query($con, "UPDATE user SET password='$newPassword' WHERE id='$user_id'");
 
         if($update){
             echo "<script>
@@ -51,7 +48,7 @@ if(isset($_POST['change_password']))
                         icon: 'success',
                         confirmButtonColor: '#d90429'
                     }).then(() => {
-                        window.location.href = 'index.php'; // ✅ REDIRECT
+                        window.location.href = 'login_view.php';
                     });
                 });
             </script>";

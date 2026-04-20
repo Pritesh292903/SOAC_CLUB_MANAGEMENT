@@ -7,7 +7,8 @@ include "../database.php";
 
 // CHECK SESSION
 if (!isset($_SESSION['user_id'])) {
-    die("User not logged in");
+    header("Location: ../Studentapp/login_view.php");
+    exit();
 }
 
 // GET USER

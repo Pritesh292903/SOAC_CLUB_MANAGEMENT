@@ -3,7 +3,13 @@ session_start();
 include 'header.php';
 include '../database.php';
 
-$user_id = $_SESSION['user_id'] ?? 0;
+// LOGIN CHECK
+if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] == 0) {
+    header("Location: login_view.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
 
 // SESSION FOR HIDDEN
 if(!isset($_SESSION['hidden_notifications'])){
