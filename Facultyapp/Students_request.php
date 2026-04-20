@@ -20,11 +20,11 @@ function safe($value, $default = 'N/A'){
 
     <?php
     $requests = mysqli_query($con, "
-        SELECT r.*, u.fullname, u.email, u.mobile, c.clubname AS club_name
+        SELECT r.*, u.fullname, u.email, u.mobile, u.enrollment, u.department, c.clubname AS club_name
         FROM club_join_requests r
         JOIN user u ON r.user_id = u.id
         LEFT JOIN clubs c ON r.club_id = c.id
-        WHERE r.status='pending'
+        WHERE r.status='pending' AND c.faculty_id='$user_id'
         ORDER BY r.created_at DESC
     ");
 
@@ -36,7 +36,7 @@ function safe($value, $default = 'N/A'){
         <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
 
             <div>
-                <h6 class="fw-bold"><?= safe($req['fullname']) ?></h6>
+                <h6 class="fw-bold"><?= safe($req['fullname']) ?> <small class="text-muted">(<?= safe($req['enrollment'], 'No Enrollment') ?>)</small></h6>
 
                 <small class="text-muted">
                     <?= !empty($req['created_at']) ? date("d M Y, h:i A", strtotime($req['created_at'])) : '' ?>
@@ -49,6 +49,7 @@ function safe($value, $default = 'N/A'){
 
                 <div>
                     <small>
+                        Dept: <?= safe($req['department'], 'N/A') ?> | 
                         Email: <?= safe($req['email']) ?> | 
                         Phone: <?= safe($req['mobile']) ?>
                     </small>
@@ -86,7 +87,7 @@ function safe($value, $default = 'N/A'){
 
     <?php
     $event_requests = mysqli_query($con, "
-        SELECT r.*, u.fullname, u.email, u.mobile, e.name AS event_name
+        SELECT r.*, u.fullname, u.email, u.mobile, u.enrollment, u.department, e.name AS event_name
         FROM event_join_requests r
         JOIN user u ON r.user_id = u.id
         LEFT JOIN events e ON r.event_id = e.id
@@ -102,7 +103,7 @@ function safe($value, $default = 'N/A'){
         <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
 
             <div>
-                <h6 class="fw-bold"><?= safe($req['fullname']) ?></h6>
+                <h6 class="fw-bold"><?= safe($req['fullname']) ?> <small class="text-muted">(<?= safe($req['enrollment'], 'No Enrollment') ?>)</small></h6>
 
                 <small class="text-muted">
                     <?= !empty($req['created_at']) ? date("d M Y, h:i A", strtotime($req['created_at'])) : '' ?>
@@ -114,6 +115,7 @@ function safe($value, $default = 'N/A'){
 
                 <div>
                     <small>
+                        Dept: <?= safe($req['department'], 'N/A') ?> | 
                         Email: <?= safe($req['email']) ?> | 
                         Phone: <?= safe($req['mobile']) ?>
                     </small>

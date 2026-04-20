@@ -3,8 +3,26 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-include 'header.php';
 include "../database.php";
+
+// ================= PAYMENT SUCCESS AJAX HANDLER =================
+if(isset($_POST['payment_id']) && isset($_POST['event_id'])){
+    $user_id = $_SESSION['user_id'] ?? 0;
+    $event_id = intval($_POST['event_id']);
+    $payment_id = mysqli_real_escape_string($con, $_POST['payment_id']);
+
+    if($user_id && $event_id && $payment_id){
+        $check = mysqli_query($con, "SELECT * FROM event_join_requests WHERE user_id='$user_id' AND event_id='$event_id'");
+        if(mysqli_num_rows($check) > 0){
+            mysqli_query($con, "UPDATE event_join_requests SET status='pending', payment_id='$payment_id' WHERE user_id='$user_id' AND event_id='$event_id'");
+        } else {
+            mysqli_query($con, "INSERT INTO event_join_requests (user_id, event_id, status, payment_id) VALUES ('$user_id','$event_id','pending','$payment_id')");
+        }
+    }
+    exit(); // Stop execution so AJAX only gets processing, not HTML
+}
+
+include 'header.php';
 
 // ================= JOIN INSERT =================
 if(isset($_POST['join_event']))
@@ -207,7 +225,8 @@ body{
                 <?php else: ?>
                     <button class="btn btn-danger join-btn"
                         data-id="<?php echo $event['id']; ?>"
-                        data-name="<?php echo $event['name']; ?>">
+                        data-name="<?php echo $event['name']; ?>"
+                        data-type="<?php echo $type; ?>">
                         Join Event
                     </button>
                 <?php endif; ?>
@@ -231,24 +250,68 @@ body{
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 $(".join-btn").click(function(e){
     e.preventDefault();
 
+    let user_id = <?php echo $user_id; ?>;
+    if (user_id === 0) {
+        alert('Please login first!');
+        window.location.href = 'login_view.php';
+        return;
+    }
+
     let id = $(this).data("id");
     let name = $(this).data("name");
+    let type = $(this).data("type");
+    let amount = 500; // default amount
 
-    Swal.fire({
-        title: "Join " + name + "?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Yes"
-    }).then((res)=>{
-        if(res.isConfirmed){
-            $("#event_id").val(id);
-            $("#joinForm").submit();
-        }
-    });
+    if (type !== "Paid") {
+        Swal.fire({
+            title: "Join " + name + "?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes"
+        }).then((res)=>{
+            if(res.isConfirmed){
+                $("#event_id").val(id);
+                $("#joinForm").submit();
+            }
+        });
+    } else {
+        let options = {
+            "key": "rzp_test_SfdQKUUAVf86gW",
+            "amount": amount * 100,
+            "currency": "INR",
+            "name": name,
+            "description": "Event Registration",
+
+            "handler": function (response) {
+                $.ajax({
+                    url: "",
+                    type: "POST",
+                    data: {
+                        event_id: id,
+                        payment_id: response.razorpay_payment_id
+                    },
+                    success: function () {
+                        Swal.fire("Success", "Payment Done & Request Sent!", "success")
+                            .then(() => location.reload());
+                    },
+                    error: function () {
+                        Swal.fire("Error", "Payment done but request failed", "error");
+                    }
+                });
+            },
+            "theme": {
+                "color": "#dc3545"
+            }
+        };
+
+        let rzp = new Razorpay(options);
+        rzp.open();
+    }
 });
 </script>
 

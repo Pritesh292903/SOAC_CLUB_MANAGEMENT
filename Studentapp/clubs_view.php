@@ -3,8 +3,26 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-include 'header.php';
 include '../database.php';
+
+// ================= PAYMENT SUCCESS AJAX HANDLER =================
+if(isset($_POST['payment_id']) && isset($_POST['club_id'])){
+    $user_id = $_SESSION['user_id'] ?? 0;
+    $club_id = intval($_POST['club_id']);
+    $payment_id = mysqli_real_escape_string($con, $_POST['payment_id']);
+
+    if($user_id && $club_id && $payment_id){
+        $check = mysqli_query($con, "SELECT * FROM club_join_requests WHERE user_id='$user_id' AND club_id='$club_id'");
+        if(mysqli_num_rows($check) > 0){
+            mysqli_query($con, "UPDATE club_join_requests SET status='pending', payment_id='$payment_id' WHERE user_id='$user_id' AND club_id='$club_id'");
+        } else {
+            mysqli_query($con, "INSERT INTO club_join_requests (user_id, club_id, status, payment_id) VALUES ('$user_id','$club_id','pending','$payment_id')");
+        }
+    }
+    exit();
+}
+
+include 'header.php';
 
 $user_id = $_SESSION['user_id'] ?? 0;
 
@@ -205,6 +223,13 @@ $clubs_result = mysqli_query($con, "SELECT * FROM clubs WHERE status='Active' OR
     <script>
         $(".join-btn").click(function () {
 
+            let user_id = <?php echo $user_id; ?>;
+            if (user_id === 0) {
+                alert('Please login first!');
+                window.location.href = 'login_view.php';
+                return;
+            }
+
             let id = $(this).data("id");
             let name = $(this).data("name");
             let type = $(this).data("type");
@@ -240,7 +265,7 @@ $clubs_result = mysqli_query($con, "SELECT * FROM clubs WHERE status='Active' OR
                     "handler": function (response) {
 
                         $.ajax({
-                            url: "club_payment_success.php",
+                            url: "",
                             type: "POST",
                             data: {
                                 club_id: id,
