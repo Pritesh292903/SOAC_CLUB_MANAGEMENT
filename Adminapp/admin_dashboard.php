@@ -1,233 +1,247 @@
 <?php
 include 'admin_header.php';
-include '../database.php'; // Your database connection and tables
+include '../database.php';
 ?>
 
 <style>
-    /* ===== Page Animation ===== */
-    .content {
-        animation: fadeIn 0.8s ease-in-out;
-    }
+body {
+    background: linear-gradient(135deg, #fff, #ffe5e5);
+    font-family: 'Segoe UI', sans-serif;
+    overflow-x: hidden;
+}
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
+/* BACKGROUND GLOW */
+body::before, body::after {
+    content: '';
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    background: rgba(220,53,69,0.15);
+    border-radius: 50%;
+    filter: blur(100px);
+    z-index: 0;
+}
+body::before {
+    top: -50px;
+    left: -50px;
+}
+body::after {
+    bottom: -50px;
+    right: -50px;
+}
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+/* CONTENT */
+.content {
+    position: relative;
+    z-index: 1;
+    animation: fadeIn 0.8s ease;
+}
+@keyframes fadeIn {
+    from {opacity:0;}
+    to {opacity:1;}
+}
 
-    /* ===== Stat Cards ===== */
-    .stat-card {
-        transition: all 0.4s ease;
-        position: relative;
-        overflow: hidden;
-        background: #fff;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        padding: 25px;
-        text-align: center;
-    }
+/* HEADER */
+.dashboard-header {
+    background: linear-gradient(135deg, #ff4b2b, #dc3545);
+    color: white;
+    padding: 22px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    animation: slideDown 0.6s ease;
+}
+@keyframes slideDown {
+    from {transform:translateY(-20px); opacity:0;}
+    to {transform:translateY(0); opacity:1;}
+}
 
-    .stat-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 35px rgba(0, 0, 0, 0.08);
-    }
+/* KPI CARD */
+.kpi-card {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 25px;
+    text-align: center;
+    transition: 0.4s;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    animation: fadeUp 0.6s ease forwards;
+}
+.kpi-card:nth-child(1){animation-delay:0.1s;}
+.kpi-card:nth-child(2){animation-delay:0.2s;}
+.kpi-card:nth-child(3){animation-delay:0.3s;}
+.kpi-card:nth-child(4){animation-delay:0.4s;}
 
-    /* Gradient Top Border */
-    .stat-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(to right, #dc3545, #ff6b6b);
-    }
+@keyframes fadeUp {
+    from {opacity:0; transform:translateY(40px);}
+    to {opacity:1; transform:translateY(0);}
+}
 
-    /* Icon Style */
-    .stat-card i {
-        transition: transform 0.4s ease;
-        font-size: 2.5rem;
-        color: #dc3545;
-        margin-bottom: 10px;
-    }
+/* SHINE EFFECT */
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+    transform: rotate(25deg);
+    transition: 0.5s;
+}
+.kpi-card:hover::before {
+    top: 100%;
+    left: 100%;
+}
 
-    .stat-card:hover i {
-        transform: scale(1.2);
-    }
+/* HOVER TILT */
+.kpi-card:hover {
+    transform: rotateX(5deg) rotateY(5deg) scale(1.05);
+}
 
-    /* Card Fade Animation */
-    .card {
-        animation: fadeUp 1s ease;
-        background: #fff;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        transition: 0.3s;
-    }
+/* TEXT */
+.kpi-title {
+    font-size: 14px;
+    color: #666;
+}
+.kpi-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #dc3545;
+}
 
-    .card:hover {
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-    }
+/* SUMMARY */
+.summary-box {
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    margin-top: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    animation: fadeUp 0.8s ease;
+}
 
-    @keyframes fadeUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+    transition: 0.3s;
+}
+.summary-item:last-child {
+    border-bottom: none;
+}
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+.summary-item:hover {
+    color: #dc3545;
+    transform: translateX(8px);
+}
 
-    /* Table Styling */
-    .table tbody tr {
-        transition: all 0.3s ease;
-    }
-
-    .table tbody tr:hover {
-        background-color: #f8f9fa;
-        transform: scale(1.01);
-    }
-
-    /* Header Title */
-    .content h4,
-    .content h5 {
-        color: #dc3545;
-    }
-
-    /* Buttons */
-    .btn-danger {
-        border-radius: 50px;
-    }
-
-    /* Badges */
-    .badge-success {
-        background-color: #28a745 !important;
-    }
-
-    .badge-warning {
-        background-color: #ffc107 !important;
-        color: #212529 !important;
-    }
-
-    .badge-danger {
-        background-color: #6c757d !important;
-    }
-
-    /* Responsive */
-    @media (max-width:767px) {
-        .stat-card {
-            margin-bottom: 20px;
-        }
-    }
 </style>
 
 <div class="content">
 
-    <!-- Page Title -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h4 class="fw-bold">Dashboard Overview</h4>
-        <span class="text-muted">Welcome back, Admin 👋</span>
+<div class="dashboard-header d-flex justify-content-between">
+    <div>
+        <h5>Admin Dashboard</h5>
+        <small>Smart Overview Panel</small>
     </div>
+    <div><?= date('d M Y') ?></div>
+</div>
 
-    <!-- Fetch dynamic counts -->
-    <?php
-    // Total Events
-    $totalEvents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events"));
+<?php
+$totalEvents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM events"));
+$totalClubs = mysqli_num_rows(mysqli_query($con, "SELECT id FROM clubs"));
+$totalStudents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM User WHERE role='user'"));
+$totalFaculties = mysqli_num_rows(mysqli_query($con, "SELECT id FROM Faculty_register"));
+?>
 
-    // Total Clubs
-    $totalClubs = mysqli_num_rows(mysqli_query($con, "SELECT id FROM clubs"));
+<!-- KPI -->
+<div class="row text-center">
 
-    // Total Students
-    $totalStudents = mysqli_num_rows(mysqli_query($con, "SELECT id FROM User WHERE role='user'"));
-
-    // Total Faculties
-    $totalFaculties = mysqli_num_rows(mysqli_query($con, "SELECT id FROM Faculty_register"));
-    ?>
-
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-4">
-
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-            <div class="stat-card">
-                <i class="bi bi-calendar-event"></i>
-                <h3 class="fw-bold"><?= $totalEvents ?></h3>
-                <p class="text-muted mb-0">Total Events</p>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-            <div class="stat-card">
-                <i class="bi bi-people"></i>
-                <h3 class="fw-bold"><?= $totalClubs ?></h3>
-                <p class="text-muted mb-0">Total Clubs</p>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-            <div class="stat-card">
-                <i class="bi bi-mortarboard"></i>
-                <h3 class="fw-bold"><?= $totalStudents ?></h3>
-                <p class="text-muted mb-0">Total Students</p>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-            <div class="stat-card">
-                <i class="bi bi-person-badge"></i>
-                <h3 class="fw-bold"><?= $totalFaculties ?></h3>
-                <p class="text-muted mb-0">Total Faculties</p>
-            </div>
-        </div>
-
+<div class="col-md-3">
+    <div class="kpi-card">
+        <div class="kpi-title">Events</div>
+        <div class="kpi-value counter" data-target="<?= $totalEvents ?>">0</div>
     </div>
+</div>
 
-    <!-- Recent Events Table -->
-    <div class="card p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <h5 class="fw-bold mb-0">Recent Events</h5>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Event Name</th>
-                        <th>Club</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $eventsRes = mysqli_query($con, "SELECT e.*, c.clubname FROM events e LEFT JOIN clubs c ON c.id=e.id ORDER BY e.id DESC LIMIT 5");
-                    if (mysqli_num_rows($eventsRes) > 0) {
-                        while ($row = mysqli_fetch_assoc($eventsRes)) {
-                            $statusClass = ($row['status'] == 'Active') ? 'badge-success' : (($row['status'] == 'Upcoming') ? 'badge-warning' : 'badge-danger');
-                            echo "<tr>
-                                    <td>{$row['name']}</td>
-                                    <td>" . ($row['clubname'] ?? 'N/A') . "</td>
-                                    <td>" . date('d M Y', strtotime($row['date'])) . "</td>
-                                    <td><span class='{$statusClass}'>{$row['status']}</span></td>
-                                  </tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='4' class='text-center'>No events found</td></tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-        </div>
-
+<div class="col-md-3">
+    <div class="kpi-card">
+        <div class="kpi-title">Clubs</div>
+        <div class="kpi-value counter" data-target="<?= $totalClubs ?>">0</div>
     </div>
+</div>
+
+<div class="col-md-3">
+    <div class="kpi-card">
+        <div class="kpi-title">Students</div>
+        <div class="kpi-value counter" data-target="<?= $totalStudents ?>">0</div>
+    </div>
+</div>
+
+<div class="col-md-3">
+    <div class="kpi-card">
+        <div class="kpi-title">Faculties</div>
+        <div class="kpi-value counter" data-target="<?= $totalFaculties ?>">0</div>
+    </div>
+</div>
 
 </div>
+
+<!-- SUMMARY -->
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="summary-box">
+            <h6 class="mb-3">System Summary</h6>
+
+            <div class="summary-item">
+                <span>Total Events</span>
+                <strong><?= $totalEvents ?></strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Total Clubs</span>
+                <strong><?= $totalClubs ?></strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Total Students</span>
+                <strong><?= $totalStudents ?></strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Total Faculties</span>
+                <strong><?= $totalFaculties ?></strong>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- 🔥 COUNTER SCRIPT -->
+<script>
+const counters = document.querySelectorAll('.counter');
+
+counters.forEach(counter => {
+    const update = () => {
+        const target = +counter.getAttribute('data-target');
+        const count = +counter.innerText;
+
+        const increment = target / 50;
+
+        if(count < target){
+            counter.innerText = Math.ceil(count + increment);
+            setTimeout(update, 30);
+        } else {
+            counter.innerText = target;
+        }
+    };
+    update();
+});
+</script>
 
 <?php include 'admin_footer.php'; ?>
