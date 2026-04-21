@@ -1,37 +1,33 @@
 <?php
 include '../database.php';
-mysqli_select_db($con, "SOAE_CLUB");
 
-if(!isset($_POST['action'], $_POST['id'], $_POST['type'])){
-    exit('Invalid request');
+if(isset($_POST['action'])){
+
+$action=$_POST['action'];
+
+/* DELETE ALL */
+if($action=='delete_all'){
+mysqli_query($con,"DELETE FROM club_join_requests");
+mysqli_query($con,"DELETE FROM event_join_requests");
+echo "All requests deleted";
+exit;
 }
 
-$action = $_POST['action']; // approve or reject
-$id = intval($_POST['id']);
-$type = $_POST['type'];
+/* SINGLE */
+$id=intval($_POST['id']);
+$type=$_POST['type'];
 
-// Determine table
-if($type === 'club'){
-    $table = 'club_join_requests';
-} elseif($type === 'event'){
-    $table = 'event_join_requests';
-} else {
-    exit('Invalid type');
+if($action=='delete'){
+$table=($type=='club')?'club_join_requests':'event_join_requests';
+mysqli_query($con,"DELETE FROM $table WHERE id='$id'");
+echo "Deleted";
+exit;
 }
 
-// Determine new status
-if($action === 'approve'){
-    $status = 'approved';
-} elseif($action === 'reject'){
-    $status = 'rejected';
-} else {
-    exit('Invalid action');
-}
+$status=($action=='approve')?'approved':'rejected';
+$table=($type=='club')?'club_join_requests':'event_join_requests';
 
-// Update status
-$sql = "UPDATE `$table` SET status='$status' WHERE id='$id' LIMIT 1";
-if(mysqli_query($con, $sql)){
-    echo ucfirst($action) . "d successfully!";
-} else {
-    echo "Error: " . mysqli_error($con);
+mysqli_query($con,"UPDATE $table SET status='$status' WHERE id='$id'");
+echo "Updated";
 }
+?>
