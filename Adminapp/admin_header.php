@@ -242,11 +242,12 @@ if (!$user) {
         <a href="admin_dashboard.php"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
         <a href="all_events_page.php"><i class="bi bi-calendar-event me-2"></i> All Events</a>
         <a href="all_clubes_page.php"><i class="bi bi-people me-2"></i> All Clubs</a>
-        <a href="all_users_page.php"><i class="bi bi-person-lines-fill me-2"></i> All Users</a>
         <a href="contactus_page.php"><i class="bi bi-person-lines-fill me-2"></i> Contact us.</a>
         <a href="faculty_register.php"><i class="bi bi-person-plus-fill me-2"></i> Register Faculty</a>
         <a href="slider_image_page.php"><i class="bi bi-images me-2"></i> Slider Images</a>
         <a href="allrequest.php"><i class="bi bi-images me-2"></i> All request</a>
+        <a href="all_users_page.php"><i class="bi bi-person-lines-fill me-2"></i> All Users</a>
+
         <a href="setting_page.php"><i class="bi bi-gear me-2"></i> Settings</a>
         <a href="Admin_logout.php" class="text-danger"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
 
@@ -267,7 +268,7 @@ if (!$user) {
 
         <div class="d-flex align-items-center gap-3">
 
-           
+
 
 
 
@@ -281,9 +282,9 @@ if (!$user) {
                 <div class="d-flex align-items-center gap-2 cursor-pointer">
                     <a href="admin_profile.php">
                         <img src="<?php echo !empty($user['clubimage'])
-                                        ? '../uploads/' . $user['clubimage']
-                                        : 'assets/clubimage/profile.png'; ?>" class="rounded-circle" width="35" height="35"
-                            style="object-fit: cover;" alt="Admin Avatar">
+                            ? '../uploads/' . $user['clubimage']
+                            : 'assets/clubimage/profile.png'; ?>" class="rounded-circle" width="35"
+                            height="35" style="object-fit: cover;" alt="Admin Avatar">
                     </a>
                     <span class="d-none d-md-inline">
                         <?php echo $user['fullname']; ?>
@@ -300,12 +301,12 @@ if (!$user) {
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
 
-        menuBtn.addEventListener("click", function() {
+        menuBtn.addEventListener("click", function () {
             sidebar.classList.toggle("active");
             overlay.classList.toggle("show");
         });
 
-        overlay.addEventListener("click", function() {
+        overlay.addEventListener("click", function () {
             sidebar.classList.remove("active");
             overlay.classList.remove("show");
         });
