@@ -56,7 +56,6 @@ box-shadow:0 4px 12px rgba(0,0,0,0.05);
 #searchInput{ border-radius:30px; padding:10px 15px; }
 #statusFilter{ border-radius:30px; }
 
-/* RED DELETE BUTTON */
 #deleteAllBtn{
 background:#dc3545;
 color:#fff;
@@ -108,7 +107,6 @@ color:#000 !important;
 
 <h4 class="page-title">All Student Requests</h4>
 
-<!-- TOP BAR -->
 <div class="top-bar d-flex justify-content-between flex-wrap gap-2 mb-3">
 
 <input type="text" id="searchInput" class="form-control w-50" placeholder="Search by name or club/event...">
@@ -135,6 +133,7 @@ color:#000 !important;
 <th>Type</th>
 <th>Status</th>
 <th>Paid</th>
+<th>Payment Status</th>
 <th>Action</th>
 </tr>
 </thead>
@@ -168,6 +167,12 @@ echo "<tr data-status='$status' data-name='$name' data-title='$title'>
 <td>";
 echo ($row['club_paid']=="Paid")
 ? "<span class='badge bg-success'>Paid</span>"
+: "<span class='badge bg-warning text-dark'>Unpaid</span>";
+echo "</td>
+
+<td>";
+echo ($row['club_paid']=="Paid")
+? "<span class='badge bg-success'>Completed</span>"
 : "<span class='badge bg-warning text-dark'>Unpaid</span>";
 echo "</td>
 
@@ -214,6 +219,12 @@ echo ($row['event_type']=="Paid")
 echo "</td>
 
 <td>";
+echo ($row['event_type']=="Paid")
+? "<span class='badge bg-success'>Completed</span>"
+: "<span class='badge bg-warning text-dark'>Unpaid</span>";
+echo "</td>
+
+<td>";
 
 if($status=="pending"){
 echo "
@@ -236,7 +247,7 @@ echo "</td></tr>";
 </div>
 
 <script>
-// APPROVE / REJECT
+// SAME JS (UNCHANGED)
 document.querySelectorAll('.action-btn').forEach(btn=>{
 btn.onclick=()=>{
 fetch('handle_request.php',{
@@ -249,7 +260,6 @@ body:`id=${btn.dataset.id}&type=${btn.dataset.type}&action=${btn.dataset.action}
 };
 });
 
-// DELETE SINGLE
 document.querySelectorAll('.delete-btn').forEach(btn=>{
 btn.onclick=()=>{
 if(!confirm("Delete this request?")) return;
@@ -263,27 +273,15 @@ body:`id=${btn.dataset.id}&type=${btn.dataset.type}&action=delete`
 };
 });
 
-// 🔥 SMART SEARCH
 document.getElementById("searchInput").addEventListener("keyup", function(){
-
 let value = this.value.toLowerCase().trim();
-
 document.querySelectorAll("tbody tr").forEach(row=>{
-
 let name = row.dataset.name;
 let title = row.dataset.title;
-
-if(name.includes(value) || title.includes(value)){
-row.style.display="";
-}else{
-row.style.display="none";
-}
-
+row.style.display = (name.includes(value) || title.includes(value)) ? "" : "none";
+});
 });
 
-});
-
-// FILTER
 document.getElementById("statusFilter").onchange=function(){
 let v=this.value;
 document.querySelectorAll("tbody tr").forEach(r=>{
@@ -291,7 +289,6 @@ r.style.display=(v=="all"||r.dataset.status==v)?"":"none";
 });
 };
 
-// DELETE ALL
 document.getElementById("deleteAllBtn").onclick=()=>{
 if(!confirm("Delete ALL requests?")) return;
 fetch('handle_request.php',{
