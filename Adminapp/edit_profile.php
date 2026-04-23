@@ -40,6 +40,19 @@ $user = mysqli_fetch_assoc($result);
     color: #999;
     margin-bottom: 10px;
 }
+
+/* ✅ ADDED VALIDATION STYLE ONLY */
+.error-box {
+    background: #dc3545;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-top: 5px;
+    font-size: 13px;
+}
+.input-error {
+    border: 2px solid #dc3545 !important;
+}
 </style>
 
 <div class="content d-flex justify-content-center align-items-center" style="min-height:90vh;">
@@ -57,7 +70,6 @@ $user = mysqli_fetch_assoc($result);
                     class="profile-img mb-3"
                 >
 
-                <!-- LABEL BELOW IMAGE -->
                 <label class="fw-semibold mb-1 d-block">Choose Profile Photo</label>
 
                 <input type="file" class="form-control" name="profilePhoto" id="profilePhoto" accept="image/*">
@@ -98,7 +110,7 @@ $user = mysqli_fetch_assoc($result);
 <script>
 $(document).ready(function () {
 
-    // IMAGE PREVIEW
+    // IMAGE PREVIEW (same)
     $('#profilePhoto').change(function () {
         const file = this.files[0];
         if (file) {
@@ -110,12 +122,12 @@ $(document).ready(function () {
         }
     });
 
-    // PHONE VALIDATION
+    // PHONE VALIDATION (same)
     $.validator.addMethod("phoneValidation", function (value) {
         return /^[0-9+\-\s]{10,15}$/.test(value);
     });
 
-    // FORM VALIDATION
+    // ✅ ONLY VALIDATION UI ADDED
     $("#editProfileForm").validate({
         ignore: "#profilePhoto",
 
@@ -123,6 +135,36 @@ $(document).ready(function () {
             fullname: { required: true, minlength: 3 },
             email: { required: true, email: true },
             phone: { required: true, phoneValidation: true }
+        },
+
+        messages: {
+            fullname: {
+                required: "Full Name is required",
+                minlength: "Minimum 3 characters required"
+            },
+            email: {
+                required: "Email is required",
+                email: "Enter valid email"
+            },
+            phone: {
+                required: "Mobile number is required",
+                phoneValidation: "Enter valid mobile number"
+            }
+        },
+
+        errorElement: "div",
+
+        errorPlacement: function (error, element) {
+            error.addClass("error-box");
+            error.insertAfter(element);
+        },
+
+        highlight: function (element) {
+            $(element).addClass("input-error");
+        },
+
+        unhighlight: function (element) {
+            $(element).removeClass("input-error");
         }
     });
 
